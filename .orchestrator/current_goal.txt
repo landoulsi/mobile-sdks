@@ -1,1 +1,0 @@
-Add a design token layer and payment-oriented Material 3 theme replacing template purple palette

@@ -1,3 +1,0 @@
-[2m🔧 run_command: git status[0m
-[2m🔧 run_command: git diff HEAD -- mobile/app/src/main/java/com/landoulsi/payment/ui/theme/ mobile/shared/src/commonTe…[0m
-

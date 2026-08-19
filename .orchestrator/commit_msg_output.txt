@@ -1,3 +1,0 @@
-feat: Integrate Google Pay wallet flow
-
-Adds GooglePayProvider to CheckoutViewModel and demo MainActivity.

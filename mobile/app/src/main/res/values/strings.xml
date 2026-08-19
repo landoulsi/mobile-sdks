@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">payment-sdk</string>
+    <string name="app_name">Payment SDK Demo</string>
 
     <!-- Google Pay Button Localized Strings -->
     <string name="gpay_buy_with">Buy with</string>
@@ -10,4 +10,24 @@
     <string name="gpay_brand_name">Google Pay</string>
     <string name="gpay_content_description_plain">Google Pay</string>
     <string name="gpay_content_description_with_prefix">%1$s Google Pay</string>
+
+    <!-- Demo Checkout Strings -->
+    <string name="demo_checkout_title">Demo Checkout</string>
+    <string name="demo_order_title">Pro Developer License</string>
+    <string name="demo_order_description">1-year unlimited access to all SDK APIs and mobile wallet integrations.</string>
+    <string name="demo_merchant_name">Payment SDK Demo Store</string>
+    <string name="demo_or_pay_with_card">OR PAY WITH CARD</string>
+    <string name="demo_pay_with_card">Pay with Card</string>
+    <string name="demo_checking_wallets">Checking Google Pay availability…</string>
+    <string name="demo_gpay_unavailable">Google Pay is unavailable on this device.</string>
+    <string name="demo_payment_processing">Authorizing Google Pay transaction…</string>
+    <string name="demo_payment_success">Payment Successful!</string>
+    <string name="demo_payment_failed">Payment Failed</string>
+    <string name="demo_payment_canceled">Payment Canceled</string>
+    <string name="demo_try_again">Try Again</string>
+    <string name="demo_reset_checkout">Reset Demo</string>
+    <string name="demo_transaction_id">Transaction ID</string>
+    <string name="demo_payment_method">Payment Method</string>
+    <string name="demo_card_details">Card</string>
+    <string name="demo_token">Payment Token</string>
 </resources>

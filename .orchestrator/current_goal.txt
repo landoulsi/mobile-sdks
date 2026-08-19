@@ -1,1 +1,1 @@
-Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component
+Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity

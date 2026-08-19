@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:03:14.190Z" hostname="M1-Pro-1000.local" time="0.006">
+<testsuite name="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:26:42.685Z" hostname="M1-Pro-1000.local" time="0.003">
   <properties/>
   <testcase name="testCardNetworkFromNameHyphenated" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testPaymentRequestDefaultValues" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testPaymentRequestDefaultValues" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGooglePayBillingAddressParametersDefaults" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testMoneyFormattingAndParsing" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testMoneyFormattingAndParsing" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
   <testcase name="testMoneyZero" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testGatewayTokenizationWithMerchantId" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testGatewayTokenizationWithMerchantId" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testMoneyFromMajorUnitsZero" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testPaymentResultStates" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testCardNetworkParsing" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testMoneyArithmeticAndComparison" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
   <testcase name="testPaymentMethodTypeIdentifiers" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testGooglePayConfigDefaultsAndPaymentRequest" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testGooglePayConfigDefaultsAndPaymentRequest" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testCardNetworkFromNameWithSpaces" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testCurrencyFromCode" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testPaymentProviderContract" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testPaymentProviderContract" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGooglePayConfigTokenizationSpecifications" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGatewayBraintreeTokenization" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testGooglePayShippingAddressParametersDefaults" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testGooglePayShippingAddressParametersDefaults" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGooglePayConfigFullCustomization" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGatewayTokenizationEmptyMerchantIdExcluded" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

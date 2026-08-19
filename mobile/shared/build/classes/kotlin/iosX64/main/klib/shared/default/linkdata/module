@@ -1,2 +1,2 @@
 
-<payment-sdk:shared>:com.landoulsi.payment.shared:"com.landoulsi.payment.shared.model:%com.landoulsi.payment.shared.provider
+<payment-sdk:shared>:com.landoulsi.payment.shared:%com.landoulsi.payment.shared.checkout:"com.landoulsi.payment.shared.model:%com.landoulsi.payment.shared.provider

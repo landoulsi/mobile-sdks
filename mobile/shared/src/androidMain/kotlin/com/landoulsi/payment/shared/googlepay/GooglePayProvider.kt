@@ -42,6 +42,21 @@ class GooglePayProvider(
     }
 
     /**
+     * Creates a [GooglePayPaymentTaskInput] for launching Google Pay via
+     * [GooglePayPaymentTaskContract] in Activity / Compose result launchers.
+     */
+    fun createPaymentTaskInput(request: PaymentRequest): GooglePayPaymentTaskInput {
+        val effectiveConfig = request.googlePayConfig ?: config
+        val effectiveRequest = if (request.googlePayConfig == null) {
+            request.copy(googlePayConfig = effectiveConfig)
+        } else {
+            request
+        }
+        val task = client.paymentsClient.loadPaymentData(client.createPaymentDataRequest(effectiveRequest))
+        return GooglePayPaymentTaskInput(task = task, transactionId = request.id)
+    }
+
+    /**
      * Executes the Google Pay payment flow for the given [request].
      *
      * @param request Payment details including amount, currency, and optional request-level GooglePayConfig override.

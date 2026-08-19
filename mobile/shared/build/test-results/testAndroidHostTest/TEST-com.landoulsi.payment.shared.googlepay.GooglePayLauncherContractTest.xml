@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:03:14.038Z" hostname="M1-Pro-1000.local" time="0.045">
+<testsuite name="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:26:42.671Z" hostname="M1-Pro-1000.local" time="0.012">
   <properties/>
-  <testcase name="testIntentContractClientDelegatesAllResultCodes" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.018"/>
-  <testcase name="testIntentContractClientWithUnknownResultCode" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.001"/>
-  <testcase name="testIntentContractErrorFallback" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.007"/>
-  <testcase name="testIntentContractUnknownResultCode" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.005"/>
+  <testcase name="testIntentContractClientDelegatesAllResultCodes" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.001"/>
+  <testcase name="testIntentContractClientWithUnknownResultCode" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
+  <testcase name="testIntentContractErrorFallback" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.005"/>
+  <testcase name="testIntentContractUnknownResultCode" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testIntentContractEmptyTransactionIdFallsBackToDefault" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
-  <testcase name="testPaymentTaskContractErrorFallback" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.003"/>
+  <testcase name="testPaymentTaskContractErrorFallback" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.001"/>
   <testcase name="testPaymentTaskContractResultCanceledWithNullIntent" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testIntentResultInputDefaultTransactionId" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.002"/>
   <testcase name="testIntentContractResultErrorWithIntentContainingData" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testIntentContractInputDefaultTransactionId" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testPaymentTaskInputCopyWithDifferentTask" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.002"/>
-  <testcase name="testIntentContractNullIntentOkFallback" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.001"/>
+  <testcase name="testIntentContractNullIntentOkFallback" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testIntentResultInputCopyWithDifferentTransactionId" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testPaymentTaskContractCancellation" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
-  <testcase name="testIntentContractWithClient" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.001"/>
+  <testcase name="testIntentContractWithClient" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testIntentContractCanceled" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testIntentContractResultErrorWithEmptyIntent" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>
   <testcase name="testPaymentTaskInputDefaultTransactionId" classname="com.landoulsi.payment.shared.googlepay.GooglePayLauncherContractTest" time="0.0"/>

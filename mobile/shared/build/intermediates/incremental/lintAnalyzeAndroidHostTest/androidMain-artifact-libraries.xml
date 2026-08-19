@@ -1,9 +1,9 @@
 <libraries>
   <library
       name=":@@:shared"
-      jars="/Users/ahmed/.gradle/caches/9.4.1/transforms/4ed4bcb0841f6ab9de1de2a508f751da/transformed/out/jars/classes.jar"
+      jars="/Users/ahmed/.gradle/caches/9.4.1/transforms/16b0b77170e65124db1465fc82cd1ad5/transformed/out/jars/classes.jar"
       resolved="artifacts:shared:unspecified"
-      folder="/Users/ahmed/.gradle/caches/9.4.1/transforms/4ed4bcb0841f6ab9de1de2a508f751da/transformed/out"
+      folder="/Users/ahmed/.gradle/caches/9.4.1/transforms/16b0b77170e65124db1465fc82cd1ad5/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

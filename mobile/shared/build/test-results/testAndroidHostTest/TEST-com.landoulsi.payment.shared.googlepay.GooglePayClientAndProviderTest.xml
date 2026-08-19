@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:03:14.086Z" hostname="M1-Pro-1000.local" time="0.093">
+<testsuite name="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:26:42.634Z" hostname="M1-Pro-1000.local" time="0.026">
   <properties/>
-  <testcase name="testProviderPayWithNullTokenInResponse" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.071"/>
-  <testcase name="testProviderIsReadyToPay" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.002"/>
-  <testcase name="testProviderPayCanceled" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
-  <testcase name="testProviderPaymentMethodType" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
+  <testcase name="testProviderPayWithNullTokenInResponse" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.009"/>
+  <testcase name="testProviderIsReadyToPay" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
+  <testcase name="testProviderPayCanceled" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.002"/>
+  <testcase name="testProviderPaymentMethodType" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testClientCreatePaymentDataRequest" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.006"/>
-  <testcase name="testFakeClientIsReadyToPayOverload" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.002"/>
+  <testcase name="testFakeClientIsReadyToPayOverload" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testProviderPayGenericApiError" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
-  <testcase name="testProviderPayWithNullConfigFallsBackToProviderConfig" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.002"/>
+  <testcase name="testProviderPayWithNullConfigFallsBackToProviderConfig" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
   <testcase name="testParsePaymentResultFromFakeClient" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testClientCreatePaymentDataRequestJson" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testProviderPayWithRequestLevelConfigOverride" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
   <testcase name="testClientIntentParsing" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testProviderPayDeveloperError" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
-  <testcase name="testIntentParsingCanceled" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
+  <testcase name="testIntentParsingCanceled" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testProviderPayUnexpectedThrowable" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
-  <testcase name="testClientCreateIsReadyToPayRequest" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
+  <testcase name="testClientCreateIsReadyToPayRequest" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.0"/>
   <testcase name="testProviderPayNetworkError" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
   <testcase name="testProviderPaySuccess" classname="com.landoulsi.payment.shared.googlepay.GooglePayClientAndProviderTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>

@@ -1,55 +1,67 @@
-[2m🔧 run_command: git diff HEAD~1[0m
 [2m🔧 run_command: git status[0m
-[2m🔧 run_command: git log -n 3 --stat[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt[0m
+[2m🔧 run_command: git diff HEAD[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/check…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/check…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
-[2m🔧 find_by_name: *gpay* /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res[0m
+[2m🔧 run_command: git log -n 5 --oneline[0m
+[2m🔧 run_command: git diff HEAD mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayP…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_light.xml[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/MainActivityTest.kt[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/check…[0m
 [2m🔧 run_command: ./gradlew test[0m
-[2m🔧 run_command: ./gradlew allTests testAndroidHostTest[0m
+[2m🔧 run_command: ./mobile/gradlew test -p mobile[0m
+[2m🔧 manage_task: status 75bd6e03-7ddc-4106-937a-015f16087a50/task-27[0m
+[2m🔧 run_command: ./mobile/gradlew :shared:allTests :shared:testAndroidHostTest :app:testDebugUnitTest --rerun-tasks -…[0m
+[2m🔧 manage_task: status 75bd6e03-7ddc-4106-937a-015f16087a50/task-32[0m
+[2m🔧 schedule: 20 Check tests execution[0m
+[2m🔧 grep_search: GooglePayPaymentTaskInput /Users/ahmed/Work/payment-sdk/mobile[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 manage_task: status 75bd6e03-7ddc-4106-937a-015f16087a50/task-32[0m
+[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile[0m
+[2m🔧 find_by_name: *.kt /Users/ahmed/Work/payment-sdk/mobile[0m
+[2m🔧 manage_task: list[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/.orchestrator/phase2_output.txt[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/ROADMAP.md[0m
 SCORE: 94
 
 ### Code Review Summary
 
-The implementation of the Google Pay ActivityResult launcher contracts and the Compose [`GooglePayButton`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L89) component is well-architected, highly compliant with Google Pay Brand Guidelines, and thoroughly tested.
+The implementation of the goal **"Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity"** is high quality, robust, and adheres closely to Kotlin Multiplatform and Jetpack Compose best practices. All unit tests across JVM, Android, and iOS Simulator targets pass cleanly.
 
 ---
 
-### Key Strengths
+### Architectural & Functional Strengths
 
-1. **Google Pay Brand Compliance**:
-   - [`GooglePayButton`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L89) strictly enforces the minimum touch target height of 48dp via `.defaultMinSize(minHeight = minHeight.coerceAtLeast(48.dp))`.
-   - Provides full visual theming support ([`GooglePayButtonTheme.DARK`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L43), [`GooglePayButtonTheme.LIGHT`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L45), and [`GooglePayButtonTheme.DYNAMIC`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L47)) with official high-quality vector drawables ([`gpay_logo_generic_dark.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml) and [`gpay_logo_generic_light.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_light.xml)) and the required border styling (`#747775` 1dp stroke) for light surfaces.
-   - Comprehensive [`GooglePayButtonType`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L53) enumeration mapped to localized string resources in [strings.xml](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml).
-   - Accessibility support with `Role.Button` and contextual content descriptions.
+1. **Clean KMP Separation**:
+   - [`CheckoutUiState`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutUiState.kt#L10) and [`CheckoutViewModel`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt#L28) reside in `commonMain`, providing platform-agnostic checkout orchestration and state management.
+   - Platform-specific Google Play Services wallet integration is encapsulated in [`GooglePayProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt#L19) within `androidMain`.
 
-2. **Dual ActivityResult Contract Support**:
-   - Modern delegation: [`GooglePayPaymentTaskContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L58) wraps Google Play Services' official `TaskResultContracts.GetPaymentDataResult` with input encapsulation via [`GooglePayPaymentTaskInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L21).
-   - Legacy / Intent fallback: [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L115) with [`GooglePayIntentResultInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L32) enables compatibility with `AutoResolveHelper` workflows.
+2. **Well-Structured State Hierarchy**:
+   - The sealed interface [`CheckoutUiState`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutUiState.kt#L10) covers all lifecycle stages (`Initial`, `CheckingAvailability`, `Ready`, `Processing`, `Success`, `Failure`, `Canceled`), ensuring deterministic UI transitions and no loss of the active [`PaymentRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentRequest.kt#L12).
 
-3. **Status Code Mapping & Error Safety**:
-   - Robust translation from Google Play Services `CommonStatusCodes` to domain `PaymentErrorCode` (`NETWORK_ERROR`, `CONFIGURATION_ERROR`, `GATEWAY_ERROR`, etc.) and `PaymentResult.Canceled`.
+3. **Structured Concurrency & Cancellation Safety**:
+   - In [`CheckoutViewModel.pay`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt#L116) and [`checkAvailability`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt#L67), coroutine cancellations (`CancellationException`) are preserved and rethrown properly without being swallowed as generic payment failures.
 
-4. **Testing**:
-   - [`GooglePayLauncherContractTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContractTest.kt#L26) validates cancellation, client delegation, input encapsulation, and fallback error handling.
+4. **Seamless ActivityResult Integration**:
+   - Added [`GooglePayProvider.createPaymentTaskInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt#L48-L57) which pairs cleanly with [`GooglePayPaymentTaskContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L58) in [`MainActivity`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt#L153-L157).
+
+5. **Security & Sensitive Data Handling**:
+   - Payment tokens are truncated/masked (`take(16)...`) in the demo UI ([`MainActivity.kt#L502`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt#L502)), and no unmasked credentials or sensitive cardholder data are dumped to Logcat.
 
 ---
 
-### Minor Observations & Recommendations
+### Minor Issues & Recommended Modifications
 
-1. **State Preservation Across Activity Recreation**:
-   - In [`GooglePayPaymentTaskContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L63) and [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L120), `pendingTransactionId` is stored in an instance variable. If an Activity undergoes process death or configuration change while the Google Pay sheet is active, a recreated contract instance will revert to `defaultTransactionId`. Supplying `defaultTransactionId` during contract registration mitigates this, but callers relying purely on runtime `input.transactionId` should be aware of this lifecycle constraint.
+1. **Activity Lifecycle & Configuration Changes in Demo**:
+   - In [`MainActivity.onCreate`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt#L84-L87), [`CheckoutViewModel`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt#L28) is instantiated directly as a regular class rather than through an AndroidX ViewModel factory or retained state holder. A configuration change (such as screen rotation) will recreate the viewmodel and re-trigger availability checks, resetting any in-flight or completed payment state.
 
-2. **Null PaymentData with Success Status Edge Case**:
-   - In [`GooglePayPaymentTaskContract.parseResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L70-L86), if `status.isSuccess` is `true` but `paymentData` is `null`, execution falls through to the status code `when` block with status code `0` (`SUCCESS`), classifying it as a `GATEWAY_ERROR`. Explicitly mapping `status.isSuccess && paymentData == null` to `PaymentErrorCode.UNKNOWN` (as done in [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L140-L144)) would improve consistency.
+2. **Hardcoded String Literals in UI**:
+   - While most strings are properly defined in [`strings.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml), several user-facing strings in [`MainActivity.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt) remain hardcoded, such as `"Total Amount"` (line 290) and `"The payment sheet was dismissed. You can retry when ready."` (line 617). Moving these to [`strings.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml) will improve localization readiness.
 
-3. **Parsing Logic DRYness**:
-   - The fallback parsing logic in [`GooglePayIntentResultContract.parseResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L133-L190) mirrors [`DefaultGooglePayClient.parsePaymentResultFromIntent`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L183-L245). Delegating standalone contract parsing through a shared static method would reduce maintenance surface.
+3. **Composable Coupling & Preview Strategy**:
+   - [`CheckoutScreen`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt#L146) is directly bound to [`CheckoutViewModel`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt#L28). Extracting a stateless composable `CheckoutContent(uiState, onGooglePayClick, ...)` would simplify previews and isolated Compose UI testing without needing a live ViewModel and coroutine scope.
+
+4. **Thread-Safety of Availability Cache**:
+   - In [`CheckoutViewModel`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt#L58), `availabilityCache` uses a standard `mutableMapOf`. If readiness checks or queries are accessed from multiple dispatchers simultaneously, consider using a thread-safe structure or synchronizing access.
 

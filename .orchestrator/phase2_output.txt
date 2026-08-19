@@ -1,92 +1,90 @@
-[2m🔧 run_command: git status[0m
+[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk[0m
+[2m🔧 find_by_name: *.kt /Users/ahmed/Work/payment-sdk/mobile[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/ROADMAP.md[0m
-[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile[0m
-[2m🔧 find_by_name: /Users/ahmed/Work/payment-sdk/mobile[0m
-[2m🔧 find_by_name: ** /Users/ahmed/Work/payment-sdk/mobile[0m
-[2m🔧 run_command: find shared app -type f \! -path "*/build/*"[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provi…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
 [2m🔧 run_command: ./gradlew test[0m
 [2m🔧 run_command: ./gradlew check[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt[0m
+I am running `./gradlew check` to verify current build and test health across modules. I will continue once it finishes.
+[2m🔧 schedule: 30 Check task status[0m
+[2m🔧 find_by_name: *.kt /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/AndroidManifest.xml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/GooglePayButtonTest.kt[0m
+[2m🔧 run_command: git log -n 10 --oneline[0m
+[2m🔧 run_command: git show 4804a9d --stat[0m
+[2m🔧 run_command: git show 4804a9d --name-only | grep -E '\.kt|\.xml'[0m
+[2m🔧 run_command: ./gradlew :app:dependencies --configuration debugCompileClasspath[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/check…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/check…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
-[2m🔧 run_command: cat << 'EOF' > shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLaunche…[0m
-[2m🔧 run_command: ./gradlew compileAndroidMain[0m
-[2m🔧 run_command: javap -cp $(./gradlew -q :shared:dependencyInsight --dependency play-services-wallet --configuration…[0m
-[2m🔧 run_command: find ~/.gradle/caches -name "*play-services-wallet*19.4.0*.aar"[0m
-[2m🔧 schedule: 5 Check on finding aar task[0m
-[2m🔧 manage_task: status c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-53[0m
-[2m🔧 manage_task: kill c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-53[0m
-[2m🔧 run_command: find ~/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-wallet -name "*.aar"[0m
-[2m🔧 run_command: unzip -l /Users/ahmed/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-wallet…[0m
-[2m🔧 run_command: unzip -p /Users/ahmed/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-wallet…[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar com.google.android.gms.wallet.contract.TaskResultContracts[0m
-[2m🔧 run_command: jar tf /tmp/wallet_classes.jar | grep contract[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar 'com.google.android.gms.wallet.contract.TaskResultContracts$GetPay…[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar 'com.google.android.gms.wallet.contract.TaskResultContracts$GetApi…[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar 'com.google.android.gms.wallet.contract.TaskResultContracts$Resolv…[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar 'com.google.android.gms.wallet.contract.TaskResultContracts$GetPay…[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar 'com.google.android.gms.wallet.contract.TaskResultContracts$Unpack…[0m
-[2m🔧 run_command: javap -cp /tmp/wallet_classes.jar 'com.google.android.gms.wallet.contract.ApiTaskResult'[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 run_command: cat << 'EOF' > shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLaunche…[0m
-[2m🔧 run_command: ./gradlew compileAndroidMain[0m
-[2m🔧 schedule: 5 Check compile task[0m
-[2m🔧 manage_task: status c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-91[0m
-[2m🔧 schedule: 8 Wait for compile to finish[0m
-The compile task is running in the background. I'll wait for it to finish.The build has finished executing in the background. Checking the final status now.
-[2m🔧 manage_task: status c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-91[0m
-Waiting for compile task to finish...The compile task completed. Let's inspect the result.
-[2m🔧 schedule: 5 Check compile task finish[0m
-[2m🔧 manage_task: status c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-91[0m
-[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/c82f5f94-6df0-44c6-bd04-c6fef562ad47/.system_generated/ta…[0m
-[2m🔧 manage_task: kill c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-91[0m
-[2m🔧 run_command: ./gradlew compileAndroidMain --no-daemon[0m
-[2m🔧 schedule: 5 Wait for gradle build to complete[0m
-Waiting for compile task to finish...The compile task completed. Checking the output.
-[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/c82f5f94-6df0-44c6-bd04-c6fef562ad47/.system_generated/ta…[0m
-Waiting for compilation to complete...The build task finished. Checking results now.
-[2m🔧 schedule: 8 Check compilation output again[0m
-[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/c82f5f94-6df0-44c6-bd04-c6fef562ad47/.system_generated/ta…[0m
-[2m🔧 schedule: 8 Check compilation finish[0m
-[2m🔧 run_command: cat << 'EOF' > shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLau…[0m
-[2m🔧 run_command: ./gradlew :shared:testAndroidHostTest[0m
-Waiting for Android host tests to finish...The test task completed. Checking results.
-[2m🔧 schedule: 5 Check host test status[0m
-[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/c82f5f94-6df0-44c6-bd04-c6fef562ad47/.system_generated/ta…[0m
-Waiting for tests to finish...Checking the test results now.
-[2m🔧 schedule: 8 Check host test completion[0m
-Waiting for test execution...The tests finished executing. Let's verify the results.
-[2m🔧 schedule: 8 Check test completion status[0m
-[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/c82f5f94-6df0-44c6-bd04-c6fef562ad47/.system_generated/ta…[0m
-[2m🔧 manage_task: status c82f5f94-6df0-44c6-bd04-c6fef562ad47/task-128[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/index.html[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/wG8_y7BpbLU/inde…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/wG8_y7BpbLU/j0HM…[0m
-[2m🔧 run_command: cat << 'EOF' > shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLau…[0m
-[2m🔧 run_command: ./gradlew :shared:testAndroidHostTest[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 run_command: ./gradlew :shared:testAndroidHostTest[0m
-[2m🔧 run_command: cat << 'EOF' > shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLau…[0m
-[2m🔧 run_command: ./gradlew :shared:testAndroidHostTest[0m
-[2m🔧 run_command: cat << 'EOF' > app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt
-package com.landoulsi.p…[0m
-[2m🔧 run_command: ./gradlew compileDebugKotlin[0m
-[2m🔧 run_command: grep -rn "gpay_logo" app/src/main/res/ app/build/ mobile/[0m
-[2m🔧 run_command: grep "gpay_logo" mobile/app/build/generated/res/pngs/debug/* -r 2>/dev/null || grep -rn "gpay_logo" …[0m
-[2m🔧 run_command: grep -rn "gpay_logo" mobile/app/build/[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 run_command: ./gradlew :app:compileDebugKotlin[0m
+I'm compiling the Kotlin code to ensure there are no compilation issues.
+[2m🔧 schedule: 10 Check compile status[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt[0m
+[2m🔧 run_command: ./gradlew check[0m
+I'm running `./gradlew check` to verify the compilation and all checks for the new `CheckoutViewModel` and `MainActivity`.
+[2m🔧 schedule: 10 Check check status[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/check…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/MainActivityTest.kt[0m
+[2m🔧 run_command: ./gradlew check[0m
+I'm running `./gradlew check` to verify all test suites and lint checks across the shared and app modules.
+[2m🔧 schedule: 15 Check gradle check status[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/MainActivityTest.kt[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/check…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/check…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/MainActivityTest.kt[0m
+[2m🔧 run_command: ./gradlew check[0m
+I'm waiting for `./gradlew check` to finish.
+[2m🔧 schedule: 15 Check check status[0m
+[2m🔧 manage_task: status 9ba98132-83ec-405f-b3a9-c9a077f4bc62/task-109[0m
+I'm waiting for the gradle check task to complete.
+[2m🔧 schedule: 10 Wait for completion[0m
+[2m🔧 manage_task: status 9ba98132-83ec-405f-b3a9-c9a077f4bc62/task-109[0m
+[2m🔧 run_command: git status[0m
+[2m🔧 run_command: ./gradlew test[0m
+[2m🔧 run_command: ./gradlew :shared:allTests[0m
+We have implemented and verified the roadmap item: **"Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity"**.
+
+### Summary of Changes
+
+1. **[`CheckoutUiState`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutUiState.kt)**:
+   - Defined common sealed UI states: `Initial`, `CheckingAvailability`, `Ready`, `Processing`, `Success`, `Failure`, and `Canceled`.
+   - Added extension helpers `isLoading` and `isGooglePayReady` for reactive Compose state handling.
+
+2. **[`CheckoutViewModel`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt)**:
+   - Implemented cross-platform state orchestrator for payment providers (including [`GooglePayProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt)).
+   - Handles async wallet readiness verification via `isReadyToPay()`.
+   - Manages state transitions, direct provider execution, contract result handling (`handlePaymentResult`), session resetting (`reset`), and payment request updates.
+
+3. **[`GooglePayProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt)**:
+   - Added `createPaymentTaskInput(request)` helper to simplify launching `GooglePayPaymentTaskContract` in Compose/Activity result launchers.
+
+4. **[`MainActivity`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/MainActivity.kt)**:
+   - Built an interactive demo checkout screen showcasing the full wallet payment flow with [`CheckoutViewModel`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModel.kt) and [`GooglePayProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt).
+   - Follows the UX architecture ("Wallets first, card second", brand-compliant [`GooglePayButton`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt), explicit feedback states for processing, success confirmation, cancellation, and error retry).
+
+5. **Unit & Integration Tests**:
+   - Added [`CheckoutViewModelTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/checkout/CheckoutViewModelTest.kt) testing readiness checks, payment flows, error conditions, cancellation, and reset logic.
+   - Added [`MainActivityTest`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/MainActivityTest.kt) validating demo configuration and viewmodel integration.
+   - Verified that `./gradlew check`, `./gradlew test`, and `./gradlew :shared:allTests` pass completely.
+
+<!-- GOAL_COMPLETE -->
 

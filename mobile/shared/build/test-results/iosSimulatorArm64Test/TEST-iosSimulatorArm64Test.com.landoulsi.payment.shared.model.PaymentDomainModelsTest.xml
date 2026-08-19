@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-08-19T11:53:26.295Z" hostname="M1-Pro-1000.local" time="0.008">
+<testsuite name="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-08-19T12:11:23.793Z" hostname="M1-Pro-1000.local" time="0.002">
   <properties/>
-  <testcase name="testCurrencyFromCode[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testCurrencyFromCode[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testMoneyFormattingAndParsing[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testMoneyArithmeticAndComparison[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testCardNetworkParsing[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
@@ -13,10 +13,10 @@
   <testcase name="testCardNetworkFromNameWithSpaces[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGatewayTokenizationEmptyMerchantIdExcluded[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGatewayTokenizationWithMerchantId[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testGatewayBraintreeTokenization[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGatewayBraintreeTokenization[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
   <testcase name="testMoneyZero[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testMoneyFromMajorUnitsZero[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testGooglePayBillingAddressParametersDefaults[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.003"/>
+  <testcase name="testGooglePayBillingAddressParametersDefaults[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testGooglePayShippingAddressParametersDefaults[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testPaymentRequestDefaultValues[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testPaymentMethodTypeIdentifiers[iosSimulatorArm64]" classname="iosSimulatorArm64Test.com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>

@@ -1,3 +1,3 @@
-feat: Implement Google Pay ActivityResult launcher & Compose GooglePayButton
+feat: Integrate Google Pay wallet flow
 
-Adds the ActivityResult launcher contract and a dedicated Compose GooglePayButton component.
+Adds GooglePayProvider to CheckoutViewModel and demo MainActivity.

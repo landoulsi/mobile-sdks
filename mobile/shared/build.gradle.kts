@@ -31,15 +31,24 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         androidMain {
             dependencies {
+                implementation(libs.play.services.wallet)
+                implementation(libs.kotlinx.coroutines.play.services)
+            }
+        }
+        val androidHostTest by getting {
+            dependencies {
+                implementation(libs.json)
             }
         }
         iosMain {

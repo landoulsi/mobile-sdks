@@ -1,119 +1,61 @@
-Running opencode (model: opencode/big-pickle, verbose logging on)...
-[0m
-> build · big-pickle
-[0m
-[0m# [0mTodos
-[ ] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
-[ ] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
-[ ] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
-[ ] Update shared/build.gradle.kts to use renamed plugin alias
-[ ] Run tests to verify everything passes
-[0m
-[0m→ [0mRead mobile/gradle/libs.versions.toml
-[0m→ [0mRead mobile/app/build.gradle.kts
-[0m→ [0mRead mobile/shared/build.gradle.kts
-[0m→ [0mRead mobile/gradle.properties
-[0m
-[0m# [0mTodos
-[•] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
-[ ] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
-[ ] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
-[ ] Update shared/build.gradle.kts to use renamed plugin alias
-[ ] Run tests to verify everything passes
-[0m
-[0m← [0mEdit mobile/gradle/libs.versions.toml
-Index: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml
-===================================================================
---- /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml
-+++ /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml
-@@ -26,8 +26,8 @@
- androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
- 
- [plugins]
- android-application = { id = "com.android.application", version.ref = "agp" }
--android-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
- kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
- kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
- 
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 run_command: ./gradlew check[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provi…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 run_command: ./gradlew check[0m
+I am running `./gradlew check` to verify the host test dependencies while addressing the remaining review feedback.
+Waiting for `./gradlew check` to finish running.
+Waiting for task completion.
+[2m🔧 manage_task: status fa2b5439-60c0-4dfa-89c9-0b09b187000a/task-33[0m
+[2m🔧 manage_task: status fa2b5439-60c0-4dfa-89c9-0b09b187000a/task-33[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 run_command: ./gradlew check[0m
+[2m🔧 manage_task: status fa2b5439-60c0-4dfa-89c9-0b09b187000a/task-55[0m
+Running `./gradlew check` to verify all test suites and lint checks pass cleanly.
+Waiting for task completion.
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/index.html[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/-bsm2D_4V18/inde…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/-bsm2D_4V18/ilJh…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 run_command: ./gradlew check[0m
+[2m🔧 run_command: git status[0m
+All issues identified by the reviewer have been resolved:
 
-[0m
-[0m← [0mEdit mobile/app/build.gradle.kts
-Index: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts
-===================================================================
---- /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts
-+++ /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts
-@@ -18,11 +18,14 @@
- }
- 
- buildTypes {
-     release {
--        optimization {
--            enable = false
--        }
-+        isMinifyEnabled = true
-+        isShrinkResources = true
-+        proguardFiles(
-+            getDefaultProguardFile("proguard-android-optimize.txt"),
-+            "proguard-rules.pro"
-+        )
-     }
- }
- compileOptions {
-     sourceCompatibility = JavaVersion.VERSION_11
+1. **Host JVM Test Execution (`Method ... in org.json.JSONObject not mocked`)**:
+   - Added `org.json:json` dependency to `androidHostTest` in [`libs.versions.toml`](file:///Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml#L34) and [`mobile/shared/build.gradle.kts`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts#L49-L53).
+   - All tests run and pass cleanly under `./gradlew check`.
 
-[0m
-[0m← [0mEdit mobile/shared/build.gradle.kts
-Index: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts
-===================================================================
---- /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts
-+++ /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts
-@@ -1,7 +1,7 @@
- plugins {
-     alias(libs.plugins.kotlin.multiplatform)
--    alias(libs.plugins.android.library)
-+    alias(libs.plugins.android.kotlin.multiplatform.library)
- }
- 
- kotlin {
-     android {
+2. **Structured Concurrency (`CancellationException` preservation)**:
+   - Handled `CancellationException` in [`GooglePayClient.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L142) and [`GooglePayProvider.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt#L89) by explicitly rethrowing before general exception handling.
 
-[0m
-[0m# [0mTodos
-[✓] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
-[✓] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
-[•] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
-[✓] Update shared/build.gradle.kts to use renamed plugin alias
-[•] Create proguard-rules.pro if missing
-[ ] Run tests to verify everything passes
-[0m
-[0m✱ [0mGlob "**/proguard-rules.pro"[90m in mobile · 1 match[0m
-[0m✱ [0mGlob "**/.github/**/*.yml"[90m in . · 0 matches[0m
-[0m→ [0mRead mobile/app
-[0m→ [0mRead mobile/app/proguard-rules.pro
-[0m
-[0m← [0mEdit mobile/gradle.properties
-Index: /Users/ahmed/Work/payment-sdk/mobile/gradle.properties
-===================================================================
---- /Users/ahmed/Work/payment-sdk/mobile/gradle.properties
-+++ /Users/ahmed/Work/payment-sdk/mobile/gradle.properties
-@@ -17,6 +17,7 @@
- org.gradle.configuration-cache=true
- # Kotlin code style for this project: "official" or "obsolete":
- kotlin.code.style=official
- # Required for KMP projects building on machines without Xcode installed.
--# Remove this on CI environments where Xcode is available for full iOS build verification.
-+# On CI with Xcode available, override with: ./gradlew -Pkotlin.native.ignoreDisabledTargets=false
-+# This ensures iOS targets are compiled and regressions are caught.
- kotlin.native.ignoreDisabledTargets=true
-\ No newline at end of file
+3. **Empty `merchantInfo` JSON Payload Handling**:
+   - Updated [`GooglePayJsonFactory.createPaymentDataRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L158-L169) so that `"merchantInfo"` is only appended when either `merchantId` or `merchantName` is non-empty. Added unit test coverage in [`GooglePayJsonFactoryTest.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactoryTest.kt#L230-L241).
 
-[0m
-[0m# [0mTodos
-[✓] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
-[✓] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
-[✓] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
-[✓] Update shared/build.gradle.kts to use renamed plugin alias
-[✓] Create proguard-rules.pro if missing
-[•] Run tests to verify everything passes
-[0m
+4. **`optString` Returning Empty Strings Instead of `null`**:
+   - Refactored [`GooglePayJsonFactory.parsePaymentResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L207-L213) to apply `.takeIf { it.isNotEmpty() }` across `token`, `cardDetails`, and `cardNetworkStr`.
+
+5. **International Address Line 3 Handling**:
+   - In [`GooglePayJsonFactory.parseAddress`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L246-L268), `address2` and `address3` are now combined if both are present instead of dropping `address3`. Added unit test in [`GooglePayJsonFactoryTest.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactoryTest.kt#L243-L255).
+
+6. **Cancellation Mapping in Intent Parsing**:
+   - Updated [`DefaultGooglePayClient.parsePaymentResultFromIntent`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L210) to map `CommonStatusCodes.CANCELED` to [`PaymentResult.Canceled`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L75) consistently.
+
+<!-- GOAL_COMPLETE -->
+

@@ -183,4 +183,143 @@ class PaymentDomainModelsTest {
 
         assertEquals(PaymentMethodType.GOOGLE_PAY, mockProvider.paymentMethodType)
     }
+
+    @Test
+    fun testCardNetworkFromNameHyphenated() {
+        assertEquals(CardNetwork.DINERS_CLUB, CardNetwork.fromName("diners-club"))
+        assertEquals(CardNetwork.UNION_PAY, CardNetwork.fromName("union-pay"))
+        assertEquals(CardNetwork.UNION_PAY, CardNetwork.fromName("UNION-PAY"))
+    }
+
+    @Test
+    fun testCardNetworkFromNameWithSpaces() {
+        assertEquals(CardNetwork.DINERS_CLUB, CardNetwork.fromName("diners club"))
+    }
+
+    @Test
+    fun testGatewayTokenizationEmptyMerchantIdExcluded() {
+        val spec = GooglePayTokenizationSpecification.Gateway(
+            gateway = "stripe",
+            gatewayMerchantId = ""
+        )
+        assertFalse(spec.parameters.containsKey("gatewayMerchantId"))
+        assertEquals("stripe", spec.parameters["gateway"])
+    }
+
+    @Test
+    fun testGatewayTokenizationWithMerchantId() {
+        val spec = GooglePayTokenizationSpecification.Gateway(
+            gateway = "adyen",
+            gatewayMerchantId = "merchant_123"
+        )
+        assertEquals("merchant_123", spec.parameters["gatewayMerchantId"])
+        assertEquals("adyen", spec.parameters["gateway"])
+    }
+
+    @Test
+    fun testGatewayBraintreeTokenization() {
+        val spec = GooglePayTokenizationSpecification.Gateway.braintree(
+            tokenizationKey = "bt_test_key"
+        )
+        assertEquals("PAYMENT_GATEWAY", spec.type)
+        assertEquals("braintree", spec.parameters["gateway"])
+        assertEquals("bt_test_key", spec.parameters["braintree:merchantId"])
+        assertEquals("bt_test_key", spec.parameters["braintree:clientKey"])
+        assertEquals("v1", spec.parameters["braintree:apiVersion"])
+        assertEquals("custom", spec.parameters["braintree:sdkVersion"])
+    }
+
+    @Test
+    fun testMoneyZero() {
+        val zero = Money.ZERO
+        assertEquals(0L, zero.amountMinorUnits)
+        assertEquals("0.00", zero.formattedAmount())
+
+        val zeroJpy = Money(0, Currency.JPY)
+        assertEquals("0", zeroJpy.formattedAmount())
+    }
+
+    @Test
+    fun testMoneyFromMajorUnitsZero() {
+        val zero = Money.fromMajorUnits(0.0, Currency.USD)
+        assertEquals(0L, zero.amountMinorUnits)
+        assertEquals("0.00", zero.formattedAmount())
+    }
+
+    @Test
+    fun testGooglePayBillingAddressParametersDefaults() {
+        val params = GooglePayBillingAddressParameters()
+        assertEquals(GooglePayBillingAddressFormat.MIN, params.format)
+        assertFalse(params.phoneNumberRequired)
+    }
+
+    @Test
+    fun testGooglePayShippingAddressParametersDefaults() {
+        val params = GooglePayShippingAddressParameters()
+        assertTrue(params.allowedCountryCodes.isEmpty())
+        assertFalse(params.phoneNumberRequired)
+    }
+
+    @Test
+    fun testPaymentRequestDefaultValues() {
+        val request = PaymentRequest(
+            id = "order_default",
+            amount = Money.ofCents(100, Currency.USD)
+        )
+        assertNull(request.merchantName)
+        assertNull(request.description)
+        assertNull(request.googlePayConfig)
+        assertFalse(request.requireShipping)
+        assertFalse(request.requireBillingAddress)
+        assertTrue(request.metadata.isEmpty())
+        assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.GOOGLE_PAY))
+        assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.CARD))
+    }
+
+    @Test
+    fun testPaymentMethodTypeIdentifiers() {
+        assertEquals("google_pay", PaymentMethodType.GOOGLE_PAY.identifier)
+        assertEquals("apple_pay", PaymentMethodType.APPLE_PAY.identifier)
+        assertEquals("card", PaymentMethodType.CARD.identifier)
+        assertEquals("paypal", PaymentMethodType.PAYPAL.identifier)
+        assertEquals("klarna", PaymentMethodType.KLARNA.identifier)
+        assertEquals("ideal", PaymentMethodType.IDEAL.identifier)
+    }
+
+    @Test
+    fun testGooglePayConfigFullCustomization() {
+        val config = GooglePayConfig(
+            environment = GooglePayEnvironment.PRODUCTION,
+            merchantId = "prod_merchant",
+            merchantName = "Prod Store",
+            allowedCardNetworks = listOf(CardNetwork.JCB, CardNetwork.INTERAC),
+            allowedAuthMethods = listOf(GooglePayAuthMethod.CRYPTOGRAM_3DS),
+            tokenizationSpecification = GooglePayTokenizationSpecification.Direct(
+                publicKey = "pub_key_123",
+                protocolVersion = "ECv1"
+            ),
+            allowPrepaidCards = false,
+            allowCreditCards = false,
+            billingAddressRequired = true,
+            billingAddressParameters = GooglePayBillingAddressParameters(
+                format = GooglePayBillingAddressFormat.MIN,
+                phoneNumberRequired = true
+            ),
+            emailRequired = true,
+            shippingAddressRequired = true,
+            shippingAddressParameters = GooglePayShippingAddressParameters(
+                allowedCountryCodes = listOf("JP"),
+                phoneNumberRequired = true
+            )
+        )
+        assertEquals(GooglePayEnvironment.PRODUCTION, config.environment)
+        assertEquals("prod_merchant", config.merchantId)
+        assertEquals(2, config.allowedCardNetworks.size)
+        assertEquals(1, config.allowedAuthMethods.size)
+        assertFalse(config.allowPrepaidCards)
+        assertFalse(config.allowCreditCards)
+        assertTrue(config.billingAddressRequired)
+        assertTrue(config.emailRequired)
+        assertTrue(config.shippingAddressRequired)
+    }
 }

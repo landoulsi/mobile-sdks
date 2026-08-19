@@ -18,3 +18,7 @@ This refined goal emphasizes:
 *   **Industry Relevance:** Kotlin Multiplatform is increasingly adopted by major companies like Netflix, Philips, and Shopify for its ability to share code and maintain native performance. The structure with `commonMain`, `androidMain`, and `iosMain` is a standard and recommended practice in KMP projects.
 Define and implement robust, versioned core domain models for payments within `commonMain`, ensuring clear separation of concerns and extensibility. Concurrently, establish comprehensive Google Pay configuration contracts in `commonMain` that adhere to the latest Google Pay API specifications, enabling secure and efficient payment processing. This includes defining models for payment methods, transaction details, and merchant configurations, while ensuring these contracts are designed for future compatibility and maintainability.
 Define core payment domain models and Google Pay configuration contracts in commonMain
+Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API
+Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API
+Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API
+Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API

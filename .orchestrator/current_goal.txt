@@ -1,1 +1,1 @@
-Define core payment domain models and Google Pay configuration contracts in commonMain
+Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API

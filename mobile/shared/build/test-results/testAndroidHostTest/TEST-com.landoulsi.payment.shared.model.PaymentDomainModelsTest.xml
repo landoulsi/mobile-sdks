@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-19T11:07:51.783Z" hostname="M1-Pro-1000.local" time="0.099">
+<testsuite name="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-08-19T11:42:14.735Z" hostname="M1-Pro-1000.local" time="0.005">
   <properties/>
-  <testcase name="testMoneyFormattingAndParsing" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.038"/>
-  <testcase name="testPaymentResultStates" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testCardNetworkFromNameHyphenated" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testPaymentRequestDefaultValues" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGooglePayBillingAddressParametersDefaults" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testMoneyFormattingAndParsing" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testMoneyZero" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGatewayTokenizationWithMerchantId" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testMoneyFromMajorUnitsZero" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testPaymentResultStates" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testCardNetworkParsing" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
-  <testcase name="testMoneyArithmeticAndComparison" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.035"/>
-  <testcase name="testGooglePayConfigDefaultsAndPaymentRequest" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.017"/>
+  <testcase name="testMoneyArithmeticAndComparison" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testPaymentMethodTypeIdentifiers" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGooglePayConfigDefaultsAndPaymentRequest" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testCardNetworkFromNameWithSpaces" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testCurrencyFromCode" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <testcase name="testPaymentProviderContract" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
-  <testcase name="testGooglePayConfigTokenizationSpecifications" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.003"/>
+  <testcase name="testGooglePayConfigTokenizationSpecifications" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGatewayBraintreeTokenization" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGooglePayShippingAddressParametersDefaults" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
+  <testcase name="testGooglePayConfigFullCustomization" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.001"/>
+  <testcase name="testGatewayTokenizationEmptyMerchantIdExcluded" classname="com.landoulsi.payment.shared.model.PaymentDomainModelsTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

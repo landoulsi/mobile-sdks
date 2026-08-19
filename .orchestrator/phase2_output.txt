@@ -1,0 +1,141 @@
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/ROADMAP.md[0m
+[2m🔧 find_by_name: ** /Users/ahmed/Work/payment-sdk/mobile/shared[0m
+[2m🔧 find_by_name: **/*.kt /Users/ahmed/Work/payment-sdk/mobile/shared/src[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/Platf…[0m
+[2m🔧 run_command: ./gradlew assemble[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/settings.gradle.kts[0m
+[2m🔧 run_command: git log -n 5 --oneline[0m
+[2m🔧 run_command: git status[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/build.gradle.kts[0m
+[2m🔧 run_command: ./gradlew assemble[0m
+[2m🔧 schedule: 10 Check build completion[0m
+I am waiting for the Gradle build to complete.
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+I am monitoring the build task.
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for build to finish...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for the build task to complete.
+Waiting for the assemble build task to complete.
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+I am waiting for Gradle to finish evaluating and assembling the project.
+[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/f9bea1ff-e3b6-49a0-9753-74469c3bf739/.system_generated/ta…[0m
+The Gradle build is in progress.
+[2m🔧 schedule: 15 Check build task status again[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Building project components...
+Compiling assets and dependencies...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Compiling Kotlin Multiplatform metadata...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Task is finalizing...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for build completion...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for assemble task to complete.
+[2m🔧 view_file: /Users/ahmed/.gemini/antigravity-cli/brain/f9bea1ff-e3b6-49a0-9753-74469c3bf739/.system_generated/ta…[0m
+Still waiting for Gradle build...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for task to complete.
+Waiting for assemble to finish.
+[2m🔧 schedule: 10 Wait for build completion[0m
+Checking build progress...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Build is running...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for Kotlin Native commonization and assemble task...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Compiling application and shared code...
+Waiting for assemble task...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for Gradle build completion.
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Waiting for build to finish...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+Build is still running...
+[2m🔧 schedule: 20 Check if commonizeNativeDistribution and assemble finish[0m
+Waiting for the active timer to notify...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 schedule: 30 Check build progress after Kotlin Native download[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-31[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/Plat…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/iosMain/kotlin/com/landoulsi/payment/shared/Platform…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/Plat…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/iosMain/kotlin/com/landoulsi/payment/shared/Platform…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provi…[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 run_command: ./gradlew allTests assemble[0m
+Waiting for tests and build to run...
+Checking build and test task...
+[2m🔧 schedule: 20 Check test and assemble task completion[0m
+Compiling and executing tests...
+Build and tests continuing...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-138[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-138[0m
+Waiting for task-138...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-138[0m
+Waiting for test task...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-138[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-138[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-138[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/iosMain/kotlin/com/landoulsi/payment/shared/Platform…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/iosMain/kotlin/com/landoulsi/payment/shared/Platform…[0m
+[2m🔧 run_command: ./gradlew check assemble[0m
+Running gradle check and assemble...
+[2m🔧 schedule: 15 Check build and test task completion[0m
+Waiting for check and assemble to finish...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-162[0m
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-162[0m
+Finishing check and assemble...
+[2m🔧 manage_task: status f9bea1ff-e3b6-49a0-9753-74469c3bf739/task-162[0m
+[2m🔧 run_command: git status[0m
+[2m🔧 run_command: git diff ROADMAP.md[0m
+Defined the core payment domain models and Google Pay configuration contracts in `commonMain`:
+
+### Models & Contracts Added
+
+1. **Monetary Models**
+   - [`Currency`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Currency.kt): ISO-4217 standard currency representation with formatting codes and symbols (USD, EUR, GBP, JPY, AED, SAR, etc.).
+   - [`Money`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Money.kt): Minor-unit representation (cents/pence/fils) preventing floating-point inaccuracies, decimal string formatters (`formattedAmount()` for gateway payloads, `formattedWithSymbol()`), and arithmetic/comparison operations.
+
+2. **Google Pay Configuration Contracts**
+   - [`GooglePayConfig`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt): Config contract capturing `GooglePayEnvironment` (`TEST`, `PRODUCTION`), allowed auth methods (`PAN_ONLY`, `CRYPTOGRAM_3DS`), [`CardNetwork`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/CardNetwork.kt) (Visa, Mastercard, Amex, Discover, etc.), address collection parameters, and `GooglePayTokenizationSpecification` (supporting `Gateway` with Stripe/Adyen/Braintree factory helpers and `Direct` encryption).
+
+3. **Payment Request & Result Domain Abstractions**
+   - [`PaymentRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentRequest.kt): Transaction details container with amounts, payment method allowances, metadata, and wallet configs.
+   - [`PaymentResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt) & [`PaymentErrorCode`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt): Sealed outcome hierarchy (`Success`, `Failure`, `Canceled`) with strongly typed error codes.
+   - [`PaymentMethod`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentMethod.kt) & [`PaymentMethodType`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentMethod.kt): Platform-agnostic payment method structures.
+   - [`Address`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Address.kt): Postal billing and shipping address model.
+   - [`PaymentProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provider/PaymentProvider.kt): Common interface abstraction for wallet and card provider implementations (`isReadyToPay()`, `pay(request)`).
+
+4. **Testing & Verification**
+   - [`PaymentDomainModelsTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/model/PaymentDomainModelsTest.kt): Unit test suite covering currency parsing, money math/formatting, tokenization spec generation, and request/result contracts.
+   - Ran `./gradlew check assemble` which passed across all Android and iOS Kotlin Multiplatform targets.
+
+<!-- GOAL_COMPLETE -->
+

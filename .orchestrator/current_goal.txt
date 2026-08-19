@@ -1,0 +1,1 @@
+Define core payment domain models and Google Pay configuration contracts in commonMain

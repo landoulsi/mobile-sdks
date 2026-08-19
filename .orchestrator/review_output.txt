@@ -1,0 +1,49 @@
+[2m🔧 run_command: git status[0m
+[2m🔧 run_command: git log -n 3[0m
+[2m🔧 run_command: git status -s[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/Platf…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/Plat…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/iosMain/kotlin/com/landoulsi/payment/shared/Platform…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provi…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/model…[0m
+[2m🔧 run_command: ./gradlew test[0m
+[2m🔧 run_command: ./gradlew :shared:allTests[0m
+SCORE: 90
+
+### Code Review Summary
+
+The domain models, Google Pay configuration contracts, payment provider interfaces, and multiplatform setup in `commonMain` are well-structured, idiomatic, and backed by passing unit tests across both Android and iOS target platforms.
+
+---
+
+### Key Findings & Recommendations
+
+#### 1. Security & Sensitive Data Handling (PCI-DSS Consideration)
+- **Plaintext Card Data in Default `toString()`**: In [`PaymentMethod.Card`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentMethod.kt#L34-L42), the class is defined as a Kotlin `data class` without overriding `toString()`. As a result, any standard logging, debugging, or crash reporting that prints instances of [`PaymentMethod.Card`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentMethod.kt#L34-L42) will dump plaintext PANs (`number`) and CVVs (`cvc`). It is strongly recommended to override `toString()` to mask the PAN (preserving only the last 4 digits) and redact the CVC (e.g., `"***"`).
+- **Token & Payload Exposure**: In [`PaymentResult.Success`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L47-L57), the `token` and `rawPaymentData` properties contain sensitive wallet tokens and cryptographic payloads. A custom `toString()` or debug formatter can help avoid unintended disclosure in log pipelines.
+
+#### 2. Domain Modeling & Defensive Validation
+- **Floating-Point Input Validation in [`Money.fromMajorUnits`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Money.kt#L75-L79)**: The helper accepts a `Double` and converts it via `roundToLong()`. It should defensively validate that `amount.isFinite()` (not `NaN` or `Infinite`) before rounding to prevent unexpected `Long` sentinel conversions.
+- **Negative or Invalid Currency Decimal Places in [`Currency`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Currency.kt#L10-L14)**: The [`Currency`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Currency.kt#L10-L14) model accepts arbitrary `decimalPlaces: Int`. Adding an `init` requirement such as `require(decimalPlaces >= 0)` and `require(code.isNotBlank())` will guard against malformed currency objects.
+- **Currency Symbol Placement in [`Money.formattedWithSymbol`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/Money.kt#L39-L46)**: The current implementation always prefixes the symbol (e.g., `"$10.00"`). For currencies where the symbol or code is customarily placed as a suffix (or formatted with a space), consider future support for localized currency formatting.
+
+#### 3. Google Pay Specification & Gateway Coverage
+- **Gateway Coverage in [`GooglePayTokenizationSpecification`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L52-L134)**: The sealed structure accurately encapsulates both `PAYMENT_GATEWAY` and `DIRECT` tokenization types. Factory helpers for Stripe, Adyen, and Braintree correctly match Google Pay payload parameter conventions.
+- **Address & Checkout Controls**: [`GooglePayBillingAddressParameters`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L36-L39), [`GooglePayShippingAddressParameters`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L44-L47), and [`GooglePayConfig`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L153-L175) provide complete configuration switches matching Google Pay API v2 specifications.
+
+#### 4. Multiplatform Architecture & Test Coverage
+- **Provider Contract**: [`PaymentProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provider/PaymentProvider.kt#L11-L30) cleanly abstracts readiness check ([`isReadyToPay`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provider/PaymentProvider.kt#L21)) and transaction execution ([`pay`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provider/PaymentProvider.kt#L29)) into suspendable coroutine calls.
+- **Multiplatform Verification**: Build configuration in [`mobile/shared/build.gradle.kts`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts) and platform implementations in [`Platform.android.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/Platform.android.kt) and [`Platform.ios.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/iosMain/kotlin/com/landoulsi/payment/shared/Platform.ios.kt) compile without warnings, and all test suites in [`PaymentDomainModelsTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonTest/kotlin/com/landoulsi/payment/shared/model/PaymentDomainModelsTest.kt#L11-L186) pass across Android and iOS simulator targets.
+

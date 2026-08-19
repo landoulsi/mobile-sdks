@@ -1,0 +1,13 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml:2:13-83
+INJECTED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml:2:13-83
+	package
+		INJECTED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml
+	xmlns:android
+		ADDED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml:2:23-81
+uses-sdk
+INJECTED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml reason: use-sdk injection requested
+INJECTED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml
+	android:minSdkVersion
+		INJECTED from /Users/ahmed/Work/payment-sdk/mobile/shared/build/intermediates/tmp/ProcessLibraryManifest/tempAndroidManifest4650268900140210905.xml

@@ -1,0 +1,119 @@
+Running opencode (model: opencode/big-pickle, verbose logging on)...
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[ ] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
+[ ] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
+[ ] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
+[ ] Update shared/build.gradle.kts to use renamed plugin alias
+[ ] Run tests to verify everything passes
+[0m
+[0m→ [0mRead mobile/gradle/libs.versions.toml
+[0m→ [0mRead mobile/app/build.gradle.kts
+[0m→ [0mRead mobile/shared/build.gradle.kts
+[0m→ [0mRead mobile/gradle.properties
+[0m
+[0m# [0mTodos
+[•] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
+[ ] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
+[ ] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
+[ ] Update shared/build.gradle.kts to use renamed plugin alias
+[ ] Run tests to verify everything passes
+[0m
+[0m← [0mEdit mobile/gradle/libs.versions.toml
+Index: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml
+===================================================================
+--- /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml
++++ /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml
+@@ -26,8 +26,8 @@
+ androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+ 
+ [plugins]
+ android-application = { id = "com.android.application", version.ref = "agp" }
+-android-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
++android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ 
+
+[0m
+[0m← [0mEdit mobile/app/build.gradle.kts
+Index: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts
+===================================================================
+--- /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts
++++ /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts
+@@ -18,11 +18,14 @@
+ }
+ 
+ buildTypes {
+     release {
+-        optimization {
+-            enable = false
+-        }
++        isMinifyEnabled = true
++        isShrinkResources = true
++        proguardFiles(
++            getDefaultProguardFile("proguard-android-optimize.txt"),
++            "proguard-rules.pro"
++        )
+     }
+ }
+ compileOptions {
+     sourceCompatibility = JavaVersion.VERSION_11
+
+[0m
+[0m← [0mEdit mobile/shared/build.gradle.kts
+Index: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts
+===================================================================
+--- /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts
++++ /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts
+@@ -1,7 +1,7 @@
+ plugins {
+     alias(libs.plugins.kotlin.multiplatform)
+-    alias(libs.plugins.android.library)
++    alias(libs.plugins.android.kotlin.multiplatform.library)
+ }
+ 
+ kotlin {
+     android {
+
+[0m
+[0m# [0mTodos
+[✓] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
+[✓] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
+[•] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
+[✓] Update shared/build.gradle.kts to use renamed plugin alias
+[•] Create proguard-rules.pro if missing
+[ ] Run tests to verify everything passes
+[0m
+[0m✱ [0mGlob "**/proguard-rules.pro"[90m in mobile · 1 match[0m
+[0m✱ [0mGlob "**/.github/**/*.yml"[90m in . · 0 matches[0m
+[0m→ [0mRead mobile/app
+[0m→ [0mRead mobile/app/proguard-rules.pro
+[0m
+[0m← [0mEdit mobile/gradle.properties
+Index: /Users/ahmed/Work/payment-sdk/mobile/gradle.properties
+===================================================================
+--- /Users/ahmed/Work/payment-sdk/mobile/gradle.properties
++++ /Users/ahmed/Work/payment-sdk/mobile/gradle.properties
+@@ -17,6 +17,7 @@
+ org.gradle.configuration-cache=true
+ # Kotlin code style for this project: "official" or "obsolete":
+ kotlin.code.style=official
+ # Required for KMP projects building on machines without Xcode installed.
+-# Remove this on CI environments where Xcode is available for full iOS build verification.
++# On CI with Xcode available, override with: ./gradlew -Pkotlin.native.ignoreDisabledTargets=false
++# This ensures iOS targets are compiled and regressions are caught.
+ kotlin.native.ignoreDisabledTargets=true
+\ No newline at end of file
+
+[0m
+[0m# [0mTodos
+[✓] Fix `android-library` alias in libs.versions.toml to `android-kotlin-multiplatform-library`
+[✓] Enable R8 minification/shrinking in release build type in app/build.gradle.kts
+[✓] Add CI enforcement for `kotlin.native.ignoreDisabledTargets` - document or add conditional logic
+[✓] Update shared/build.gradle.kts to use renamed plugin alias
+[✓] Create proguard-rules.pro if missing
+[•] Run tests to verify everything passes
+[0m

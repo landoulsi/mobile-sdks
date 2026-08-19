@@ -1,46 +1,84 @@
-# Payment SDK Roadmap (Kotlin Multiplatform)
+# Payment SDK Roadmap
 
-This document outlines the goals and milestones for developing the KMP Payment SDK, ensuring support for various payment methods including Google Pay.
+A mobile payment SDK targeting Kotlin Multiplatform (Android + iOS), with wallet
+payments (Google Pay / Apple Pay) and a drop-in card checkout as the headline features.
 
-## Phase 1: Project Setup & Core Architecture
-- [ ] Initialize KMP project structure (Common, Android, iOS).
-- [ ] Set up Gradle version catalogs for dependency management.
-- [ ] Define core domain models (e.g., `PaymentRequest`, `PaymentResult`, `Currency`, `PaymentMethod`).
-- [ ] Set up network client (e.g., Ktor) and JSON parsing (e.g., kotlinx.serialization) for interacting with payment gateways.
-- [ ] Define the core interfaces and abstractions for payment providers in `commonMain`.
+**Current reality check:** the repository contains a Kotlin Multiplatform structure
+under `mobile/` with an Android application module (`:app`) and a shared multiplatform
+module (`:shared`) targeting Android and iOS (`commonMain`, `androidMain`, `iosMain`).
+Active priority is integrating Google Pay on Android and establishing domain models.
 
-## Phase 2: Google Pay Integration (Android)
-- [ ] Add Google Pay (Wallet) API dependencies to the Android specific module.
-- [ ] Implement Android-specific `GooglePayProvider` wrapping the native Google Wallet API.
-- [ ] Create `expect`/`actual` functions for launching Google Pay intents and receiving transaction results.
-- [ ] Build a sample Android application to verify the end-to-end Google Pay flow.
+## Goals
 
-## Phase 3: Card Payments & Core UI
-- [ ] Design and implement secure UI components for credit/debit card entry (handling Compose Multiplatform or native wrappers).
-- [ ] Integrate with a backend payment processor API for PCI-compliant tokenization.
-- [ ] Add support for handling 3D Secure (3DS) authentication flows.
-- [ ] Centralize error handling and state management (e.g., loading, success, failure) for checkout flows.
+- [x] [tool: antigravity] Fix the broken Android build by aligning compileSdk with the AndroidX core 1.19.0 requirement
+- [x] [tool: antigravity] Initialize the shared Kotlin Multiplatform module with common, Android and iOS source sets
+- [x] [tool: antigravity] Define core payment domain models and Google Pay configuration contracts in commonMain
+- [ ] [tool: claude] Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API
+- [ ] [tool: antigravity] Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component
+- [ ] [tool: antigravity] Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity
+- [ ] [tool: claude] Add Ktor HTTP client and gateway token serialization for Google Pay and card payments
+- [ ] [tool: opencode] Add a design token layer and payment-oriented Material 3 theme replacing template purple palette
+- [ ] [tool: claude] Build card number, expiry and CVC input components with live formatting and Luhn validation
+- [ ] [tool: antigravity] Assemble the drop-in checkout sheet with express Google Pay button rendered above card form
+- [ ] [tool: opencode] Add explicit payment feedback states with inline field errors, processing spinner and confirmation
+- [ ] [tool: claude] Implement iOS ApplePayProvider using PassKit behind the common PaymentProvider abstraction
+- [ ] [tool: claude] Add 3D Secure challenge handling and authentication flow to common checkout
+- [ ] [tool: opencode] Add accessibility and one-handed reachability passes over checkout sheet
+- [ ] [tool: antigravity] Integrate PayPal or Braintree as alternative payment method
+- [ ] [tool: antigravity] Add regional alternative payment methods including Klarna and iDEAL
+- [ ] [tool: claude] Write commonMain unit tests for domain models, validation, formatting and Google Pay config
+- [ ] [tool: antigravity] Write Android platform integration tests for Google Pay payment flow
+- [ ] [tool: claude] Audit sensitive payment data handling ensuring tokens and PANs are never logged or persisted
+- [ ] [tool: opencode] Establish automated lint, format (ktlint/detekt) and static analysis checks
+- [ ] [tool: opencode] Set up CI workflow to build and test shared and app modules on every push
+- [ ] [tool: opencode] Generate Dokka API reference documentation for public SDK surface
+- [ ] [tool: opencode] Write integrator Getting Started guide with minimal end-to-end Google Pay sample
+- [ ] [tool: opencode] Configure Maven Central publishing scripts for shared KMP library
 
-## Phase 4: Apple Pay Integration (iOS)
-- [ ] Configure Apple Merchant ID and capabilities for the iOS target.
-- [ ] Implement iOS-specific `ApplePayProvider` using the native PassKit framework.
-- [ ] Wire the iOS implementation to the common payment abstractions using `expect`/`actual`.
-- [ ] Verify the Apple Pay flow in a sample iOS application.
+## Scope notes
 
-## Phase 5: Alternative Payment Methods (APMs)
-- [ ] Integrate PayPal/Braintree flows.
-- [ ] Add support for regional APMs (e.g., Klarna, iDEAL, Alipay) as required.
-- [ ] Expand the common domain models to normalize responses across all distinct payment methods.
+Guidance for implementing the current and upcoming milestones:
 
-## Phase 6: Security & Quality Assurance
-- [ ] Perform security audits on data handling (ensure sensitive PAN/CVV data isn't logged or stored insecurely).
-- [ ] Write unit tests for core business logic, formatting, and validation in `commonMain`.
-- [ ] Write platform-specific integration tests for Android and iOS.
-- [ ] Establish automated code quality and linting checks.
+- **Google Pay Domain Models & Contracts (`commonMain`).** Define platform-agnostic models
+  including `PaymentRequest`, `PaymentResult`, `Money`, `Currency`, `PaymentMethod`, `GooglePayConfig`
+  (environment, merchant ID/name, allowed card networks, auth methods `PAN_ONLY`/`CRYPTOGRAM_3DS`,
+  tokenization spec for gateways like Stripe/Adyen/direct), and the `PaymentProvider` interface.
+- **Android GooglePayProvider (`androidMain`).** Integrate `com.google.android.gms:play-services-wallet`
+  behind `PaymentProvider`. Implement `isReadyToPay` readiness check and `PaymentDataRequest` JSON builder
+  compliant with Google Pay API v2 (`apiVersion: 2, apiVersionMinor: 0`).
+- **Google Pay UI & Activity Result (`:app` / Compose).** Build a Jetpack Compose `GooglePayButton`
+  following Google Pay Brand Guidelines (official assets, dark/light theme options, minimum 48dp touch target)
+  and manage resolution via `rememberLauncherForActivityResult` with `AutoResolveHelper` or `GetPaymentDataContract`.
+- **Shared Module Architecture.** Maintain clean separation where platform-specific wallet APIs
+  live in target source sets (`androidMain` for Google Pay, `iosMain` for Apple Pay) and are
+  orchestrated by common view models and state reducers in `commonMain`.
 
-## Phase 7: Documentation & Release
-- [ ] Generate API reference documentation (e.g., using Dokka).
-- [ ] Write comprehensive "Getting Started" guides for SDK integrators.
-- [ ] Polish the sample/demo applications.
-- [ ] Set up CI/CD pipelines (GitHub Actions, etc.) for automated building and testing.
-- [ ] Publish the SDK to a package registry (e.g., Maven Central).
+## Design direction
+
+Competitive review of Stripe PaymentSheet, Adyen Drop-in, Braintree Drop-in, Square
+In-App Payments, and Google Pay Brand Guidelines informs the SDK's UX architecture:
+
+- **Wallets first, card second.** Express Google Pay buttons belong at the top of the sheet,
+  above an "Or pay with card" divider. Burying wallet buttons is the leading cause of mobile drop-off.
+- **Dynamic wallet availability.** The Google Pay button must only render if `isReadyToPay`
+  returns true on the user's device. If unavailable, the UI cleanly collapses to card checkout.
+- **Google Pay Brand Compliance.** Google Pay buttons must strictly adhere to Google's brand
+  rules (appropriate contrast, no distorted logos, localized button labels like "Pay with GPay",
+  minimum 48dp touch height).
+- **A drop-in sheet, not a screen.** A pre-built bottom sheet keeps the shopper in the host
+  app and keeps card/wallet data off the integrator's servers, holding them in the lightest PCI
+  tier (SAQ A).
+- **Immediate, explicit feedback.** Provide distinct states: disabled & spinning indicator during
+  payment authorization, clear inline error messages if user cancels or card is declined, and an
+  animated success confirmation.
+- **One-handed reachability.** Primary payment triggers and express buttons reside in the lower
+  half of the viewport, supporting seamless thumb reachability and keyboard avoidance.
+
+## Phases
+
+- **Foundation & Google Pay** — core domain models, Google Pay provider, Compose button, sample checkout.
+- **Core checkout** — Ktor gateway client, payment theme tokens, card inputs with Luhn validation, drop-in sheet.
+- **iOS & Wallets** — Apple Pay provider with PassKit, unified cross-platform wallet orchestration.
+- **Hardening & Security** — 3D Secure challenges, PCI compliance audit, unit & platform integration tests.
+- **Reach** — PayPal, Braintree, and regional payment methods (Klarna, iDEAL).
+- **Release** — CI/CD automation, Dokka documentation, sample app polish, Maven Central release.

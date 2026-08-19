@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "payment-sdk"
 include(":app")
- 
+include(":shared")

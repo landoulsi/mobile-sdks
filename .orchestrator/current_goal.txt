@@ -1,1 +1,1 @@
-Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API
+Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">payment-sdk</string>
+
+    <!-- Google Pay Button Localized Strings -->
+    <string name="gpay_buy_with">Buy with</string>
+    <string name="gpay_pay_with">Pay with</string>
+    <string name="gpay_checkout_with">Checkout with</string>
+    <string name="gpay_order_with">Order with</string>
+    <string name="gpay_subscribe_with">Subscribe with</string>
+    <string name="gpay_brand_name">Google Pay</string>
+    <string name="gpay_content_description_plain">Google Pay</string>
+    <string name="gpay_content_description_with_prefix">%1$s Google Pay</string>
 </resources>

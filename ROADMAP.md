@@ -14,7 +14,7 @@ Active priority is integrating Google Pay on Android and establishing domain mod
 - [x] [tool: antigravity] Initialize the shared Kotlin Multiplatform module with common, Android and iOS source sets
 - [x] [tool: antigravity] Define core payment domain models and Google Pay configuration contracts in commonMain
 - [x] [tool: antigravity] Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play Services Wallet API
-- [ ] [tool: antigravity] Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component
+- [x] [tool: antigravity] Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component
 - [ ] [tool: antigravity] Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity
 - [ ] [tool: claude] Add Ktor HTTP client and gateway token serialization for Google Pay and card payments
 - [ ] [tool: opencode] Add a design token layer and payment-oriented Material 3 theme replacing template purple palette

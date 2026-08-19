@@ -210,15 +210,23 @@ class DefaultGooglePayClient(
             AutoResolveHelper.RESULT_ERROR -> {
                 val status = AutoResolveHelper.getStatusFromIntent(data)
                 val statusCode = status?.statusCode ?: CommonStatusCodes.ERROR
-                val message = status?.statusMessage ?: "Google Pay returned an error (status code: $statusCode)"
+                val message = status?.statusMessage ?: "Google Pay returned status code: $statusCode"
                 when (statusCode) {
                     CommonStatusCodes.CANCELED -> PaymentResult.Canceled
-                    CommonStatusCodes.NETWORK_ERROR -> PaymentResult.Failure(
+                    CommonStatusCodes.NETWORK_ERROR,
+                    CommonStatusCodes.TIMEOUT -> PaymentResult.Failure(
                         errorCode = PaymentErrorCode.NETWORK_ERROR,
                         message = message
                     )
-                    CommonStatusCodes.DEVELOPER_ERROR -> PaymentResult.Failure(
+                    CommonStatusCodes.DEVELOPER_ERROR,
+                    CommonStatusCodes.API_NOT_CONNECTED,
+                    CommonStatusCodes.SERVICE_VERSION_UPDATE_REQUIRED,
+                    CommonStatusCodes.SERVICE_DISABLED -> PaymentResult.Failure(
                         errorCode = PaymentErrorCode.CONFIGURATION_ERROR,
+                        message = message
+                    )
+                    CommonStatusCodes.INTERRUPTED -> PaymentResult.Failure(
+                        errorCode = PaymentErrorCode.UNKNOWN,
                         message = message
                     )
                     else -> PaymentResult.Failure(

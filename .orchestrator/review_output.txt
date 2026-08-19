@@ -1,61 +1,55 @@
-[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/go…[0m
+[2m🔧 run_command: git diff HEAD~1[0m
 [2m🔧 run_command: git status[0m
-[2m🔧 run_command: git log -n 5 --oneline[0m
-[2m🔧 run_command: git diff HEAD mobile/[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 run_command: git log -n 3 --stat[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 find_by_name: *.kt /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
+[2m🔧 find_by_name: *gpay* /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_light.xml[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provi…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 run_command: ./gradlew allTests[0m
-SCORE: 95
+[2m🔧 run_command: ./gradlew test[0m
+[2m🔧 run_command: ./gradlew allTests testAndroidHostTest[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/ROADMAP.md[0m
+SCORE: 94
 
 ### Code Review Summary
 
-The implementation of the Android Google Pay integration wrapping Google Play Services Wallet API is well-architected, robust, and adheres to Google Pay API v2 specifications. The modular design cleanly isolates JSON payload generation, Play Services client interactions, and high-level provider integration with the shared multiplatform payment models.
+The implementation of the Google Pay ActivityResult launcher contracts and the Compose [`GooglePayButton`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L89) component is well-architected, highly compliant with Google Pay Brand Guidelines, and thoroughly tested.
 
 ---
 
 ### Key Strengths
 
-1. **Clean Separation of Concerns**:
-   - [`GooglePayJsonFactory`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L26-L272) handles JSON schema serialization and deserialization independently from Android framework classes.
-   - [`GooglePayClient`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L25-L123) and [`DefaultGooglePayClient`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L128-L238) encapsulate Play Services `PaymentsClient` calls and Activity intent resolution.
-   - [`GooglePayProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt#L19-L97) bridges the implementation to the cross-platform [`PaymentProvider`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provider/PaymentProvider.kt#L11-L30) interface.
+1. **Google Pay Brand Compliance**:
+   - [`GooglePayButton`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L89) strictly enforces the minimum touch target height of 48dp via `.defaultMinSize(minHeight = minHeight.coerceAtLeast(48.dp))`.
+   - Provides full visual theming support ([`GooglePayButtonTheme.DARK`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L43), [`GooglePayButtonTheme.LIGHT`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L45), and [`GooglePayButtonTheme.DYNAMIC`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L47)) with official high-quality vector drawables ([`gpay_logo_generic_dark.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml) and [`gpay_logo_generic_light.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_light.xml)) and the required border styling (`#747775` 1dp stroke) for light surfaces.
+   - Comprehensive [`GooglePayButtonType`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L53) enumeration mapped to localized string resources in [strings.xml](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml).
+   - Accessibility support with `Role.Button` and contextual content descriptions.
 
-2. **Coroutine Safety & Exception Handling**:
-   - In [`DefaultGooglePayClient.isReadyToPay`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L148-L154) and [`GooglePayProvider.pay`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt#L50-L96), `kotlinx.coroutines.CancellationException` is explicitly checked and rethrown to ensure structured concurrency is preserved.
-   - Standard Google Play Services status codes (`CommonStatusCodes.CANCELED`, `CommonStatusCodes.NETWORK_ERROR`, `CommonStatusCodes.DEVELOPER_ERROR`) are mapped to domain-level [`PaymentResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L32-L76) and [`PaymentErrorCode`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L6-L27) variants.
+2. **Dual ActivityResult Contract Support**:
+   - Modern delegation: [`GooglePayPaymentTaskContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L58) wraps Google Play Services' official `TaskResultContracts.GetPaymentDataResult` with input encapsulation via [`GooglePayPaymentTaskInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L21).
+   - Legacy / Intent fallback: [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L115) with [`GooglePayIntentResultInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L32) enables compatibility with `AutoResolveHelper` workflows.
 
-3. **Google Pay API v2 Compliance**:
-   - Correctly constructs `apiVersion: 2` and `apiVersionMinor: 0` headers.
-   - Accurately omits `tokenizationSpecification` in `isReadyToPay` readiness checks per Google's integration guidelines.
-   - Supports both `PAYMENT_GATEWAY` (e.g. Stripe, Adyen, Braintree) and `DIRECT` tokenization specifications via [`GooglePayTokenizationSpecification`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L52-L134).
+3. **Status Code Mapping & Error Safety**:
+   - Robust translation from Google Play Services `CommonStatusCodes` to domain `PaymentErrorCode` (`NETWORK_ERROR`, `CONFIGURATION_ERROR`, `GATEWAY_ERROR`, etc.) and `PaymentResult.Canceled`.
 
-4. **Test Coverage**:
-   - Comprehensive test suites in [`GooglePayJsonFactoryTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactoryTest.kt#L25-L258) and [`GooglePayClientAndProviderTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClientAndProviderTest.kt#L27-L214) verify JSON contract formatting, address parsing, and failure/cancellation branches.
+4. **Testing**:
+   - [`GooglePayLauncherContractTest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContractTest.kt#L26) validates cancellation, client delegation, input encapsulation, and fallback error handling.
 
 ---
 
 ### Minor Observations & Recommendations
 
-1. **Billing Address Requirement Flag Merging**:
-   - In [`GooglePayJsonFactory.createPaymentDataRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L177), shipping address requirement is computed with `request.requireShipping || config.shippingAddressRequired`.
-   - However, in [`GooglePayJsonFactory.createCardParameters`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L84), billing address requirement only inspects `config.billingAddressRequired`. If a caller supplies a [`PaymentRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentRequest.kt#L27) with `requireBillingAddress = true` while `config.billingAddressRequired` is `false`, the request-level flag will not be reflected in the payload. Consider passing `request.requireBillingAddress || config.billingAddressRequired` when constructing the card parameters.
+1. **State Preservation Across Activity Recreation**:
+   - In [`GooglePayPaymentTaskContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L63) and [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L120), `pendingTransactionId` is stored in an instance variable. If an Activity undergoes process death or configuration change while the Google Pay sheet is active, a recreated contract instance will revert to `defaultTransactionId`. Supplying `defaultTransactionId` during contract registration mitigates this, but callers relying purely on runtime `input.transactionId` should be aware of this lifecycle constraint.
 
-2. **Configurability of `existingPaymentMethodRequired`**:
-   - [`GooglePayJsonFactory.createIsReadyToPayRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L117-L120) supports `existingPaymentMethodRequired`, but [`GooglePayConfig`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L153-L175) does not expose this setting. Adding an optional property to [`GooglePayConfig`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/GooglePayConfig.kt#L153) would allow apps to differentiate between whether Google Pay is supported vs. whether the user has a card on file ready to pay.
+2. **Null PaymentData with Success Status Edge Case**:
+   - In [`GooglePayPaymentTaskContract.parseResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L70-L86), if `status.isSuccess` is `true` but `paymentData` is `null`, execution falls through to the status code `when` block with status code `0` (`SUCCESS`), classifying it as a `GATEWAY_ERROR`. Explicitly mapping `status.isSuccess && paymentData == null` to `PaymentErrorCode.UNKNOWN` (as done in [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L140-L144)) would improve consistency.
 
-3. **`totalPriceStatus` Dynamic Support**:
-   - In [`GooglePayJsonFactory.createPaymentDataRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L152), `totalPriceStatus` is hardcoded to `"FINAL"`. This is standard for immediate checkouts, but if estimated cart totals or authorization holds are needed later, exposing a price status enum would provide added flexibility.
+3. **Parsing Logic DRYness**:
+   - The fallback parsing logic in [`GooglePayIntentResultContract.parseResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L133-L190) mirrors [`DefaultGooglePayClient.parsePaymentResultFromIntent`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L183-L245). Delegating standalone contract parsing through a shared static method would reduce maintenance surface.
 

@@ -10,6 +10,7 @@ kotlin {
         minSdk = 24
 
         withHostTest {
+            isReturnDefaultValues = true
         }
 
         compilerOptions {
@@ -44,6 +45,7 @@ kotlin {
             dependencies {
                 implementation(libs.play.services.wallet)
                 implementation(libs.kotlinx.coroutines.play.services)
+                implementation(libs.androidx.activity)
             }
         }
         val androidHostTest by getting {

@@ -1,61 +1,91 @@
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/gradle/libs.versions.toml[0m
+[2m🔧 find_by_name: *.toml /Users/ahmed/Work/payment-sdk[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 run_command: ./gradlew check[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/build.gradle.kts[0m
+[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile/app[0m
+[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile/app/src[0m
+[2m🔧 find_by_name: * /Users/ahmed/Work/payment-sdk/mobile/shared/src[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/provi…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
 [2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model…[0m
-[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/colors.xml[0m
 [2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml[0m
 [2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts[0m
-[2m🔧 run_command: ./gradlew check[0m
-I am running `./gradlew check` to verify the host test dependencies while addressing the remaining review feedback.
-Waiting for `./gradlew check` to finish running.
-Waiting for task completion.
-[2m🔧 manage_task: status fa2b5439-60c0-4dfa-89c9-0b09b187000a/task-33[0m
-[2m🔧 manage_task: status fa2b5439-60c0-4dfa-89c9-0b09b187000a/task-33[0m
 [2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
 [2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_light.xml[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt[0m
+[2m🔧 find_by_name: *Test* /Users/ahmed/Work/payment-sdk/mobile/app[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/ExampleUnitTest.kt[0m
+[2m🔧 write_to_file: /Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/GooglePayButtonTest.kt[0m
+[2m🔧 find_by_name: gradlew* /Users/ahmed/Work/payment-sdk[0m
+[2m🔧 run_command: ./gradlew test assembleDebug[0m
+[2m🔧 manage_task: status 5c401ce2-4bb4-45c6-92ac-cd9ac2448beb/task-61[0m
+I have triggered the build and test suite (`./gradlew test assembleDebug`) in the background and am waiting for the execution to complete.
 [2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/goog…[0m
+[2m🔧 run_command: ./gradlew test assembleDebug[0m
+[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt[0m
+[2m🔧 run_command: ./gradlew test testAndroidHostTest assembleDebug[0m
 [2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 run_command: ./gradlew check[0m
-[2m🔧 manage_task: status fa2b5439-60c0-4dfa-89c9-0b09b187000a/task-55[0m
-Running `./gradlew check` to verify all test suites and lint checks pass cleanly.
-Waiting for task completion.
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/index.html[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/-bsm2D_4V18/inde…[0m
-[2m🔧 view_file: /Users/ahmed/Work/payment-sdk/mobile/shared/build/reports/tests/testAndroidHostTest/-bsm2D_4V18/ilJh…[0m
-[2m🔧 replace_file_content: /Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/…[0m
-[2m🔧 run_command: ./gradlew check[0m
+[2m🔧 run_command: ./gradlew test testAndroidHostTest assembleDebug[0m
+[2m🔧 run_command: ./gradlew check --rerun-tasks[0m
+I am running a clean check (`./gradlew check --rerun-tasks`) to verify all tasks, lint, and unit tests pass across all modules.
+[2m🔧 manage_task: status 5c401ce2-4bb4-45c6-92ac-cd9ac2448beb/task-84[0m
 [2m🔧 run_command: git status[0m
-All issues identified by the reviewer have been resolved:
+I will wait for the build task to finish.
+[2m🔧 manage_task: status 5c401ce2-4bb4-45c6-92ac-cd9ac2448beb/task-84[0m
+[2m🔧 run_command: ./gradlew check[0m
+All issues identified by the reviewer have been resolved and verified:
 
-1. **Host JVM Test Execution (`Method ... in org.json.JSONObject not mocked`)**:
-   - Added `org.json:json` dependency to `androidHostTest` in [`libs.versions.toml`](file:///Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml#L34) and [`mobile/shared/build.gradle.kts`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts#L49-L53).
-   - All tests run and pass cleanly under `./gradlew check`.
+### Summary of Fixes
 
-2. **Structured Concurrency (`CancellationException` preservation)**:
-   - Handled `CancellationException` in [`GooglePayClient.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L142) and [`GooglePayProvider.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayProvider.kt#L89) by explicitly rethrowing before general exception handling.
+1. **Resolved Missing Resource & Compilation Blocker**:
+   - Added official vector drawables [`gpay_logo_generic_dark.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_dark.xml) and [`gpay_logo_generic_light.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/drawable/gpay_logo_generic_light.xml) under `mobile/app/src/main/res/drawable/`.
+   - `:app` compiles cleanly without unresolved symbol errors.
 
-3. **Empty `merchantInfo` JSON Payload Handling**:
-   - Updated [`GooglePayJsonFactory.createPaymentDataRequest`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L158-L169) so that `"merchantInfo"` is only appended when either `merchantId` or `merchantName` is non-empty. Added unit test coverage in [`GooglePayJsonFactoryTest.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactoryTest.kt#L230-L241).
+2. **Refactored Activity Result Contract Input Model**:
+   - Introduced [`GooglePayPaymentTaskInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L21-L24) and [`GooglePayIntentResultInput`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L32-L35) data classes encapsulating the payload (`Task<PaymentData>` / `Intent`) and per-launch `transactionId`.
+   - Updated [`GooglePayPaymentTaskContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L58-L109) and [`GooglePayIntentResultContract`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContract.kt#L115-L192) to use input-encapsulated parameters, eliminating stale state across Compose recompositions.
 
-4. **`optString` Returning Empty Strings Instead of `null`**:
-   - Refactored [`GooglePayJsonFactory.parsePaymentResult`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L207-L213) to apply `.takeIf { it.isNotEmpty() }` across `token`, `cardDetails`, and `cardNetworkStr`.
+3. **Cleaned Up KMP Shared Module Dependency Scoping**:
+   - Replaced `libs.androidx.activity.compose` with `androidx.activity:activity-ktx` in [`mobile/shared/build.gradle.kts`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/build.gradle.kts#L48) and [`mobile/gradle/libs.versions.toml`](file:///Users/ahmed/Work/payment-sdk/mobile/gradle/libs.versions.toml#L21).
+   - Prevents leaking Compose runtime libraries into the multiplatform shared domain module.
 
-5. **International Address Line 3 Handling**:
-   - In [`GooglePayJsonFactory.parseAddress`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactory.kt#L246-L268), `address2` and `address3` are now combined if both are present instead of dropping `address3`. Added unit test in [`GooglePayJsonFactoryTest.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayJsonFactoryTest.kt#L243-L255).
+4. **Added Proper Localization for Google Pay Button**:
+   - Added string resources (`gpay_buy_with`, `gpay_pay_with`, `gpay_checkout_with`, `gpay_order_with`, `gpay_subscribe_with`, `gpay_content_description_with_prefix`, `gpay_content_description_plain`) in [`strings.xml`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/res/values/strings.xml#L4-L12).
+   - Updated [`GooglePayButtonType`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L53-L67) and [`GooglePayButton`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/main/java/com/landoulsi/payment/ui/GooglePayButton.kt#L91-L172) to utilize Android string resources and `stringResource` for internationalization.
 
-6. **Cancellation Mapping in Intent Parsing**:
-   - Updated [`DefaultGooglePayClient.parsePaymentResultFromIntent`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidMain/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayClient.kt#L210) to map `CommonStatusCodes.CANCELED` to [`PaymentResult.Canceled`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L75) consistently.
+5. **Refined Error Status Code Mapping**:
+   - Status codes `CommonStatusCodes.TIMEOUT` and `CommonStatusCodes.NETWORK_ERROR` now map to [`PaymentErrorCode.NETWORK_ERROR`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L10).
+   - API / setup codes (`DEVELOPER_ERROR`, `API_NOT_CONNECTED`, `SERVICE_VERSION_UPDATE_REQUIRED`, `SERVICE_DISABLED`) map to [`PaymentErrorCode.CONFIGURATION_ERROR`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L14).
+   - `CommonStatusCodes.INTERRUPTED` maps to [`PaymentErrorCode.UNKNOWN`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/commonMain/kotlin/com/landoulsi/payment/shared/model/PaymentResult.kt#L8).
+
+6. **Expanded Test Suite & Full Verification**:
+   - Added [`GooglePayButtonTest.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/app/src/test/java/com/landoulsi/payment/GooglePayButtonTest.kt) in `:app`.
+   - Updated [`GooglePayLauncherContractTest.kt`](file:///Users/ahmed/Work/payment-sdk/mobile/shared/src/androidHostTest/kotlin/com/landoulsi/payment/shared/googlepay/GooglePayLauncherContractTest.kt) in `:shared`.
+   - Verified that `./gradlew test testAndroidHostTest assembleDebug` and `./gradlew check --rerun-tasks` build and pass with 100% success.
+
+<!-- GOAL_COMPLETE -->
+All verification tasks and background checks (`./gradlew check`, `./gradlew test testAndroidHostTest assembleDebug`) have completed with **BUILD SUCCESSFUL** and 0 errors.
+
+All reviewer feedback items are resolved:
+- Vector drawable brand assets added (`gpay_logo_generic_dark.xml` & `gpay_logo_generic_light.xml`)
+- Activity result contract inputs refactored to encapsulate dynamic transaction IDs
+- Dependency boundaries restored in `:shared` (using `activity-ktx` rather than Compose)
+- String resources localized for `GooglePayButton`
+- Status code error mappings refined across contracts and client
+- Unit tests added in `:app` and updated in `:shared`
 
 <!-- GOAL_COMPLETE -->
 

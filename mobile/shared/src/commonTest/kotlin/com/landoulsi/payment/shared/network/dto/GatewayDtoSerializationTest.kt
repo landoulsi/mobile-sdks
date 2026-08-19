@@ -390,4 +390,311 @@ class GatewayDtoSerializationTest {
         assertNull(errorResponse.error.code)
         assertNull(errorResponse.error.message)
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  GatewayErrorResponse round-trip
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testGatewayErrorResponse_roundTripSerialization() {
+        val original = GatewayErrorResponse(
+            error = com.landoulsi.payment.shared.network.dto.GatewayError(
+                type = "card_error",
+                code = "card_declined",
+                message = "Card was declined",
+                param = "source",
+                declineCode = "generic_decline"
+            )
+        )
+
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<GatewayErrorResponse>(json)
+
+        assertEquals(original.error?.type, deserialized.error?.type)
+        assertEquals(original.error?.code, deserialized.error?.code)
+        assertEquals(original.error?.message, deserialized.error?.message)
+        assertEquals(original.error?.param, deserialized.error?.param)
+        assertEquals(original.error?.declineCode, deserialized.error?.declineCode)
+    }
+
+    @Test
+    fun testGatewayErrorResponse_roundTripWithNullError() {
+        val original = GatewayErrorResponse(error = null)
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<GatewayErrorResponse>(json)
+
+        assertNull(deserialized.error)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  CardDetails serialization
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCardDetails_serializesAndDeserializes() {
+        val details = com.landoulsi.payment.shared.network.dto.CardDetails(
+            id = "card_abc",
+            brand = "visa",
+            last4 = "4242",
+            expMonth = 6,
+            expYear = 2030,
+            funding = "credit",
+            country = "US"
+        )
+
+        val json = PaymentJson.encodeToString(details)
+        val deserialized = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.CardDetails>(json)
+
+        assertEquals("card_abc", deserialized.id)
+        assertEquals("visa", deserialized.brand)
+        assertEquals("4242", deserialized.last4)
+        assertEquals(6, deserialized.expMonth)
+        assertEquals(2030, deserialized.expYear)
+        assertEquals("credit", deserialized.funding)
+        assertEquals("US", deserialized.country)
+    }
+
+    @Test
+    fun testCardDetails_minimalDeserialization() {
+        val json = "{}"
+        val details = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.CardDetails>(json)
+
+        assertNull(details.id)
+        assertNull(details.brand)
+        assertNull(details.last4)
+        assertNull(details.expMonth)
+        assertNull(details.expYear)
+        assertNull(details.funding)
+        assertNull(details.country)
+    }
+
+    @Test
+    fun testCardDetails_ignoresUnknownKeys() {
+        val json = """
+            {
+              "id": "card_test",
+              "brand": "mastercard",
+              "last4": "5555",
+              "future_field": "ignored",
+              "metadata": {}
+            }
+        """.trimIndent()
+
+        val details = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.CardDetails>(json)
+        assertEquals("card_test", details.id)
+        assertEquals("mastercard", details.brand)
+        assertEquals("5555", details.last4)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  GooglePayIntermediateSigningKey serialization
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testGooglePayIntermediateSigningKey_roundTrip() {
+        val key = com.landoulsi.payment.shared.network.dto.GooglePayIntermediateSigningKey(
+            signedKey = "base64_signed_key==",
+            signatures = listOf("sig_a", "sig_b", "sig_c")
+        )
+
+        val json = PaymentJson.encodeToString(key)
+        val deserialized = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.GooglePayIntermediateSigningKey>(json)
+
+        assertEquals("base64_signed_key==", deserialized.signedKey)
+        assertEquals(3, deserialized.signatures.size)
+        assertEquals("sig_a", deserialized.signatures[0])
+        assertEquals("sig_c", deserialized.signatures[2])
+    }
+
+    @Test
+    fun testGooglePayIntermediateSigningKey_emptySignatures() {
+        val json = """{"signedKey": "key123", "signatures": []}"""
+        val key = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.GooglePayIntermediateSigningKey>(json)
+
+        assertEquals("key123", key.signedKey)
+        assertTrue(key.signatures.isEmpty())
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  GooglePayBillingAddress serialization
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testGooglePayBillingAddress_fullSerialization() {
+        val address = com.landoulsi.payment.shared.network.dto.GooglePayBillingAddress(
+            name = "John Doe",
+            address1 = "123 Main St",
+            address2 = "Apt 4B",
+            address3 = "Suite 200",
+            locality = "San Francisco",
+            administrativeArea = "CA",
+            countryCode = "US",
+            postalCode = "94101",
+            sortingCode = "12345",
+            phoneNumber = "+1-555-0100"
+        )
+
+        val json = PaymentJson.encodeToString(address)
+        val deserialized = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.GooglePayBillingAddress>(json)
+
+        assertEquals("John Doe", deserialized.name)
+        assertEquals("123 Main St", deserialized.address1)
+        assertEquals("Apt 4B", deserialized.address2)
+        assertEquals("Suite 200", deserialized.address3)
+        assertEquals("San Francisco", deserialized.locality)
+        assertEquals("CA", deserialized.administrativeArea)
+        assertEquals("US", deserialized.countryCode)
+        assertEquals("94101", deserialized.postalCode)
+        assertEquals("12345", deserialized.sortingCode)
+        assertEquals("+1-555-0100", deserialized.phoneNumber)
+    }
+
+    @Test
+    fun testGooglePayBillingAddress_partialFields() {
+        val json = """
+            {
+              "name": "Jane",
+              "countryCode": "GB",
+              "postalCode": "SW1A 1AA"
+            }
+        """.trimIndent()
+
+        val address = PaymentJson.decodeFromString<com.landoulsi.payment.shared.network.dto.GooglePayBillingAddress>(json)
+        assertEquals("Jane", address.name)
+        assertEquals("GB", address.countryCode)
+        assertEquals("SW1A 1AA", address.postalCode)
+        assertNull(address.address1)
+        assertNull(address.locality)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  CardTokenResponse with full CardDetails round-trip
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCardTokenResponse_roundTripWithFullCardDetails() {
+        val original = CardTokenResponse(
+            id = "tok_rt_123",
+            `object` = "token",
+            created = 1700000000L,
+            livemode = true,
+            type = "card",
+            card = com.landoulsi.payment.shared.network.dto.CardDetails(
+                id = "card_rt_1",
+                brand = "amex",
+                last4 = "0005",
+                expMonth = 3,
+                expYear = 2031,
+                funding = "credit",
+                country = "US"
+            )
+        )
+
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<CardTokenResponse>(json)
+
+        assertEquals("tok_rt_123", deserialized.id)
+        assertEquals("token", deserialized.`object`)
+        assertEquals(1700000000L, deserialized.created)
+        assertEquals(true, deserialized.livemode)
+        assertEquals("card", deserialized.type)
+        assertNotNull(deserialized.card)
+        assertEquals("amex", deserialized.card!!.brand)
+        assertEquals("0005", deserialized.card.last4)
+        assertEquals(3, deserialized.card.expMonth)
+        assertEquals(2031, deserialized.card.expYear)
+        assertEquals("credit", deserialized.card.funding)
+        assertEquals("US", deserialized.card.country)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  GooglePayGatewayToken round-trip
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testGooglePayGatewayToken_roundTrip() {
+        val original = GooglePayGatewayToken(id = "tok_round_trip", `object` = "token")
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<GooglePayGatewayToken>(json)
+
+        assertEquals(original.id, deserialized.id)
+        assertEquals(original.`object`, deserialized.`object`)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  GooglePayDirectToken round-trip
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testGooglePayDirectToken_roundTrip() {
+        val original = GooglePayDirectToken(
+            protocolVersion = "ECv2",
+            signature = "sig_base64",
+            signedMessage = "msg_base64",
+            intermediateSigningKey = com.landoulsi.payment.shared.network.dto.GooglePayIntermediateSigningKey(
+                signedKey = "key_base64",
+                signatures = listOf("ecdsa_sig")
+            )
+        )
+
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<GooglePayDirectToken>(json)
+
+        assertEquals("ECv2", deserialized.protocolVersion)
+        assertEquals("sig_base64", deserialized.signature)
+        assertEquals("msg_base64", deserialized.signedMessage)
+        assertNotNull(deserialized.intermediateSigningKey)
+        assertEquals("key_base64", deserialized.intermediateSigningKey!!.signedKey)
+        assertEquals(listOf("ecdsa_sig"), deserialized.intermediateSigningKey!!.signatures)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  GooglePayCardInfo round-trip
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testGooglePayCardInfo_roundTrip() {
+        val original = GooglePayCardInfo(
+            cardNetwork = "VISA",
+            cardDetails = "4242",
+            billingAddress = com.landoulsi.payment.shared.network.dto.GooglePayBillingAddress(
+                name = "RT Test",
+                countryCode = "DE",
+                postalCode = "10115"
+            )
+        )
+
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<GooglePayCardInfo>(json)
+
+        assertEquals("VISA", deserialized.cardNetwork)
+        assertEquals("4242", deserialized.cardDetails)
+        assertNotNull(deserialized.billingAddress)
+        assertEquals("RT Test", deserialized.billingAddress!!.name)
+        assertEquals("DE", deserialized.billingAddress.countryCode)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  CardTokenRequest round-trip
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCardTokenRequest_roundTrip() {
+        val original = CardTokenRequest(
+            number = "5105105105105100",
+            expiryMonth = 11,
+            expiryYear = 2032,
+            cvc = "321",
+            cardholderName = "Round Trip"
+        )
+
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<CardTokenRequest>(json)
+
+        assertEquals("5105105105105100", deserialized.number)
+        assertEquals(11, deserialized.expiryMonth)
+        assertEquals(2032, deserialized.expiryYear)
+        assertEquals("321", deserialized.cvc)
+        assertEquals("Round Trip", deserialized.cardholderName)
+    }
 }

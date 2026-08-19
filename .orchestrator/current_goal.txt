@@ -1,1 +1,1 @@
-Add Ktor HTTP client and gateway token serialization for Google Pay and card payments
+Add a design token layer and payment-oriented Material 3 theme replacing template purple palette

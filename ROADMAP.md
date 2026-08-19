@@ -17,7 +17,7 @@ Active priority is integrating Google Pay on Android and establishing domain mod
 - [x] [tool: antigravity] Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component
 - [x] [tool: antigravity] Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity
 - [x] [tool: claude] Add Ktor HTTP client and gateway token serialization for Google Pay and card payments
-- [ ] [tool: opencode] Add a design token layer and payment-oriented Material 3 theme replacing template purple palette
+- [x] [tool: opencode] Add a design token layer and payment-oriented Material 3 theme replacing template purple palette
 - [ ] [tool: claude] Build card number, expiry and CVC input components with live formatting and Luhn validation
 - [ ] [tool: antigravity] Assemble the drop-in checkout sheet with express Google Pay button rendered above card form
 - [ ] [tool: opencode] Add explicit payment feedback states with inline field errors, processing spinner and confirmation

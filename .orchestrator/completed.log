@@ -25,3 +25,4 @@ Implement the Android GooglePayClient and GooglePayProvider wrapping Google Play
 Implement Google Pay ActivityResult launcher contract and Compose GooglePayButton component
 Integrate GooglePayProvider and wallet flow into CheckoutViewModel and demo MainActivity
 Add Ktor HTTP client and gateway token serialization for Google Pay and card payments
+Add a design token layer and payment-oriented Material 3 theme replacing template purple palette

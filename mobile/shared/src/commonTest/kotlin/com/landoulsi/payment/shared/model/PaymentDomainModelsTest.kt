@@ -5,6 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -269,11 +270,109 @@ class PaymentDomainModelsTest {
         assertNull(request.merchantName)
         assertNull(request.description)
         assertNull(request.googlePayConfig)
+        assertNull(request.applePayConfig)
         assertFalse(request.requireShipping)
         assertFalse(request.requireBillingAddress)
         assertTrue(request.metadata.isEmpty())
         assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.GOOGLE_PAY))
+        assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.APPLE_PAY))
         assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.CARD))
+    }
+
+    @Test
+    fun testApplePayConfigDefaultsAndPaymentRequest() {
+        val applePayConfig = ApplePayConfig(
+            merchantIdentifier = "merchant.com.landoulsi.payment"
+        )
+
+        assertEquals("merchant.com.landoulsi.payment", applePayConfig.merchantIdentifier)
+        assertEquals("US", applePayConfig.countryCode)
+        assertEquals(listOf(ApplePayMerchantCapability.THREE_D_SECURE), applePayConfig.merchantCapabilities)
+        assertEquals(
+            listOf(CardNetwork.VISA, CardNetwork.MASTERCARD, CardNetwork.AMEX, CardNetwork.DISCOVER),
+            applePayConfig.allowedCardNetworks
+        )
+        assertNull(applePayConfig.merchantSessionProvider)
+        assertTrue(applePayConfig.requiredBillingContactFields.isEmpty())
+        assertTrue(applePayConfig.requiredShippingContactFields.isEmpty())
+        assertEquals(ApplePayShippingType.SHIPPING, applePayConfig.shippingType)
+        assertTrue(applePayConfig.summaryItems.isEmpty())
+        assertTrue(applePayConfig.supportedCountries.isEmpty())
+
+        val request = PaymentRequest(
+            id = "order_applepay_123",
+            amount = Money.fromMajorUnits(49.99, Currency.USD),
+            merchantName = "Landoulsi Store",
+            applePayConfig = applePayConfig
+        )
+
+        assertEquals("order_applepay_123", request.id)
+        assertEquals("49.99", request.amount.formattedAmount())
+        assertEquals("Landoulsi Store", request.merchantName)
+        assertEquals(applePayConfig, request.applePayConfig)
+        assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.APPLE_PAY))
+    }
+
+    @Test
+    fun testApplePayConfigFullCustomization() {
+        val customSummaryItems = listOf(
+            ApplePaySummaryItem("Subtotal", Money.ofCents(3000, Currency.EUR)),
+            ApplePaySummaryItem("Shipping", Money.ofCents(500, Currency.EUR)),
+            ApplePaySummaryItem("Estimated Tax", Money.ofCents(250, Currency.EUR), ApplePaySummaryItemType.PENDING),
+            ApplePaySummaryItem("Total", Money.ofCents(3750, Currency.EUR), ApplePaySummaryItemType.FINAL)
+        )
+
+        val config = ApplePayConfig(
+            merchantIdentifier = "merchant.com.example.shop",
+            countryCode = "FR",
+            merchantCapabilities = listOf(
+                ApplePayMerchantCapability.THREE_D_SECURE,
+                ApplePayMerchantCapability.EMV,
+                ApplePayMerchantCapability.CREDIT,
+                ApplePayMerchantCapability.DEBIT
+            ),
+            allowedCardNetworks = listOf(CardNetwork.VISA, CardNetwork.MASTERCARD),
+            requiredBillingContactFields = setOf(ApplePayContactField.POSTAL_ADDRESS, ApplePayContactField.EMAIL),
+            requiredShippingContactFields = setOf(
+                ApplePayContactField.POSTAL_ADDRESS,
+                ApplePayContactField.NAME,
+                ApplePayContactField.PHONE_NUMBER
+            ),
+            shippingType = ApplePayShippingType.DELIVERY,
+            summaryItems = customSummaryItems,
+            supportedCountries = setOf("FR", "DE", "ES")
+        )
+
+        assertEquals("merchant.com.example.shop", config.merchantIdentifier)
+        assertEquals("FR", config.countryCode)
+        assertEquals(4, config.merchantCapabilities.size)
+        assertEquals(2, config.allowedCardNetworks.size)
+        assertTrue(config.requiredBillingContactFields.contains(ApplePayContactField.POSTAL_ADDRESS))
+        assertTrue(config.requiredBillingContactFields.contains(ApplePayContactField.EMAIL))
+        assertTrue(config.requiredShippingContactFields.contains(ApplePayContactField.PHONE_NUMBER))
+        assertEquals(ApplePayShippingType.DELIVERY, config.shippingType)
+        assertEquals(4, config.summaryItems.size)
+        assertEquals(ApplePaySummaryItemType.PENDING, config.summaryItems[2].type)
+        assertEquals(3, config.supportedCountries.size)
+    }
+
+    @Test
+    fun testApplePayMerchantSessionProvider() = kotlinx.coroutines.test.runTest {
+        var calledUrl: String? = null
+        val provider = ApplePayMerchantSessionProvider { validationUrl ->
+            calledUrl = validationUrl
+            """{"epochTimestamp":123456789,"expiresAt":123456799,"merchantSessionIdentifier":"SSH_123"}"""
+        }
+
+        val config = ApplePayConfig(
+            merchantIdentifier = "merchant.com.example.shop",
+            merchantSessionProvider = provider
+        )
+
+        assertNotNull(config.merchantSessionProvider)
+        val sessionJson = config.merchantSessionProvider?.provideMerchantSession("https://apple-pay-gateway.apple.com/paymentservices/startSession")
+        assertEquals("https://apple-pay-gateway.apple.com/paymentservices/startSession", calledUrl)
+        assertTrue(sessionJson?.contains("SSH_123") == true)
     }
 
     @Test
@@ -321,5 +420,69 @@ class PaymentDomainModelsTest {
         assertTrue(config.billingAddressRequired)
         assertTrue(config.emailRequired)
         assertTrue(config.shippingAddressRequired)
+    }
+
+    @Test
+    fun testApplePayEnumsAndDataClasses() {
+        val capabilities = ApplePayMerchantCapability.entries
+        assertEquals(4, capabilities.size)
+        assertTrue(capabilities.contains(ApplePayMerchantCapability.THREE_D_SECURE))
+        assertTrue(capabilities.contains(ApplePayMerchantCapability.EMV))
+        assertTrue(capabilities.contains(ApplePayMerchantCapability.CREDIT))
+        assertTrue(capabilities.contains(ApplePayMerchantCapability.DEBIT))
+
+        val shippingTypes = ApplePayShippingType.entries
+        assertEquals(4, shippingTypes.size)
+        assertTrue(shippingTypes.contains(ApplePayShippingType.SHIPPING))
+        assertTrue(shippingTypes.contains(ApplePayShippingType.DELIVERY))
+        assertTrue(shippingTypes.contains(ApplePayShippingType.STORE_PICKUP))
+        assertTrue(shippingTypes.contains(ApplePayShippingType.SERVICE_PICKUP))
+
+        val summaryItemTypes = ApplePaySummaryItemType.entries
+        assertEquals(2, summaryItemTypes.size)
+        assertTrue(summaryItemTypes.contains(ApplePaySummaryItemType.FINAL))
+        assertTrue(summaryItemTypes.contains(ApplePaySummaryItemType.PENDING))
+
+        val contactFields = ApplePayContactField.entries
+        assertEquals(5, contactFields.size)
+        assertTrue(contactFields.contains(ApplePayContactField.POSTAL_ADDRESS))
+        assertTrue(contactFields.contains(ApplePayContactField.EMAIL))
+        assertTrue(contactFields.contains(ApplePayContactField.PHONE_NUMBER))
+        assertTrue(contactFields.contains(ApplePayContactField.NAME))
+        assertTrue(contactFields.contains(ApplePayContactField.PHONETIC_NAME))
+
+        val defaultItem = ApplePaySummaryItem("Subtotal", Money.ofCents(1000, Currency.USD))
+        assertEquals(ApplePaySummaryItemType.FINAL, defaultItem.type)
+        val pendingItem = defaultItem.copy(type = ApplePaySummaryItemType.PENDING)
+        assertEquals(ApplePaySummaryItemType.PENDING, pendingItem.type)
+        assertEquals(defaultItem, defaultItem.copy())
+    }
+
+    @Test
+    fun testPaymentRequestWithApplePayAndGooglePayTogether() {
+        val gpay = GooglePayConfig(
+            merchantId = "gpay_123",
+            merchantName = "Test Merchant",
+            tokenizationSpecification = GooglePayTokenizationSpecification.Gateway.stripe("pk_123")
+        )
+        val applePay = ApplePayConfig(
+            merchantIdentifier = "merchant.com.example"
+        )
+        val request = PaymentRequest(
+            id = "dual_wallet_req",
+            amount = Money.fromMajorUnits(100.0, Currency.USD),
+            googlePayConfig = gpay,
+            applePayConfig = applePay,
+            requireShipping = true,
+            requireBillingAddress = true
+        )
+
+        assertEquals("dual_wallet_req", request.id)
+        assertNotNull(request.googlePayConfig)
+        assertNotNull(request.applePayConfig)
+        assertTrue(request.requireShipping)
+        assertTrue(request.requireBillingAddress)
+        assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.GOOGLE_PAY))
+        assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.APPLE_PAY))
     }
 }

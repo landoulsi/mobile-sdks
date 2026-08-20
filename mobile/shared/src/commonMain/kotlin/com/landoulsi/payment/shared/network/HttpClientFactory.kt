@@ -35,6 +35,7 @@ val PaymentJson: Json = Json {
     isLenient = true
     coerceInputValues = true
     encodeDefaults = true
+    explicitNulls = false
 }
 
 /**

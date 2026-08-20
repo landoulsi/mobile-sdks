@@ -60,3 +60,28 @@ val NeutralVar50 = Color(0xFF72787E)
 val NeutralVar60 = Color(0xFF8C9198)
 val NeutralVar80 = Color(0xFFC2C7CE)
 val NeutralVar90 = Color(0xFFDEE3EA)
+
+// Status colors
+val SuccessGreen = Color(0xFF34A853)
+
+// Card brand colors
+val CardVisa = Color(0xFF1A1F71)
+val CardMastercard = Color(0xFFEB001B)
+val CardAmex = Color(0xFF006FCF)
+val CardDiscover = Color(0xFFFF6000)
+val CardJcb = Color(0xFF003B77)
+val CardDinersClub = Color(0xFF004A97)
+val CardUnionPay = Color(0xFF007B78)
+val CardInterac = Color(0xFFFFD100)
+
+object PaymentColorTokens {
+    val success = SuccessGreen
+    val cardVisa = CardVisa
+    val cardMastercard = CardMastercard
+    val cardAmex = CardAmex
+    val cardDiscover = CardDiscover
+    val cardJcb = CardJcb
+    val cardDinersClub = CardDinersClub
+    val cardUnionPay = CardUnionPay
+    val cardInterac = CardInterac
+}

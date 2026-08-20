@@ -38,7 +38,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,9 +69,11 @@ import com.landoulsi.payment.shared.model.PaymentErrorCode
 import com.landoulsi.payment.shared.model.PaymentMethodType
 import com.landoulsi.payment.shared.model.PaymentRequest
 import com.landoulsi.payment.shared.model.PaymentResult
+import com.landoulsi.payment.shared.network.dto.CardTokenResponse
 import com.landoulsi.payment.ui.GooglePayButton
 import com.landoulsi.payment.ui.GooglePayButtonTheme
 import com.landoulsi.payment.ui.GooglePayButtonType
+import com.landoulsi.payment.ui.card.CardInputForm
 import com.landoulsi.payment.ui.theme.PaymentsdkTheme
 
 class MainActivity : ComponentActivity() {
@@ -205,6 +209,25 @@ fun CheckoutScreen(
                         },
                         onPayWithCardClick = {
                             onPayWithCardClick()
+                        },
+                        onCardComplete = { tokenResponse ->
+                            val card = tokenResponse.card
+                            val network = card?.brand?.let { b ->
+                                try {
+                                    CardNetwork.valueOf(b.uppercase())
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            }
+                            viewModel.handlePaymentResult(
+                                PaymentResult.Success(
+                                    transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
+                                    paymentMethodType = PaymentMethodType.CARD,
+                                    cardNetwork = network,
+                                    last4 = card?.last4,
+                                    token = tokenResponse.id
+                                )
+                            )
                         }
                     )
                 }
@@ -335,9 +358,12 @@ fun CheckingAvailabilityCard() {
 fun ReadyCheckoutSection(
     state: CheckoutUiState.Ready,
     onGooglePayClick: () -> Unit,
-    onPayWithCardClick: () -> Unit,
+    onPayWithCardClick: () -> Unit = {},
+    onCardComplete: ((CardTokenResponse) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    var isCardExpanded by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -388,18 +414,47 @@ fun ReadyCheckoutSection(
         }
 
         // Secondary / Card Checkout Option
-        OutlinedButton(
-            onClick = onPayWithCardClick,
-            shape = RoundedCornerShape(24.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.demo_pay_with_card),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
+        if (!isCardExpanded) {
+            OutlinedButton(
+                onClick = {
+                    isCardExpanded = true
+                    onPayWithCardClick()
+                },
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.demo_pay_with_card),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        } else {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.demo_pay_with_card),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    CardInputForm(
+                        onCardComplete = { tokenResponse ->
+                            onCardComplete?.invoke(tokenResponse)
+                        }
+                    )
+                }
+            }
         }
     }
 }

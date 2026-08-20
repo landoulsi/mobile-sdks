@@ -39,8 +39,10 @@ class PaymentColorTokenTest {
 
     @Test
     fun blue10_isDarkest() {
-        assertTrue(Blue10.redInt() < Blue20.redInt())
-        assertTrue(Blue20.redInt() < Blue30.redInt())
+        assertTrue(Blue10.greenInt() < Blue20.greenInt())
+        assertTrue(Blue20.greenInt() < Blue30.greenInt())
+        assertTrue(Blue10.blueInt() < Blue20.blueInt())
+        assertTrue(Blue20.blueInt() < Blue30.blueInt())
     }
 
     @Test
@@ -186,17 +188,100 @@ class PaymentColorTokenTest {
         assertEquals(0xEA, NeutralVar90.blueInt())
     }
 
-    // ── Cross-palette distinctness ──────────────────────────
+    // ── Status & Card Brand Colors ──────────────────────────
 
     @Test
-    fun primaryAndSecondaryAreDistinct() {
-        assertTrue("Blue40 and Teal40 should differ", Blue40 != Teal40)
-        assertTrue("Blue80 and Teal80 should differ", Blue80 != Teal80)
+    fun statusAndCardBrandColors_areAllOpaque() {
+        val colors = listOf(
+            SuccessGreen,
+            CardVisa,
+            CardMastercard,
+            CardAmex,
+            CardDiscover,
+            CardJcb,
+            CardDinersClub,
+            CardUnionPay,
+            CardInterac
+        )
+        colors.forEach { c ->
+            assertEquals("Alpha of $c should be 255", 255, c.alphaInt())
+        }
     }
 
     @Test
-    fun errorRedIsDistinctFromPrimaryBlue() {
-        assertTrue(Red40 != Blue40)
-        assertTrue(Red80 != Blue80)
+    fun successGreen_isExpectedValue() {
+        assertEquals(0x34, SuccessGreen.redInt())
+        assertEquals(0xA8, SuccessGreen.greenInt())
+        assertEquals(0x53, SuccessGreen.blueInt())
+    }
+
+    @Test
+    fun cardBrandColors_haveExpectedValues() {
+        assertEquals(0x1A, CardVisa.redInt())
+        assertEquals(0x1F, CardVisa.greenInt())
+        assertEquals(0x71, CardVisa.blueInt())
+
+        assertEquals(0xEB, CardMastercard.redInt())
+        assertEquals(0x00, CardMastercard.greenInt())
+        assertEquals(0x1B, CardMastercard.blueInt())
+
+        assertEquals(0x00, CardAmex.redInt())
+        assertEquals(0x6F, CardAmex.greenInt())
+        assertEquals(0xCF, CardAmex.blueInt())
+
+        assertEquals(0xFF, CardDiscover.redInt())
+        assertEquals(0x60, CardDiscover.greenInt())
+        assertEquals(0x00, CardDiscover.blueInt())
+
+        assertEquals(0x00, CardJcb.redInt())
+        assertEquals(0x3B, CardJcb.greenInt())
+        assertEquals(0x77, CardJcb.blueInt())
+
+        assertEquals(0x00, CardDinersClub.redInt())
+        assertEquals(0x4A, CardDinersClub.greenInt())
+        assertEquals(0x97, CardDinersClub.blueInt())
+
+        assertEquals(0x00, CardUnionPay.redInt())
+        assertEquals(0x7B, CardUnionPay.greenInt())
+        assertEquals(0x78, CardUnionPay.blueInt())
+
+        assertEquals(0xFF, CardInterac.redInt())
+        assertEquals(0xD1, CardInterac.greenInt())
+        assertEquals(0x00, CardInterac.blueInt())
+    }
+
+    @Test
+    fun paymentColorTokens_referenceCorrectConstants() {
+        assertEquals(SuccessGreen, PaymentColorTokens.success)
+        assertEquals(CardVisa, PaymentColorTokens.cardVisa)
+        assertEquals(CardMastercard, PaymentColorTokens.cardMastercard)
+        assertEquals(CardAmex, PaymentColorTokens.cardAmex)
+        assertEquals(CardDiscover, PaymentColorTokens.cardDiscover)
+        assertEquals(CardJcb, PaymentColorTokens.cardJcb)
+        assertEquals(CardDinersClub, PaymentColorTokens.cardDinersClub)
+        assertEquals(CardUnionPay, PaymentColorTokens.cardUnionPay)
+        assertEquals(CardInterac, PaymentColorTokens.cardInterac)
+    }
+
+    @Test
+    fun cardBrandColors_areMutuallyDistinct() {
+        val brands = listOf(
+            CardVisa,
+            CardMastercard,
+            CardAmex,
+            CardDiscover,
+            CardJcb,
+            CardDinersClub,
+            CardUnionPay,
+            CardInterac
+        )
+        for (i in brands.indices) {
+            for (j in i + 1 until brands.size) {
+                assertTrue(
+                    "Brand color at $i (${brands[i]}) should not equal brand color at $j (${brands[j]})",
+                    brands[i] != brands[j]
+                )
+            }
+        }
     }
 }

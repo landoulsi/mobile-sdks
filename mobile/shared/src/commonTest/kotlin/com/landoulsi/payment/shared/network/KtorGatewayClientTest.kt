@@ -304,12 +304,20 @@ class KtorGatewayClientTest {
     //  Edge cases — request body serialization
     // ─────────────────────────────────────────────────────────
 
+    private fun io.ktor.client.request.HttpRequestData.bodyAsString(): String {
+        return when (val b = body) {
+            is io.ktor.http.content.OutgoingContent.ByteArrayContent -> b.bytes().decodeToString()
+            is io.ktor.http.content.TextContent -> b.text
+            else -> b.toString()
+        }
+    }
+
     @Test
     fun testGooglePayRequestBodyContainsToken() = runTest {
         var capturedBody: String? = null
 
         val mockEngine = MockEngine { request ->
-            capturedBody = request.body?.toString()
+            capturedBody = request.bodyAsString()
             respond(
                 content = """{"id": "pm_ok"}""",
                 status = HttpStatusCode.OK,
@@ -330,7 +338,7 @@ class KtorGatewayClientTest {
         var capturedBody: String? = null
 
         val mockEngine = MockEngine { request ->
-            capturedBody = request.body?.toString()
+            capturedBody = request.bodyAsString()
             respond(
                 content = """{"id": "tok_ok"}""",
                 status = HttpStatusCode.OK,
@@ -359,7 +367,7 @@ class KtorGatewayClientTest {
         var capturedBody: String? = null
 
         val mockEngine = MockEngine { request ->
-            capturedBody = request.body?.toString()
+            capturedBody = request.bodyAsString()
             respond(
                 content = """{"id": "tok_ok"}""",
                 status = HttpStatusCode.OK,

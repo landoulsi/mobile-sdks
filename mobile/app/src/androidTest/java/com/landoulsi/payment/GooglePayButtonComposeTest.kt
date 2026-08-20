@@ -155,8 +155,8 @@ class GooglePayButtonComposeTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Pay with").assertIsNotEnabled()
-        composeTestRule.onNodeWithText("Pay with").performClick()
+        composeTestRule.onNodeWithContentDescription("Pay with Google Pay").assertIsNotEnabled()
+        composeTestRule.onNodeWithContentDescription("Pay with Google Pay").performClick()
         assert(!clicked) { "Button should not be clickable when loading" }
     }
 

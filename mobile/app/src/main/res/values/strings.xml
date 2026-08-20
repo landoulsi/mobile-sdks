@@ -29,5 +29,6 @@
     <string name="demo_transaction_id">Transaction ID</string>
     <string name="demo_payment_method">Payment Method</string>
     <string name="demo_card_details">Card</string>
+    <string name="demo_card_details_title">Card Details</string>
     <string name="demo_token">Payment Token</string>
 </resources>

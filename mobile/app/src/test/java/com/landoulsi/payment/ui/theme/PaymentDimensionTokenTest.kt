@@ -65,9 +65,8 @@ class PaymentDimensionTokenTest {
 
     @Test
     fun spacingScale_hasEightSteps() {
-        val spacingClass = PaymentSpacing::class
-        val props = spacingClass.members.filter { it.parameters.isEmpty() && it.returnType.classifier?.simpleName == "Dp" }
-        assertEquals(8, props.size)
+        val getterCount = PaymentSpacing::class.java.declaredMethods.count { it.name.startsWith("get") }
+        assertEquals(8, getterCount)
     }
 
     // ── PaymentRadius ───────────────────────────────────────
@@ -104,9 +103,8 @@ class PaymentDimensionTokenTest {
 
     @Test
     fun radiusScale_hasSixSteps() {
-        val radiusClass = PaymentRadius::class
-        val props = radiusClass.members.filter { it.parameters.isEmpty() && it.returnType.classifier?.simpleName == "Dp" }
-        assertEquals(6, props.size)
+        val getterCount = PaymentRadius::class.java.declaredMethods.count { it.name.startsWith("get") }
+        assertEquals(6, getterCount)
     }
 
     @Test
@@ -157,9 +155,8 @@ class PaymentDimensionTokenTest {
 
     @Test
     fun elevationScale_hasSixSteps() {
-        val elevationClass = PaymentElevation::class
-        val props = elevationClass.members.filter { it.parameters.isEmpty() && it.returnType.classifier?.simpleName == "Dp" }
-        assertEquals(6, props.size)
+        val getterCount = PaymentElevation::class.java.declaredMethods.count { it.name.startsWith("get") }
+        assertEquals(6, getterCount)
     }
 
     @Test
@@ -210,9 +207,8 @@ class PaymentDimensionTokenTest {
 
     @Test
     fun typeSizeScale_hasSixSteps() {
-        val typeSizeClass = PaymentTypeSize::class
-        val props = typeSizeClass.members.filter { it.parameters.isEmpty() && it.returnType.classifier?.simpleName == "Sp" }
-        assertEquals(6, props.size)
+        val getterCount = PaymentTypeSize::class.java.declaredMethods.count { it.name.startsWith("get") }
+        assertEquals(6, getterCount)
     }
 
     @Test

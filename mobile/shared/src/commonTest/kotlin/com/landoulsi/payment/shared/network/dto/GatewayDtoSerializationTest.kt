@@ -697,4 +697,115 @@ class GatewayDtoSerializationTest {
         assertEquals("321", deserialized.cvc)
         assertEquals("Round Trip", deserialized.cardholderName)
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  PaymentIntent & 3D Secure DTO serialization
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testPaymentIntentConfirmRequest_roundTrip() {
+        val request = PaymentIntentConfirmRequest(
+            paymentMethodId = "pm_card_test_123",
+            clientSecret = "pi_sec_123",
+            returnUrl = "paymentsdk://3ds-complete"
+        )
+
+        val json = PaymentJson.encodeToString(request)
+        val deserialized = PaymentJson.decodeFromString<PaymentIntentConfirmRequest>(json)
+
+        assertEquals("pm_card_test_123", deserialized.paymentMethodId)
+        assertEquals("pi_sec_123", deserialized.clientSecret)
+        assertEquals("paymentsdk://3ds-complete", deserialized.returnUrl)
+    }
+
+    @Test
+    fun testPaymentIntentConfirmResponse_deserializesRequiresAction() {
+        val json = """
+            {
+              "id": "pi_123_action",
+              "object": "payment_intent",
+              "status": "requires_action",
+              "client_secret": "secret_abc",
+              "amount": 5000,
+              "currency": "eur",
+              "next_action": {
+                "type": "redirect_to_url",
+                "redirect_to_url": {
+                  "url": "https://hooks.stripe.com/redirect/3ds",
+                  "return_url": "paymentsdk://3ds-complete"
+                },
+                "use_stripe_sdk": {
+                  "acs_url": "https://acs.bank.com",
+                  "creq": "creq_val_123",
+                  "three_d_s_server_trans_id": "trans_3ds_001"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val response = PaymentJson.decodeFromString<PaymentIntentConfirmResponse>(json)
+
+        assertEquals("pi_123_action", response.id)
+        assertEquals("requires_action", response.status)
+        assertEquals("secret_abc", response.clientSecret)
+        assertEquals(5000L, response.amount)
+        assertEquals("eur", response.currency)
+        assertNotNull(response.nextAction)
+        assertEquals("redirect_to_url", response.nextAction!!.type)
+        assertEquals("https://hooks.stripe.com/redirect/3ds", response.nextAction.redirectToUrl?.url)
+        assertEquals("paymentsdk://3ds-complete", response.nextAction.redirectToUrl?.returnUrl)
+        assertEquals("https://acs.bank.com", response.nextAction.useStripeSdk?.acsUrl)
+        assertEquals("creq_val_123", response.nextAction.useStripeSdk?.cReq)
+        assertEquals("trans_3ds_001", response.nextAction.useStripeSdk?.threeDSServerTransId)
+    }
+
+    @Test
+    fun testPaymentIntentConfirmResponse_deserializesErrorResponse() {
+        val json = """
+            {
+              "id": "pi_declined_intent",
+              "status": "requires_payment_method",
+              "last_payment_error": {
+                "type": "card_error",
+                "code": "card_declined",
+                "decline_code": "stolen_card",
+                "message": "Card was declined as stolen"
+              }
+            }
+        """.trimIndent()
+
+        val response = PaymentJson.decodeFromString<PaymentIntentConfirmResponse>(json)
+
+        assertEquals("pi_declined_intent", response.id)
+        assertEquals("requires_payment_method", response.status)
+        assertNotNull(response.lastPaymentError)
+        assertEquals("card_error", response.lastPaymentError!!.type)
+        assertEquals("card_declined", response.lastPaymentError.code)
+        assertEquals("stolen_card", response.lastPaymentError.declineCode)
+        assertEquals("Card was declined as stolen", response.lastPaymentError.message)
+    }
+
+    @Test
+    fun testPaymentIntentConfirmResponse_roundTrip() {
+        val original = PaymentIntentConfirmResponse(
+            id = "pi_round_trip",
+            `object` = "payment_intent",
+            status = "succeeded",
+            clientSecret = "sec_rt",
+            paymentMethod = "pm_rt_card",
+            amount = 1999L,
+            currency = "usd"
+        )
+
+        val json = PaymentJson.encodeToString(original)
+        val deserialized = PaymentJson.decodeFromString<PaymentIntentConfirmResponse>(json)
+
+        assertEquals(original.id, deserialized.id)
+        assertEquals(original.status, deserialized.status)
+        assertEquals(original.clientSecret, deserialized.clientSecret)
+        assertEquals(original.paymentMethod, deserialized.paymentMethod)
+        assertEquals(original.amount, deserialized.amount)
+        assertEquals(original.currency, deserialized.currency)
+    }
 }
+

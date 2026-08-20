@@ -65,4 +65,15 @@
     <string name="payment_error_authentication">Authentication failed</string>
     <string name="payment_error_user_canceled">User canceled</string>
     <string name="payment_error_unknown">Unknown error</string>
+
+    <!-- 3D Secure / SCA Strings -->
+    <string name="threeds_challenge_title">3D Secure Verification</string>
+
+    <string name="threeds_challenge_subtitle">Complete authentication with your issuing bank</string>
+    <string name="threeds_challenge_authenticating">Verifying 3D Secure authentication…</string>
+    <string name="threeds_approve_button">Approve Challenge</string>
+    <string name="threeds_decline_button">Fail Authentication</string>
+    <string name="threeds_cancel_button">Cancel Challenge</string>
+    <string name="threeds_bank_verified">Verified by 3-D Secure</string>
+    <string name="threeds_security_prompt">Your bank requires additional authentication (SCA) to complete this transaction.</string>
 </resources>

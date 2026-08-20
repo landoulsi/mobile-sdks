@@ -70,6 +70,8 @@ import com.landoulsi.payment.shared.model.PaymentErrorCode
 import com.landoulsi.payment.shared.model.PaymentMethodType
 import com.landoulsi.payment.shared.model.PaymentRequest
 import com.landoulsi.payment.shared.model.PaymentResult
+import com.landoulsi.payment.shared.model.ThreeDSChallenge
+import com.landoulsi.payment.shared.network.GatewayClient
 import com.landoulsi.payment.shared.network.dto.CardTokenRequest
 import com.landoulsi.payment.shared.network.dto.CardTokenResponse
 import com.landoulsi.payment.ui.GooglePayButton
@@ -81,6 +83,7 @@ import com.landoulsi.payment.ui.payment.PaymentFailureCard
 import com.landoulsi.payment.ui.payment.PaymentSuccessCard
 import com.landoulsi.payment.ui.payment.ProcessingPaymentCard
 import com.landoulsi.payment.ui.payment.TokenizationErrorBanner
+import com.landoulsi.payment.ui.threeds.ThreeDSChallengeCard
 import com.landoulsi.payment.ui.theme.PaymentsdkTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -94,9 +97,11 @@ class MainActivity : ComponentActivity() {
         val googlePayConfig = createDemoGooglePayConfig()
         val googlePayProvider = GooglePayProvider(this, googlePayConfig)
         val initialRequest = createDemoPaymentRequest(googlePayConfig)
+        val gatewayClient = createDemoGatewayClient()
         val viewModel = CheckoutViewModel(
             initialRequest = initialRequest,
-            providers = listOf(googlePayProvider)
+            providers = listOf(googlePayProvider),
+            gatewayClient = gatewayClient
         )
 
         setContent {
@@ -150,6 +155,37 @@ class MainActivity : ComponentActivity() {
                 googlePayConfig = googlePayConfig,
                 requireBillingAddress = true
             )
+        }
+
+        fun createDemoGatewayClient(): GatewayClient {
+            return object : GatewayClient {
+                override suspend fun tokenizeCard(request: com.landoulsi.payment.shared.network.dto.CardTokenRequest): com.landoulsi.payment.shared.network.dto.CardTokenResponse = TODO()
+                override suspend fun tokenizeGooglePay(googlePayToken: String): com.landoulsi.payment.shared.network.dto.GooglePayGatewayToken = TODO()
+
+                override suspend fun confirmPayment(
+                    paymentIntentId: String,
+                    paymentMethodId: String,
+                    clientSecret: String,
+                    returnUrl: String?
+                ): com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmResponse {
+                    return com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmResponse(
+                        id = paymentIntentId,
+                        status = "succeeded",
+                        paymentMethod = paymentMethodId
+                    )
+                }
+
+                override suspend fun complete3DSAuthentication(
+                    paymentIntentId: String,
+                    clientSecret: String
+                ): com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmResponse {
+                    return com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmResponse(
+                        id = paymentIntentId,
+                        status = "succeeded",
+                        paymentMethod = "pm_3ds_authenticated"
+                    )
+                }
+            }
         }
     }
 }
@@ -236,18 +272,37 @@ fun CheckoutScreen(
                                         null
                                     }
                                 }
-                                viewModel.startProcessing(PaymentMethodType.CARD)
-                                coroutineScope.launch {
-                                    delay(800)
-                                    viewModel.handlePaymentResult(
-                                        PaymentResult.Success(
-                                            transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
-                                            paymentMethodType = PaymentMethodType.CARD,
-                                            cardNetwork = network,
-                                            last4 = card?.last4,
-                                            token = tokenResponse.id
-                                        )
+                                val last4 = card?.last4
+                                val is3dsCard = last4 == "3000" || last4 == "3220" || last4 == "0002"
+
+                                if (is3dsCard) {
+                                    val returnUrl = ThreeDSChallenge.DEFAULT_RETURN_URL
+                                    val paymentIntentId = "pi_3ds_${tokenResponse.id.takeLast(8)}"
+                                    val htmlContent = createDemo3DSChallengeHtml(paymentIntentId, returnUrl)
+                                    val redirectUrl = "data:text/html;charset=utf-8," + android.net.Uri.encode(htmlContent)
+                                    val challenge = ThreeDSChallenge(
+                                        paymentIntentId = paymentIntentId,
+                                        clientSecret = "${paymentIntentId}_secret_test",
+                                        redirectUrl = redirectUrl,
+                                        returnUrl = returnUrl,
+                                        acsUrl = "https://acs.test-bank.com/challenge",
+                                        threeDSServerTransId = "3ds_trans_${tokenResponse.id.takeLast(8)}"
                                     )
+                                    viewModel.requireAuthentication(challenge, PaymentMethodType.CARD)
+                                } else {
+                                    viewModel.startProcessing(PaymentMethodType.CARD)
+                                    coroutineScope.launch {
+                                        delay(800)
+                                        viewModel.handlePaymentResult(
+                                            PaymentResult.Success(
+                                                transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
+                                                paymentMethodType = PaymentMethodType.CARD,
+                                                cardNetwork = network,
+                                                last4 = card?.last4,
+                                                token = tokenResponse.id
+                                            )
+                                        )
+                                    }
                                 }
                             }
                         )
@@ -256,6 +311,16 @@ fun CheckoutScreen(
                     is CheckoutUiState.Processing -> {
                         ProcessingPaymentCard(
                             methodType = state.paymentMethodType
+                        )
+                    }
+
+                    is CheckoutUiState.RequiresAuthentication -> {
+                        ThreeDSChallengeCard(
+                            challenge = state.challenge,
+                            request = state.request,
+                            onResult = { result ->
+                                viewModel.handle3DSResult(result)
+                            }
                         )
                     }
 
@@ -571,6 +636,46 @@ private fun createMockTokenResponse(
             expYear = request.expiryYear
         )
     )
+}
+
+fun createDemo3DSChallengeHtml(paymentIntentId: String, returnUrl: String): String {
+    return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 12px; background: #f8fafc; color: #1e293b; }
+                .card { background: white; border-radius: 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+                .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+                .bank-logo { font-weight: bold; font-size: 14px; color: #0284c7; }
+                .badge { background: #e0f2fe; color: #0369a1; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+                .title { font-size: 13px; font-weight: 600; margin: 0 0 4px 0; }
+                .desc { font-size: 11px; color: #64748b; margin-bottom: 12px; line-height: 1.3; }
+                .code-box { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; font-family: monospace; font-size: 15px; text-align: center; letter-spacing: 3px; font-weight: bold; margin-bottom: 12px; color: #0f172a; }
+                .btn-group { display: flex; gap: 8px; }
+                .btn { flex: 1; padding: 8px 0; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; display: block; }
+                .btn-submit { background: #0284c7; color: white; }
+                .btn-cancel { background: #f1f5f9; color: #475569; }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="header">
+                    <span class="bank-logo">Test Issuing Bank</span>
+                    <span class="badge">3D Secure 2.0</span>
+                </div>
+                <div class="title">One-Time Passcode Verification</div>
+                <div class="desc">Enter the authentication code sent to your mobile phone (*-***-4242) to confirm this purchase.</div>
+                <div class="code-box">849-204</div>
+                <div class="btn-group">
+                    <a href="$returnUrl?payment_intent=$paymentIntentId&status=succeeded&transStatus=Y" class="btn btn-submit">Submit OTP</a>
+                    <a href="$returnUrl?payment_intent=$paymentIntentId&status=declined&transStatus=N" class="btn btn-cancel">Decline</a>
+                </div>
+            </div>
+        </body>
+        </html>
+    """.trimIndent()
 }
 
 @Preview(showBackground = true)

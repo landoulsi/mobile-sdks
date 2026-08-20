@@ -485,4 +485,179 @@ class PaymentDomainModelsTest {
         assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.GOOGLE_PAY))
         assertTrue(request.allowedPaymentMethods.contains(PaymentMethodType.APPLE_PAY))
     }
+
+    @Test
+    fun testThreeDSChallengeDefaultsAndCreation() {
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_3ds_001",
+            clientSecret = "secret_001",
+            redirectUrl = "https://bank.com/acs"
+        )
+
+        assertEquals("pi_3ds_001", challenge.paymentIntentId)
+        assertEquals("secret_001", challenge.clientSecret)
+        assertEquals("https://bank.com/acs", challenge.redirectUrl)
+        assertEquals("paymentsdk://3ds-complete", challenge.returnUrl)
+        assertNull(challenge.acsUrl)
+        assertNull(challenge.cReq)
+        assertNull(challenge.threeDSServerTransId)
+    }
+
+    @Test
+    fun testThreeDSResultVariants() {
+        val completed: ThreeDSResult = ThreeDSResult.Completed("payload_token_123")
+        assertTrue(completed is ThreeDSResult.Completed)
+        assertEquals("payload_token_123", (completed as ThreeDSResult.Completed).returnPayload)
+
+        val failed: ThreeDSResult = ThreeDSResult.Failed(
+            errorCode = PaymentErrorCode.AUTHENTICATION_FAILED,
+            message = "Authentication timed out"
+        )
+        assertTrue(failed is ThreeDSResult.Failed)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (failed as ThreeDSResult.Failed).errorCode)
+        assertEquals("Authentication timed out", failed.message)
+
+        val canceled: ThreeDSResult = ThreeDSResult.Canceled
+        assertEquals(ThreeDSResult.Canceled, canceled)
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlEmptyInputs() {
+        assertNull(parseThreeDSReturnUrl("", "paymentsdk://3ds-complete"))
+        assertNull(parseThreeDSReturnUrl("paymentsdk://3ds-complete", ""))
+        assertNull(parseThreeDSReturnUrl("   ", "paymentsdk://3ds-complete"))
+        assertNull(parseThreeDSReturnUrl("paymentsdk://3ds-complete", "   "))
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlNonMatchingUrls() {
+        val expected = "paymentsdk://3ds-complete"
+        // Intermediate ACS navigation
+        assertNull(parseThreeDSReturnUrl("https://acs.bank.com/challenge", expected))
+        assertNull(parseThreeDSReturnUrl("https://acs.bank.com/stepup?id=123", expected))
+        // Query param injection on unrelated origin
+        assertNull(parseThreeDSReturnUrl("https://attacker.com?return=paymentsdk://3ds-complete", expected))
+        assertNull(parseThreeDSReturnUrl("https://bank.com/3ds-complete", expected))
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlSuccessVariants() {
+        val expected = "paymentsdk://3ds-complete"
+
+        // transStatus = Y (EMV 3DS Success)
+        val res2 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=Y&payment_intent=pi_123", expected)
+        assertNotNull(res2)
+        assertTrue(res2 is ThreeDSResult.Completed)
+        assertEquals("paymentsdk://3ds-complete?transStatus=Y&payment_intent=pi_123", (res2 as ThreeDSResult.Completed).returnPayload)
+
+        // transStatus = A (EMV 3DS Attempted / Proof Generated)
+        val res3 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=A", expected)
+        assertNotNull(res3)
+        assertTrue(res3 is ThreeDSResult.Completed)
+
+        // Case-insensitive URL scheme/host match
+        val res3Case = parseThreeDSReturnUrl("PaymentSDK://3DS-COMPLETE?transStatus=Y", expected)
+        assertNotNull(res3Case)
+        assertTrue(res3Case is ThreeDSResult.Completed)
+
+        // status = succeeded / success
+        val res4 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?status=succeeded", expected)
+        assertNotNull(res4)
+        assertTrue(res4 is ThreeDSResult.Completed)
+
+        val res5 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?status=success", expected)
+        assertNotNull(res5)
+        assertTrue(res5 is ThreeDSResult.Completed)
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlDeclineAndFailureVariants() {
+        val expected = "paymentsdk://3ds-complete"
+
+        // transStatus = N (Not authenticated / Denied)
+        val res1 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=N", expected)
+        assertNotNull(res1)
+        assertTrue(res1 is ThreeDSResult.Failed)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (res1 as ThreeDSResult.Failed).errorCode)
+
+        // transStatus = R (Rejected)
+        val res2 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=R", expected)
+        assertNotNull(res2)
+        assertTrue(res2 is ThreeDSResult.Failed)
+
+        // transStatus = U (Unavailable / System Error)
+        val res3 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=U", expected)
+        assertNotNull(res3)
+        assertTrue(res3 is ThreeDSResult.Failed)
+
+        // status = declined / failed
+        val res4 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?status=declined", expected)
+        assertNotNull(res4)
+        assertTrue(res4 is ThreeDSResult.Failed)
+
+        val res5 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?status=failed", expected)
+        assertNotNull(res5)
+        assertTrue(res5 is ThreeDSResult.Failed)
+
+        // error with description - maps safely without leaking attacker copy
+        val res6 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?error=invalid_otp&error_description=Call%201800%20Phishing", expected)
+        assertNotNull(res6)
+        assertTrue(res6 is ThreeDSResult.Failed)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (res6 as ThreeDSResult.Failed).errorCode)
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlFailsClosedOnIndeterminateOrBareUrl() {
+        val expected = "paymentsdk://3ds-complete"
+
+        // Bare return URL with no success indicators fails closed
+        val bareRes = parseThreeDSReturnUrl("paymentsdk://3ds-complete", expected)
+        assertNotNull(bareRes)
+        assertTrue(bareRes is ThreeDSResult.Failed)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (bareRes as ThreeDSResult.Failed).errorCode)
+
+        // transStatus = C (Challenge required, incomplete redirect) fails closed
+        val cRes = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=C", expected)
+        assertNotNull(cRes)
+        assertTrue(cRes is ThreeDSResult.Failed)
+
+        // transStatus = D or I (Decoupled / Informational) fails closed
+        val dRes = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=D", expected)
+        assertNotNull(dRes)
+        assertTrue(dRes is ThreeDSResult.Failed)
+
+        // Unknown parameters fail closed
+        val unknownRes = parseThreeDSReturnUrl("paymentsdk://3ds-complete?foo=bar", expected)
+        assertNotNull(unknownRes)
+        assertTrue(unknownRes is ThreeDSResult.Failed)
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlCanceledVariants() {
+        val expected = "paymentsdk://3ds-complete"
+
+        val res1 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?status=canceled", expected)
+        assertEquals(ThreeDSResult.Canceled, res1)
+
+        val res2 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?status=cancelled", expected)
+        assertEquals(ThreeDSResult.Canceled, res2)
+
+        val res3 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?canceled=true", expected)
+        assertEquals(ThreeDSResult.Canceled, res3)
+    }
+
+    @Test
+    fun testParseThreeDSReturnUrlWithHttpUrl() {
+        val expected = "https://example.com/checkout/return"
+
+        val res1 = parseThreeDSReturnUrl("https://example.com/checkout/return?status=succeeded", expected)
+        assertNotNull(res1)
+        assertTrue(res1 is ThreeDSResult.Completed)
+
+        val res2 = parseThreeDSReturnUrl("https://example.com/checkout/return?transStatus=N", expected)
+        assertNotNull(res2)
+        assertTrue(res2 is ThreeDSResult.Failed)
+
+        assertNull(parseThreeDSReturnUrl("https://other.com/checkout/return", expected))
+    }
 }

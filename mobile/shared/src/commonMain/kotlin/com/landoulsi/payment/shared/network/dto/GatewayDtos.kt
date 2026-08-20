@@ -205,3 +205,90 @@ data class GatewayError(
     @SerialName("param") val param: String? = null,
     @SerialName("decline_code") val declineCode: String? = null
 )
+
+// ─────────────────────────────────────────────────────────────
+//  PaymentIntent & 3D Secure DTOs
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Request payload for confirming a PaymentIntent on the gateway.
+ *
+ * @property paymentMethodId Payment method identifier (e.g., `"pm_xxx"` or `"tok_xxx"`).
+ * @property clientSecret The client secret associated with the PaymentIntent.
+ * @property returnUrl The URL to redirect the shopper back to after 3DS authentication.
+ */
+@Serializable
+data class PaymentIntentConfirmRequest(
+    @SerialName("payment_method") val paymentMethodId: String? = null,
+    @SerialName("client_secret") val clientSecret: String? = null,
+    @SerialName("return_url") val returnUrl: String? = null
+)
+
+/**
+ * Next action descriptor returned when a PaymentIntent requires 3DS or customer action.
+ *
+ * @property type Action type (e.g., `"redirect_to_url"`, `"use_stripe_sdk"`).
+ * @property redirectToUrl Details for web-based redirect flow.
+ * @property useStripeSdk Details for 3DS2 / SDK challenge flow.
+ */
+@Serializable
+data class NextAction(
+    @SerialName("type") val type: String? = null,
+    @SerialName("redirect_to_url") val redirectToUrl: RedirectToUrl? = null,
+    @SerialName("use_stripe_sdk") val useStripeSdk: ThreeDSChallengeData? = null
+)
+
+/**
+ * Redirect parameters when next action is web-based 3DS redirect.
+ *
+ * @property url The authentication URL to load in the browser / WebView.
+ * @property returnUrl The URL or scheme that the gateway redirects back to upon completion.
+ */
+@Serializable
+data class RedirectToUrl(
+    @SerialName("url") val url: String,
+    @SerialName("return_url") val returnUrl: String? = null
+)
+
+/**
+ * 3DS2 challenge parameters for native/SDK authentication.
+ *
+ * @property acsUrl Access Control Server URL.
+ * @property cReq Challenge request payload.
+ * @property threeDSServerTransId 3DS Server transaction identifier.
+ * @property stripeJs Fallback or helper URL for Stripe.js / 3DS.
+ */
+@Serializable
+data class ThreeDSChallengeData(
+    @SerialName("acs_url") val acsUrl: String? = null,
+    @SerialName("creq") val cReq: String? = null,
+    @SerialName("three_d_s_server_trans_id") val threeDSServerTransId: String? = null,
+    @SerialName("stripe_js") val stripeJs: String? = null
+)
+
+/**
+ * Response returned from confirming or retrieving a PaymentIntent.
+ *
+ * @property id The PaymentIntent identifier (e.g., `"pi_xxx"`).
+ * @property object_ Object type string, typically `"payment_intent"`.
+ * @property status Current PaymentIntent status (e.g., `"succeeded"`, `"requires_action"`, `"requires_payment_method"`).
+ * @property clientSecret The client secret for confirming / authenticating the PaymentIntent.
+ * @property nextAction Next action details if status is `"requires_action"`.
+ * @property paymentMethod The payment method token or ID attached to this intent.
+ * @property amount The amount in minor units (e.g., cents).
+ * @property currency Three-letter ISO currency code.
+ * @property lastPaymentError Details of the latest error if the intent failed.
+ */
+@Serializable
+data class PaymentIntentConfirmResponse(
+    @SerialName("id") val id: String,
+    @SerialName("object") val `object`: String? = null,
+    @SerialName("status") val status: String,
+    @SerialName("client_secret") val clientSecret: String? = null,
+    @SerialName("next_action") val nextAction: NextAction? = null,
+    @SerialName("payment_method") val paymentMethod: String? = null,
+    @SerialName("amount") val amount: Long? = null,
+    @SerialName("currency") val currency: String? = null,
+    @SerialName("last_payment_error") val lastPaymentError: GatewayError? = null
+)
+

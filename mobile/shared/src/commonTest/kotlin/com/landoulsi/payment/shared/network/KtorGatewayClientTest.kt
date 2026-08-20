@@ -550,4 +550,179 @@ class KtorGatewayClientTest {
         }
         assertEquals("Bearer pk_bad_key", capturedAuth)
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  PaymentIntent & 3D Secure tests
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testConfirmPaymentSuccess() = runTest {
+        val responseBody = """
+            {
+              "id": "pi_12345",
+              "object": "payment_intent",
+              "status": "succeeded",
+              "amount": 2999,
+              "currency": "usd",
+              "payment_method": "pm_card_visa"
+            }
+        """.trimIndent()
+
+        var capturedUrl: String? = null
+        var capturedAuth: String? = null
+
+        val mockEngine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            capturedAuth = request.headers[HttpHeaders.Authorization]
+            respond(
+                content = responseBody,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        val result = client.confirmPayment(
+            paymentIntentId = "pi_12345",
+            paymentMethodId = "pm_card_visa",
+            clientSecret = "pi_12345_secret_abc"
+        )
+
+        assertEquals("pi_12345", result.id)
+        assertEquals("succeeded", result.status)
+        assertEquals(2999L, result.amount)
+        assertEquals("usd", result.currency)
+        assertEquals("pm_card_visa", result.paymentMethod)
+        assertTrue(capturedUrl!!.endsWith("/payment_intents/pi_12345/confirm"))
+        assertEquals("Bearer $publishableKey", capturedAuth)
+    }
+
+    @Test
+    fun testConfirmPaymentRequiresAction3DS() = runTest {
+        val responseBody = """
+            {
+              "id": "pi_3ds_req",
+              "object": "payment_intent",
+              "status": "requires_action",
+              "client_secret": "pi_3ds_secret_xyz",
+              "next_action": {
+                "type": "redirect_to_url",
+                "redirect_to_url": {
+                  "url": "https://hooks.stripe.com/three_d_secure/authenticate",
+                  "return_url": "paymentsdk://3ds-complete"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val mockEngine = MockEngine {
+            respond(
+                content = responseBody,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        val result = client.confirmPayment(
+            paymentIntentId = "pi_3ds_req",
+            paymentMethodId = "pm_3ds_card",
+            clientSecret = "pi_3ds_secret_xyz",
+            returnUrl = "paymentsdk://3ds-complete"
+        )
+
+        assertEquals("pi_3ds_req", result.id)
+        assertEquals("requires_action", result.status)
+        assertEquals("pi_3ds_secret_xyz", result.clientSecret)
+        assertNotNull(result.nextAction)
+        assertEquals("redirect_to_url", result.nextAction!!.type)
+        assertNotNull(result.nextAction?.redirectToUrl)
+        assertEquals("https://hooks.stripe.com/three_d_secure/authenticate", result.nextAction?.redirectToUrl?.url)
+        assertEquals("paymentsdk://3ds-complete", result.nextAction?.redirectToUrl?.returnUrl)
+    }
+
+    @Test
+    fun testConfirmPaymentThrowsGatewayExceptionOnDeclined() = runTest {
+        val errorBody = """
+            {
+              "error": {
+                "type": "card_error",
+                "code": "card_declined",
+                "decline_code": "generic_decline",
+                "message": "The card has been declined."
+              }
+            }
+        """.trimIndent()
+
+        val mockEngine = MockEngine {
+            respond(
+                content = errorBody,
+                status = HttpStatusCode.PaymentRequired,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        val ex = assertFailsWith<GatewayException> {
+            client.confirmPayment("pi_declined", "pm_declined", "secret")
+        }
+        assertEquals(402, ex.statusCode)
+        assertEquals("card_declined", ex.gatewayCode)
+        assertEquals("generic_decline", ex.declineCode)
+    }
+
+    @Test
+    fun testComplete3DSAuthenticationSuccess() = runTest {
+        val responseBody = """
+            {
+              "id": "pi_3ds_completed",
+              "object": "payment_intent",
+              "status": "succeeded",
+              "payment_method": "pm_3ds_authenticated"
+            }
+        """.trimIndent()
+
+        var capturedUrl: String? = null
+        var capturedBody: String? = null
+
+        val mockEngine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            capturedBody = request.bodyAsString()
+            respond(
+                content = responseBody,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        val result = client.complete3DSAuthentication(
+            paymentIntentId = "pi_3ds_completed",
+            clientSecret = "secret_complete"
+        )
+
+        assertEquals("pi_3ds_completed", result.id)
+        assertEquals("succeeded", result.status)
+        assertTrue(capturedUrl!!.endsWith("/payment_intents/pi_3ds_completed/confirm"))
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("secret_complete"))
+    }
+
+    @Test
+    fun testComplete3DSAuthenticationThrowsOn5xx() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = """{"error": {"message": "Gateway temporarily unavailable"}}""",
+                status = HttpStatusCode.ServiceUnavailable,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        val ex = assertFailsWith<GatewayException> {
+            client.complete3DSAuthentication("pi_503", "secret")
+        }
+        assertEquals(503, ex.statusCode)
+    }
 }
+

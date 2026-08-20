@@ -7,6 +7,17 @@ import com.landoulsi.payment.shared.model.PaymentErrorCode
 import com.landoulsi.payment.shared.model.PaymentMethodType
 import com.landoulsi.payment.shared.model.PaymentRequest
 import com.landoulsi.payment.shared.model.PaymentResult
+import com.landoulsi.payment.shared.model.ThreeDSChallenge
+import com.landoulsi.payment.shared.model.ThreeDSResult
+import com.landoulsi.payment.shared.network.GatewayClient
+import com.landoulsi.payment.shared.network.GatewayException
+import com.landoulsi.payment.shared.network.dto.CardTokenRequest
+import com.landoulsi.payment.shared.network.dto.CardTokenResponse
+import com.landoulsi.payment.shared.network.dto.GatewayError
+import com.landoulsi.payment.shared.network.dto.GooglePayGatewayToken
+import com.landoulsi.payment.shared.network.dto.NextAction
+import com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmResponse
+import com.landoulsi.payment.shared.network.dto.RedirectToUrl
 import com.landoulsi.payment.shared.provider.PaymentProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -695,5 +706,464 @@ class CheckoutViewModelTest {
 
         val successState = viewModel.uiState.value as CheckoutUiState.Success
         assertEquals("tx_recovery", successState.result.transactionId)
+    }
+
+    private class FakeGatewayClient : GatewayClient {
+        var confirmPaymentResult: PaymentIntentConfirmResponse = PaymentIntentConfirmResponse(
+            id = "pi_123",
+            status = "succeeded",
+            paymentMethod = "pm_123"
+        )
+        var complete3DSResult: PaymentIntentConfirmResponse = PaymentIntentConfirmResponse(
+            id = "pi_123",
+            status = "succeeded",
+            paymentMethod = "pm_123"
+        )
+        var shouldThrow: Throwable? = null
+
+        override suspend fun tokenizeCard(request: CardTokenRequest): CardTokenResponse = TODO()
+        override suspend fun tokenizeGooglePay(googlePayToken: String): GooglePayGatewayToken = TODO()
+
+        override suspend fun confirmPayment(
+            paymentIntentId: String,
+            paymentMethodId: String,
+            clientSecret: String,
+            returnUrl: String?
+        ): PaymentIntentConfirmResponse {
+            shouldThrow?.let { throw it }
+            return confirmPaymentResult
+        }
+
+        override suspend fun complete3DSAuthentication(
+            paymentIntentId: String,
+            clientSecret: String
+        ): PaymentIntentConfirmResponse {
+            shouldThrow?.let { throw it }
+            return complete3DSResult
+        }
+    }
+
+    @Test
+    fun testRequireAuthenticationSetsUiState() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_3ds_test",
+            clientSecret = "pi_3ds_test_secret_123",
+            redirectUrl = "https://bank.example.com/3ds-challenge",
+            returnUrl = "paymentsdk://3ds-complete"
+        )
+        viewModel.requireAuthentication(challenge, PaymentMethodType.CARD)
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.RequiresAuthentication>(state)
+        assertEquals("pi_3ds_test", state.challenge.paymentIntentId)
+        assertEquals("https://bank.example.com/3ds-challenge", state.challenge.redirectUrl)
+        assertEquals("paymentsdk://3ds-complete", state.challenge.returnUrl)
+        assertEquals(PaymentMethodType.CARD, state.paymentMethodType)
+    }
+
+    @Test
+    fun testHandle3DSResultCompletedWithoutGatewayReturnsConfigurationError() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_3ds_test_completed",
+            clientSecret = "secret",
+            redirectUrl = "https://bank.example.com"
+        )
+        viewModel.requireAuthentication(challenge)
+
+        viewModel.handle3DSResult(ThreeDSResult.Completed("payload_xyz"))
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Failure>(state)
+        assertEquals(PaymentErrorCode.CONFIGURATION_ERROR, state.failure.errorCode)
+    }
+
+    @Test
+    fun testConfirmPaymentWithoutGatewayReturnsConfigurationError() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment("pi_no_gw", "pm_card_123", "secret")
+        testScope.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Failure>(state)
+        assertEquals(PaymentErrorCode.CONFIGURATION_ERROR, state.failure.errorCode)
+    }
+
+    @Test
+    fun testHandle3DSResultCanceled() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_3ds_canceled",
+            clientSecret = "secret",
+            redirectUrl = "https://bank.example.com"
+        )
+        viewModel.requireAuthentication(challenge)
+
+        viewModel.handle3DSResult(ThreeDSResult.Canceled)
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Canceled>(state)
+        assertEquals(request, state.request)
+    }
+
+    @Test
+    fun testHandle3DSResultFailed() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_3ds_failed",
+            clientSecret = "secret",
+            redirectUrl = "https://bank.example.com"
+        )
+        viewModel.requireAuthentication(challenge)
+
+        viewModel.handle3DSResult(
+            ThreeDSResult.Failed(
+                errorCode = PaymentErrorCode.AUTHENTICATION_FAILED,
+                message = "Issuer declined 3DS"
+            )
+        )
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Failure>(state)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, state.failure.errorCode)
+        assertEquals("Issuer declined 3DS", state.failure.message)
+    }
+
+    @Test
+    fun testConfirmPaymentWithGatewayReturnsRequiresAction() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val fakeGateway = FakeGatewayClient().apply {
+            confirmPaymentResult = PaymentIntentConfirmResponse(
+                id = "pi_requires_3ds",
+                status = "requires_action",
+                clientSecret = "pi_sec_123",
+                nextAction = NextAction(
+                    type = "redirect_to_url",
+                    redirectToUrl = RedirectToUrl(
+                        url = "https://bank-acs.example.com/auth",
+                        returnUrl = "paymentsdk://3ds-complete"
+                    )
+                )
+            )
+        }
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            gatewayClient = fakeGateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment(
+            paymentIntentId = "pi_requires_3ds",
+            paymentMethodId = "pm_card_123",
+            clientSecret = "pi_sec_123"
+        )
+        testScope.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.RequiresAuthentication>(state)
+        assertEquals("pi_requires_3ds", state.challenge.paymentIntentId)
+        assertEquals("https://bank-acs.example.com/auth", state.challenge.redirectUrl)
+        assertEquals("paymentsdk://3ds-complete", state.challenge.returnUrl)
+    }
+
+    @Test
+    fun testConfirmPaymentWithGatewayThen3DSCompletedFinalizesPayment() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val fakeGateway = FakeGatewayClient().apply {
+            confirmPaymentResult = PaymentIntentConfirmResponse(
+                id = "pi_full_3ds_cycle",
+                status = "requires_action",
+                clientSecret = "pi_sec_full",
+                nextAction = NextAction(
+                    type = "redirect_to_url",
+                    redirectToUrl = RedirectToUrl(
+                        url = "https://bank-acs.example.com/auth",
+                        returnUrl = "paymentsdk://3ds-complete"
+                    )
+                )
+            )
+            complete3DSResult = PaymentIntentConfirmResponse(
+                id = "pi_full_3ds_cycle",
+                status = "succeeded",
+                paymentMethod = "pm_card_finalized"
+            )
+        }
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            gatewayClient = fakeGateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment(
+            paymentIntentId = "pi_full_3ds_cycle",
+            paymentMethodId = "pm_card_123",
+            clientSecret = "pi_sec_full"
+        )
+        testScope.advanceUntilIdle()
+
+        assertIs<CheckoutUiState.RequiresAuthentication>(viewModel.uiState.value)
+
+        viewModel.handle3DSResult(ThreeDSResult.Completed("paymentsdk://3ds-complete?status=succeeded"))
+        testScope.advanceUntilIdle()
+
+        val finalState = viewModel.uiState.value
+        assertIs<CheckoutUiState.Success>(finalState)
+        assertEquals("pi_full_3ds_cycle", finalState.result.transactionId)
+        assertEquals("pm_card_finalized", finalState.result.token)
+    }
+
+    @Test
+    fun test3DSAuthenticationBoundedReEntryLimit() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        // Gateway perpetually returns requires_action
+        val fakeGateway = FakeGatewayClient().apply {
+            confirmPaymentResult = PaymentIntentConfirmResponse(
+                id = "pi_loop_test",
+                status = "requires_action",
+                clientSecret = "pi_sec_loop",
+                nextAction = NextAction(
+                    type = "redirect_to_url",
+                    redirectToUrl = RedirectToUrl(
+                        url = "https://bank-acs.example.com/auth",
+                        returnUrl = "paymentsdk://3ds-complete"
+                    )
+                )
+            )
+            complete3DSResult = PaymentIntentConfirmResponse(
+                id = "pi_loop_test",
+                status = "requires_action",
+                clientSecret = "pi_sec_loop",
+                nextAction = NextAction(
+                    type = "redirect_to_url",
+                    redirectToUrl = RedirectToUrl(
+                        url = "https://bank-acs.example.com/auth",
+                        returnUrl = "paymentsdk://3ds-complete"
+                    )
+                )
+            )
+        }
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            gatewayClient = fakeGateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment("pi_loop_test", "pm_123", "pi_sec_loop")
+        testScope.advanceUntilIdle()
+        assertIs<CheckoutUiState.RequiresAuthentication>(viewModel.uiState.value)
+
+        // Re-entry 1 from complete3DSAuthentication
+        viewModel.handle3DSResult(ThreeDSResult.Completed("paymentsdk://3ds-complete?status=succeeded"))
+        testScope.advanceUntilIdle()
+        assertIs<CheckoutUiState.RequiresAuthentication>(viewModel.uiState.value)
+
+        // Re-entry 2 exceeds MAX_3DS_AUTH_ATTEMPTS (2) -> Failure
+        viewModel.handle3DSResult(ThreeDSResult.Completed("paymentsdk://3ds-complete?status=succeeded"))
+        testScope.advanceUntilIdle()
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Failure>(state)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, state.failure.errorCode)
+    }
+
+    @Test
+    fun testConfirmPaymentWithGatewayDeclinedCard() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val fakeGateway = FakeGatewayClient().apply {
+            confirmPaymentResult = PaymentIntentConfirmResponse(
+                id = "pi_declined",
+                status = "requires_payment_method",
+                lastPaymentError = GatewayError(
+                    type = "card_error",
+                    code = "card_declined",
+                    declineCode = "insufficient_funds",
+                    message = "Your card has insufficient funds."
+                )
+            )
+        }
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            gatewayClient = fakeGateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment("pi_declined", "pm_card_declined", "secret")
+        testScope.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Failure>(state)
+        assertEquals(PaymentErrorCode.INSUFFICIENT_FUNDS, state.failure.errorCode)
+        assertEquals("Your card has insufficient funds.", state.failure.message)
+    }
+
+    @Test
+    fun testHandle3DSResultOutsideRequiresAuthenticationIsIdempotentNoOp() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        // Set to a terminal success state
+        val success = PaymentResult.Success(
+            transactionId = "tx_settled",
+            paymentMethodType = PaymentMethodType.CARD
+        )
+        viewModel.handlePaymentResult(success)
+        assertIs<CheckoutUiState.Success>(viewModel.uiState.value)
+
+        // Late/duplicate 3DS delivery should be a safe no-op and NOT overwrite success
+        viewModel.handle3DSResult(ThreeDSResult.Completed("payload"))
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Success>(state)
+        assertEquals("tx_settled", state.result.transactionId)
+    }
+
+    @Test
+    fun testConfirmPaymentWithBlankReturnUrlFallsBackToDefault() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        var capturedReturnUrl: String? = null
+        val fakeGateway = object : GatewayClient {
+            override suspend fun tokenizeCard(request: CardTokenRequest): CardTokenResponse = TODO()
+            override suspend fun tokenizeGooglePay(googlePayToken: String): GooglePayGatewayToken = TODO()
+            override suspend fun complete3DSAuthentication(paymentIntentId: String, clientSecret: String): PaymentIntentConfirmResponse = TODO()
+            override suspend fun confirmPayment(
+                paymentIntentId: String,
+                paymentMethodId: String,
+                clientSecret: String,
+                returnUrl: String?
+            ): PaymentIntentConfirmResponse {
+                capturedReturnUrl = returnUrl
+                return PaymentIntentConfirmResponse(
+                    id = paymentIntentId,
+                    status = "succeeded"
+                )
+            }
+        }
+
+        val request = createSampleRequest().copy(returnUrl = "")
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            gatewayClient = fakeGateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment("pi_blank_return", "pm_123", "secret")
+        testScope.advanceUntilIdle()
+
+        assertEquals(ThreeDSChallenge.DEFAULT_RETURN_URL, capturedReturnUrl)
+    }
+
+    @Test
+    fun testConfirmPaymentRequiresActionWithoutRedirectUrlReturnsGatewayError() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val fakeGateway = FakeGatewayClient().apply {
+            confirmPaymentResult = PaymentIntentConfirmResponse(
+                id = "pi_no_redirect",
+                status = "requires_action",
+                nextAction = null // No redirect URL provided
+            )
+        }
+
+        val request = createSampleRequest()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            providers = emptyList(),
+            gatewayClient = fakeGateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        viewModel.confirmPayment("pi_no_redirect", "pm_123", "secret")
+        testScope.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertIs<CheckoutUiState.Failure>(state)
+        assertEquals(PaymentErrorCode.GATEWAY_ERROR, state.failure.errorCode)
     }
 }

@@ -13,6 +13,7 @@ package com.landoulsi.payment.shared.model
  * @property requireShipping Whether a shipping address is required for this transaction.
  * @property requireBillingAddress Whether a full billing address is required for this transaction.
  * @property metadata Arbitrary custom key-value metadata to accompany the payment request.
+ * @property returnUrl Optional custom return URL / scheme for 3D Secure redirects.
  */
 data class PaymentRequest(
     val id: String,
@@ -28,5 +29,6 @@ data class PaymentRequest(
     val applePayConfig: ApplePayConfig? = null,
     val requireShipping: Boolean = false,
     val requireBillingAddress: Boolean = false,
-    val metadata: Map<String, String> = emptyMap()
+    val metadata: Map<String, String> = emptyMap(),
+    val returnUrl: String? = null
 )

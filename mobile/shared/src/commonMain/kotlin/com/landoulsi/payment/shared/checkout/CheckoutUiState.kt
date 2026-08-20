@@ -3,6 +3,7 @@ package com.landoulsi.payment.shared.checkout
 import com.landoulsi.payment.shared.model.PaymentMethodType
 import com.landoulsi.payment.shared.model.PaymentRequest
 import com.landoulsi.payment.shared.model.PaymentResult
+import com.landoulsi.payment.shared.model.ThreeDSChallenge
 
 /**
  * Sealed hierarchy representing the UI states of a checkout session.
@@ -48,6 +49,18 @@ sealed interface CheckoutUiState {
     data class Processing(
         override val request: PaymentRequest,
         val paymentMethodType: PaymentMethodType
+    ) : CheckoutUiState
+
+    /**
+     * Payment authorization requires step-up 3D Secure / customer authentication.
+     *
+     * @property challenge Parameters needed to launch the 3DS verification.
+     * @property paymentMethodType The payment method requiring authentication.
+     */
+    data class RequiresAuthentication(
+        override val request: PaymentRequest,
+        val challenge: ThreeDSChallenge,
+        val paymentMethodType: PaymentMethodType = PaymentMethodType.CARD
     ) : CheckoutUiState
 
     /**

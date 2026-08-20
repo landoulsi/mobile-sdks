@@ -3,6 +3,8 @@ package com.landoulsi.payment.shared.network
 import com.landoulsi.payment.shared.network.dto.CardTokenRequest
 import com.landoulsi.payment.shared.network.dto.CardTokenResponse
 import com.landoulsi.payment.shared.network.dto.GooglePayGatewayToken
+import com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmRequest
+import com.landoulsi.payment.shared.network.dto.PaymentIntentConfirmResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.header
@@ -12,7 +14,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 
 /**
- * Abstraction over the HTTP payment gateway for tokenization requests.
+ * Abstraction over the HTTP payment gateway for tokenization and payment confirmation requests.
  *
  * This interface decouples the checkout domain from the concrete Ktor implementation,
  * enabling straightforward substitution with a mock in unit tests.
@@ -42,6 +44,36 @@ interface GatewayClient {
      * @throws GatewayException if the gateway returns a non-success HTTP response.
      */
     suspend fun tokenizeGooglePay(googlePayToken: String): GooglePayGatewayToken
+
+    /**
+     * Confirms a PaymentIntent with a payment method on the gateway.
+     *
+     * @param paymentIntentId The identifier of the PaymentIntent to confirm (e.g., `"pi_xxx"`).
+     * @param paymentMethodId The payment method or token ID (e.g., `"pm_xxx"` or `"tok_xxx"`).
+     * @param clientSecret The client secret for the PaymentIntent.
+     * @param returnUrl Optional return URL / scheme for 3DS authentication redirects.
+     * @return [PaymentIntentConfirmResponse] with the updated status and next actions.
+     * @throws GatewayException if the gateway returns a non-success HTTP response.
+     */
+    suspend fun confirmPayment(
+        paymentIntentId: String,
+        paymentMethodId: String,
+        clientSecret: String,
+        returnUrl: String? = null
+    ): PaymentIntentConfirmResponse
+
+    /**
+     * Completes / resumes a PaymentIntent after 3D Secure authentication has taken place.
+     *
+     * @param paymentIntentId The identifier of the PaymentIntent.
+     * @param clientSecret The client secret for the PaymentIntent.
+     * @return [PaymentIntentConfirmResponse] with the final or updated status.
+     * @throws GatewayException if the gateway returns a non-success HTTP response.
+     */
+    suspend fun complete3DSAuthentication(
+        paymentIntentId: String,
+        clientSecret: String
+    ): PaymentIntentConfirmResponse
 }
 
 /**
@@ -62,6 +94,9 @@ class KtorGatewayClient(
     private val publishableKey: String
 ) : GatewayClient {
 
+    private val cleanBaseUrl: String
+        get() = baseUrl.trimEnd('/')
+
     /**
      * Tokenizes a card using the gateway's card token creation endpoint (`POST /tokens`).
      *
@@ -69,7 +104,7 @@ class KtorGatewayClient(
      * for consistency with the content-negotiation plugin.
      */
     override suspend fun tokenizeCard(request: CardTokenRequest): CardTokenResponse {
-        val response: HttpResponse = httpClient.post("$baseUrl/tokens") {
+        val response: HttpResponse = httpClient.post("$cleanBaseUrl/tokens") {
             header(HttpHeaders.Authorization, "Bearer $publishableKey")
             setBody(request)
         }
@@ -83,9 +118,51 @@ class KtorGatewayClient(
      * Sends the serialized Google Pay token for server-side processing.
      */
     override suspend fun tokenizeGooglePay(googlePayToken: String): GooglePayGatewayToken {
-        val response: HttpResponse = httpClient.post("$baseUrl/payment_methods") {
+        val response: HttpResponse = httpClient.post("$cleanBaseUrl/payment_methods") {
             header(HttpHeaders.Authorization, "Bearer $publishableKey")
             setBody(GooglePayTokenizeRequest(googlePayToken = googlePayToken))
+        }
+        response.throwIfError()
+        return response.body()
+    }
+
+    /**
+     * Confirms a PaymentIntent with the given payment method.
+     */
+    override suspend fun confirmPayment(
+        paymentIntentId: String,
+        paymentMethodId: String,
+        clientSecret: String,
+        returnUrl: String?
+    ): PaymentIntentConfirmResponse {
+        val response: HttpResponse = httpClient.post("$cleanBaseUrl/payment_intents/$paymentIntentId/confirm") {
+            header(HttpHeaders.Authorization, "Bearer $publishableKey")
+            setBody(
+                PaymentIntentConfirmRequest(
+                    paymentMethodId = paymentMethodId,
+                    clientSecret = clientSecret,
+                    returnUrl = returnUrl
+                )
+            )
+        }
+        response.throwIfError()
+        return response.body()
+    }
+
+    /**
+     * Completes / authenticates a PaymentIntent after 3DS challenge.
+     */
+    override suspend fun complete3DSAuthentication(
+        paymentIntentId: String,
+        clientSecret: String
+    ): PaymentIntentConfirmResponse {
+        val response: HttpResponse = httpClient.post("$cleanBaseUrl/payment_intents/$paymentIntentId/confirm") {
+            header(HttpHeaders.Authorization, "Bearer $publishableKey")
+            setBody(
+                PaymentIntentConfirmRequest(
+                    clientSecret = clientSecret
+                )
+            )
         }
         response.throwIfError()
         return response.body()

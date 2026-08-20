@@ -11,12 +11,15 @@ import com.landoulsi.payment.shared.model.GooglePayEnvironment
 import com.landoulsi.payment.shared.model.PaymentErrorCode
 import com.landoulsi.payment.shared.model.PaymentMethodType
 import com.landoulsi.payment.shared.model.PaymentResult
+import com.landoulsi.payment.shared.model.ThreeDSChallenge
+import com.landoulsi.payment.shared.model.ThreeDSResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlinx.coroutines.test.advanceUntilIdle
 
 class MainActivityTest {
 
@@ -263,5 +266,85 @@ class MainActivityTest {
         assertEquals(request.merchantName, state.request.merchantName)
         assertEquals(request.description, state.request.description)
         assertEquals(request.googlePayConfig, state.request.googlePayConfig)
+    }
+
+    @Test
+    fun testCheckoutViewModelRequiresAuthenticationState() {
+        val config = MainActivity.createDemoGooglePayConfig()
+        val request = MainActivity.createDemoPaymentRequest(config)
+        val viewModel = CheckoutViewModel(request)
+
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_main_3ds",
+            clientSecret = "secret_main_3ds",
+            redirectUrl = "https://bank.example.com/3ds",
+            returnUrl = "paymentsdk://3ds-complete"
+        )
+        viewModel.requireAuthentication(challenge, PaymentMethodType.CARD)
+
+        val state = viewModel.uiState.value
+        assertTrue(state is CheckoutUiState.RequiresAuthentication)
+        val authState = state as CheckoutUiState.RequiresAuthentication
+        assertEquals("pi_main_3ds", authState.challenge.paymentIntentId)
+        assertEquals("https://bank.example.com/3ds", authState.challenge.redirectUrl)
+        assertEquals(PaymentMethodType.CARD, authState.paymentMethodType)
+    }
+
+    @Test
+    fun testCheckoutViewModel3DSResultHandling() = kotlinx.coroutines.test.runTest {
+        val testDispatcher = kotlinx.coroutines.test.StandardTestDispatcher(testScheduler)
+        val testScope = kotlinx.coroutines.test.TestScope(testDispatcher)
+
+        val config = MainActivity.createDemoGooglePayConfig()
+        val request = MainActivity.createDemoPaymentRequest(config)
+        val gateway = MainActivity.createDemoGatewayClient()
+        val viewModel = CheckoutViewModel(
+            initialRequest = request,
+            gatewayClient = gateway,
+            coroutineScope = testScope
+        )
+        testScope.advanceUntilIdle()
+
+        val challenge = ThreeDSChallenge(
+            paymentIntentId = "pi_main_3ds_2",
+            clientSecret = "secret",
+            redirectUrl = "https://bank.example.com/3ds"
+        )
+        viewModel.requireAuthentication(challenge)
+
+        viewModel.handle3DSResult(ThreeDSResult.Completed("completed_payload"))
+        testScope.advanceUntilIdle()
+
+        val successState = viewModel.uiState.value
+        assertTrue(successState is CheckoutUiState.Success)
+        assertEquals("pi_main_3ds_2", (successState as CheckoutUiState.Success).result.transactionId)
+
+        // Reset and test failed
+        viewModel.reset()
+        viewModel.requireAuthentication(challenge)
+        viewModel.handle3DSResult(ThreeDSResult.Failed(PaymentErrorCode.AUTHENTICATION_FAILED, "Failed 3DS"))
+        val failState = viewModel.uiState.value
+        assertTrue(failState is CheckoutUiState.Failure)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (failState as CheckoutUiState.Failure).failure.errorCode)
+
+        // Reset and test canceled
+        viewModel.reset()
+        viewModel.requireAuthentication(challenge)
+        viewModel.handle3DSResult(ThreeDSResult.Canceled)
+        val cancelState = viewModel.uiState.value
+        assertTrue(cancelState is CheckoutUiState.Canceled)
+    }
+
+    @Test
+    fun testDemo3DSChallengeHtmlContent() {
+        val paymentIntentId = "pi_3ds_test_123"
+        val returnUrl = "paymentsdk://3ds-complete"
+        val html = createDemo3DSChallengeHtml(paymentIntentId, returnUrl)
+
+        assertTrue(html.contains("One-Time Passcode Verification"))
+        assertTrue(html.contains("Test Issuing Bank"))
+        assertTrue(html.contains("3D Secure 2.0"))
+        assertTrue(html.contains("$returnUrl?payment_intent=$paymentIntentId&status=succeeded&transStatus=Y"))
+        assertTrue(html.contains("$returnUrl?payment_intent=$paymentIntentId&status=declined&transStatus=N"))
     }
 }

@@ -227,7 +227,7 @@ class CardInputComposeTest {
         composeTestRule.setContent {
             PaymentsdkTheme {
                 CardInputForm(
-                    onCardComplete = {}
+                    onFormReady = {}
                 )
             }
         }
@@ -242,7 +242,7 @@ class CardInputComposeTest {
         composeTestRule.setContent {
             PaymentsdkTheme {
                 CardInputForm(
-                    onCardComplete = {},
+                    onFormReady = {},
                     enabled = false
                 )
             }
@@ -251,5 +251,215 @@ class CardInputComposeTest {
         composeTestRule.onNodeWithText("Card number").assertIsNotEnabled()
         composeTestRule.onNodeWithText("Expiry").assertIsNotEnabled()
         composeTestRule.onNodeWithText("CVC").assertIsNotEnabled()
+    }
+
+    // ──── Error String Resource Mapping ──────────────────────
+
+    @Test
+    fun testCardInputForm_emptyAfterSubmission_showsRequiredErrors() {
+        val formState = CardFormState.initial().markSubmissionAttempted()
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("This field is required").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_incompleteNumber_showsIncompleteError() {
+        val formState = CardFormState(
+            number = CardNumberState(rawValue = "4242", isComplete = false)
+        ).markSubmissionAttempted()
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Input is incomplete").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_invalidLuhn_showsInvalidCardNumberError() {
+        val formState = CardFormState(
+            number = CardNumberState(
+                rawValue = "4242424242424243",
+                isComplete = true,
+                isValid = false,
+                error = "Invalid card number"
+            )
+        )
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Invalid card number").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_invalidExpiry_showsInvalidExpiryError() {
+        val formState = CardFormState(
+            expiry = ExpiryState(
+                rawValue = "0120",
+                isComplete = true,
+                isValid = false,
+                error = "Expired or invalid date"
+            )
+        )
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Expired or invalid date").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_invalidCvc_showsInvalidCvcError() {
+        val formState = CardFormState(
+            cvc = CvcState(
+                rawValue = "12",
+                isComplete = true,
+                isValid = false,
+                error = "CVC is invalid"
+            )
+        )
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("CVC is invalid").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_initialState_noErrorsShown() {
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = CardFormState.initial()
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("This field is required").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Input is incomplete").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Invalid card number").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Expired or invalid date").assertDoesNotExist()
+        composeTestRule.onNodeWithText("CVC is invalid").assertDoesNotExist()
+    }
+
+    @Test
+    fun testCardInputForm_incompleteExpiryAfterSubmission_showsIncompleteError() {
+        val formState = CardFormState(
+            expiry = ExpiryState(rawValue = "12", isComplete = false)
+        ).markSubmissionAttempted()
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Input is incomplete").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_incompleteCvcAfterSubmission_showsIncompleteError() {
+        val formState = CardFormState(
+            cvc = CvcState(rawValue = "1", isComplete = false)
+        ).markSubmissionAttempted()
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Input is incomplete").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCardInputForm_incompleteCvcAfterSubmissionError_showsInvalidCvc() {
+        val formState = CardFormState(
+            cvc = CvcState(
+                rawValue = "99",
+                isComplete = true,
+                isValid = false,
+                error = "CVC is invalid"
+            )
+        ).markSubmissionAttempted()
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CardInputForm(
+                    onFormReady = {},
+                    initialState = formState
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("CVC is invalid").assertIsDisplayed()
+    }
+
+    // ──── CVC Network Length Tests ───────────────────────────
+
+    @Test
+    fun testCvcInput_amexNetwork_showsFourDigitPlaceholder() {
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CvcInput(
+                    state = CvcState.initial(),
+                    onValueChange = {},
+                    network = CardNetwork.AMEX
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("CVC").assertIsDisplayed()
+    }
+
+    @Test
+    fun testCvcInput_withTrailingIcons_showsCheckmarkForComplete() {
+        composeTestRule.setContent {
+            PaymentsdkTheme {
+                CvcInput(
+                    state = CvcState(
+                        rawValue = "1234",
+                        isValid = true,
+                        isComplete = true
+                    ),
+                    onValueChange = {},
+                    network = CardNetwork.AMEX
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("✓").assertIsDisplayed()
     }
 }

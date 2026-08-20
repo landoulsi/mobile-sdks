@@ -20,7 +20,7 @@ Active priority is integrating Google Pay on Android and establishing domain mod
 - [x] [tool: opencode] Add a design token layer and payment-oriented Material 3 theme replacing template purple palette
 - [x] [tool: claude] Build card number, expiry and CVC input components with live formatting and Luhn validation
 - [x] [tool: antigravity] Assemble the drop-in checkout sheet with express Google Pay button rendered above card form
-- [ ] [tool: opencode] Add explicit payment feedback states with inline field errors, processing spinner and confirmation
+- [x] [tool: opencode] Add explicit payment feedback states with inline field errors, processing spinner and confirmation
 - [ ] [tool: claude] Implement iOS ApplePayProvider using PassKit behind the common PaymentProvider abstraction
 - [ ] [tool: claude] Add 3D Secure challenge handling and authentication flow to common checkout
 - [ ] [tool: opencode] Add accessibility and one-handed reachability passes over checkout sheet

@@ -431,7 +431,390 @@ class CardValidationTest {
         assertEquals(initialExpiry, initialForm.expiry)
         assertEquals(initialCvc, initialForm.cvc)
         assertEquals("", initialForm.cardholderName)
+        assertFalse(initialForm.submissionAttempted)
         assertFalse(initialForm.isFormValid)
         assertFalse(initialForm.isFormComplete)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  Display Error Properties & Submission-Attempted Tests
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testNumberDisplayErrorBeforeSubmission() {
+        val form = CardFormState.initial()
+        assertNull(form.numberDisplayError)
+    }
+
+    @Test
+    fun testNumberDisplayErrorEmptyAfterSubmission() {
+        val form = CardFormState.initial().markSubmissionAttempted()
+        assertEquals(CardFieldError.REQUIRED, form.numberDisplayError)
+    }
+
+    @Test
+    fun testNumberDisplayErrorIncompleteAfterSubmission() {
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "4242", isComplete = false)
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INCOMPLETE, form.numberDisplayError)
+    }
+
+    @Test
+    fun testNumberDisplayErrorInvalidLuhnOnComplete() {
+        val form = CardFormState(
+            number = CardNumberState(
+                rawValue = "4242424242424243",
+                isComplete = true,
+                isValid = false,
+                error = "Invalid card number"
+            )
+        )
+        assertEquals(CardFieldError.INVALID_CARD_NUMBER, form.numberDisplayError)
+    }
+
+    @Test
+    fun testNumberDisplayErrorInvalidLuhnAfterSubmission() {
+        val form = CardFormState(
+            number = CardNumberState(
+                rawValue = "4242424242424243",
+                isComplete = true,
+                isValid = false,
+                error = "Invalid card number"
+            )
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INVALID_CARD_NUMBER, form.numberDisplayError)
+    }
+
+    @Test
+    fun testExpiryDisplayErrorEmptyAfterSubmission() {
+        val form = CardFormState.initial().markSubmissionAttempted()
+        assertEquals(CardFieldError.REQUIRED, form.expiryDisplayError)
+    }
+
+    @Test
+    fun testExpiryDisplayErrorIncompleteAfterSubmission() {
+        val form = CardFormState(
+            expiry = ExpiryState(rawValue = "12", isComplete = false)
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INCOMPLETE, form.expiryDisplayError)
+    }
+
+    @Test
+    fun testExpiryDisplayErrorInvalidOnComplete() {
+        val form = CardFormState(
+            expiry = ExpiryState(
+                rawValue = "0120",
+                isComplete = true,
+                isValid = false,
+                error = "Expired or invalid date"
+            )
+        )
+        assertEquals(CardFieldError.INVALID_EXPIRY, form.expiryDisplayError)
+    }
+
+    @Test
+    fun testCvcDisplayErrorEmptyAfterSubmission() {
+        val form = CardFormState.initial().markSubmissionAttempted()
+        assertEquals(CardFieldError.REQUIRED, form.cvcDisplayError)
+    }
+
+    @Test
+    fun testCvcDisplayErrorIncompleteAfterSubmission() {
+        val form = CardFormState(
+            cvc = CvcState(rawValue = "1", isComplete = false)
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INCOMPLETE, form.cvcDisplayError)
+    }
+
+    @Test
+    fun testCvcDisplayErrorInvalidOnComplete() {
+        val form = CardFormState(
+            cvc = CvcState(
+                rawValue = "12",
+                isComplete = true,
+                isValid = false,
+                error = "CVC is invalid"
+            )
+        )
+        assertEquals(CardFieldError.INVALID_CVC, form.cvcDisplayError)
+    }
+
+    @Test
+    fun testDisplayErrorsClearedWhenNotSubmitted() {
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "42424", isComplete = false),
+            expiry = ExpiryState(rawValue = "12", isComplete = false),
+            cvc = CvcState(rawValue = "1", isComplete = false)
+        )
+        assertNull(form.numberDisplayError)
+        assertNull(form.expiryDisplayError)
+        assertNull(form.cvcDisplayError)
+    }
+
+    @Test
+    fun testMarkSubmissionAttempted() {
+        val form = CardFormState.initial()
+        assertFalse(form.submissionAttempted)
+        val submitted = form.markSubmissionAttempted()
+        assertTrue(submitted.submissionAttempted)
+    }
+
+    @Test
+    fun testClearSensitiveDataPreservesSubmissionAttempted() {
+        val form = CardFormState(
+            cvc = CvcState(rawValue = "123", isValid = true, isComplete = true),
+            submissionAttempted = true
+        )
+        val cleared = form.clearSensitiveData()
+        assertTrue(cleared.submissionAttempted)
+        assertEquals("", cleared.cvc.rawValue)
+    }
+
+    @Test
+    fun testClearCvcPreservesSubmissionAttempted() {
+        val form = CardFormState(
+            cvc = CvcState(rawValue = "123", isValid = true, isComplete = true),
+            submissionAttempted = true
+        )
+        val cleared = form.clearCvc()
+        assertTrue(cleared.submissionAttempted)
+        assertEquals("", cleared.cvc.rawValue)
+    }
+
+    @Test
+    fun testClearSensitiveDataAndClearCvcAreConsistent() {
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "4242424242424242", isValid = true, isComplete = true),
+            expiry = ExpiryState(rawValue = "1228", month = 12, year = 28, isValid = true, isComplete = true),
+            cvc = CvcState(rawValue = "123", isValid = true, isComplete = true),
+            submissionAttempted = true
+        )
+        val viaSensitive = form.clearSensitiveData()
+        val viaCvc = form.clearCvc()
+        assertEquals(viaSensitive.cvc, viaCvc.cvc)
+        assertEquals(viaSensitive.submissionAttempted, viaCvc.submissionAttempted)
+        assertEquals(viaSensitive.number, viaCvc.number)
+        assertEquals(viaSensitive.expiry, viaCvc.expiry)
+    }
+
+    @Test
+    fun testPartialInputAfterSubmissionShowsCorrectErrors() {
+        // Card number partially entered, empty expiry, partial CVC
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "4242", isComplete = false),
+            expiry = ExpiryState(rawValue = ""),
+            cvc = CvcState(rawValue = "1", isComplete = false)
+        ).markSubmissionAttempted()
+
+        assertEquals(CardFieldError.INCOMPLETE, form.numberDisplayError)
+        assertEquals(CardFieldError.REQUIRED, form.expiryDisplayError)
+        assertEquals(CardFieldError.INCOMPLETE, form.cvcDisplayError)
+    }
+
+    @Test
+    fun testBlankInputAfterSubmissionShowsRequired() {
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "  "),
+            expiry = ExpiryState(rawValue = ""),
+            cvc = CvcState(rawValue = "")
+        ).markSubmissionAttempted()
+
+        assertEquals(CardFieldError.REQUIRED, form.numberDisplayError)
+        assertEquals(CardFieldError.REQUIRED, form.expiryDisplayError)
+        assertEquals(CardFieldError.REQUIRED, form.cvcDisplayError)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  CardFieldError Enum Exhaustiveness
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCardFieldErrorEnumContainsAllExpectedValues() {
+        val values = CardFieldError.entries
+        assertEquals(5, values.size)
+        assertTrue(values.contains(CardFieldError.REQUIRED))
+        assertTrue(values.contains(CardFieldError.INCOMPLETE))
+        assertTrue(values.contains(CardFieldError.INVALID_CARD_NUMBER))
+        assertTrue(values.contains(CardFieldError.INVALID_EXPIRY))
+        assertTrue(values.contains(CardFieldError.INVALID_CVC))
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  UpdateResult Data Classes
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCardNumberUpdateResultHoldsStateAndNetworkChanged() {
+        val state = CardNumberState(rawValue = "4242", network = CardNetwork.VISA)
+        val result = CardNumberUpdateResult(newState = state, networkChanged = true)
+        assertEquals(state, result.newState)
+        assertTrue(result.networkChanged)
+
+        val result2 = CardNumberUpdateResult(newState = state, networkChanged = false)
+        assertFalse(result2.networkChanged)
+    }
+
+    @Test
+    fun testExpiryUpdateResultHoldsState() {
+        val state = ExpiryState(rawValue = "1228", month = 12, year = 28, isValid = true, isComplete = true)
+        val result = ExpiryUpdateResult(newState = state)
+        assertEquals(state, result.newState)
+        assertEquals(12, result.newState.month)
+        assertEquals(28, result.newState.year)
+    }
+
+    @Test
+    fun testCvcUpdateResultHoldsState() {
+        val state = CvcState(rawValue = "123", isValid = true, isComplete = true)
+        val result = CvcUpdateResult(newState = state)
+        assertEquals(state, result.newState)
+        assertTrue(result.newState.isValid)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  ExpiryDisplayError Edge Cases
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testExpiryDisplayErrorInvalidAfterSubmission() {
+        val form = CardFormState(
+            expiry = ExpiryState(
+                rawValue = "0120",
+                isComplete = true,
+                isValid = false,
+                error = "Expired or invalid date"
+            )
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INVALID_EXPIRY, form.expiryDisplayError)
+    }
+
+    @Test
+    fun testExpiryDisplayErrorNullWhenErrorSetButNotCompleteAndNotSubmitted() {
+        val form = CardFormState(
+            expiry = ExpiryState(
+                rawValue = "12",
+                isComplete = false,
+                isValid = false,
+                error = "Some error"
+            )
+        )
+        assertNull(form.expiryDisplayError)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  NumberDisplayError Edge Cases
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testNumberDisplayErrorInvalidAfterSubmission() {
+        val form = CardFormState(
+            number = CardNumberState(
+                rawValue = "4242424242424243",
+                isComplete = true,
+                isValid = false,
+                error = "Invalid card number"
+            )
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INVALID_CARD_NUMBER, form.numberDisplayError)
+    }
+
+    @Test
+    fun testNumberDisplayErrorNullWhenErrorSetButNotCompleteAndNotSubmitted() {
+        val form = CardFormState(
+            number = CardNumberState(
+                rawValue = "424242424242424",
+                isComplete = false,
+                isValid = false,
+                error = "Some error"
+            )
+        )
+        assertNull(form.numberDisplayError)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  CvcDisplayError Edge Cases
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCvcDisplayErrorInvalidAfterSubmission() {
+        val form = CardFormState(
+            cvc = CvcState(
+                rawValue = "99",
+                isComplete = true,
+                isValid = false,
+                error = "CVC is invalid"
+            )
+        ).markSubmissionAttempted()
+        assertEquals(CardFieldError.INVALID_CVC, form.cvcDisplayError)
+    }
+
+    @Test
+    fun testCvcDisplayErrorNullWhenErrorSetButNotCompleteAndNotSubmitted() {
+        val form = CardFormState(
+            cvc = CvcState(
+                rawValue = "1",
+                isComplete = false,
+                isValid = false,
+                error = "Some error"
+            )
+        )
+        assertNull(form.cvcDisplayError)
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  CardFormState Edge Cases
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testCardFormStateIsValidFalseWhenMonthOrYearNull() {
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "4242424242424242", isValid = true, isComplete = true),
+            expiry = ExpiryState(rawValue = "1228", isValid = true, isComplete = true, month = 12, year = null),
+            cvc = CvcState(rawValue = "123", isValid = true, isComplete = true)
+        )
+        assertFalse(form.isFormValid)
+    }
+
+    @Test
+    fun testCardFormStateIsCompleteFalseWhenMonthOrYearNull() {
+        val form = CardFormState(
+            number = CardNumberState(rawValue = "4242424242424242", isValid = true, isComplete = true),
+            expiry = ExpiryState(rawValue = "1228", isValid = true, isComplete = true, month = null, year = 28),
+            cvc = CvcState(rawValue = "123", isValid = true, isComplete = true)
+        )
+        assertFalse(form.isFormComplete)
+    }
+
+    @Test
+    fun testCardFormStateDataClassEquality() {
+        val a = CardFormState(
+            number = CardNumberState(rawValue = "4242"),
+            expiry = ExpiryState(rawValue = "1228"),
+            cvc = CvcState(rawValue = "123"),
+            cardholderName = "John",
+            submissionAttempted = true
+        )
+        val b = a.copy()
+        assertEquals(a, b)
+        assertEquals(a.hashCode(), b.hashCode())
+    }
+
+    @Test
+    fun testCardNumberStateFormattedValueWithNullNetwork() {
+        val state = CardNumberState(rawValue = "4242424242424242", network = null)
+        assertEquals("4242 4242 4242 4242", state.formattedValue)
+    }
+
+    @Test
+    fun testExpiryStateFormattedValueEmpty() {
+        val state = ExpiryState(rawValue = "")
+        assertEquals("", state.formattedValue)
+    }
+
+    @Test
+    fun testCvcStateFormattedValueIsRawValue() {
+        val state = CvcState(rawValue = "456")
+        assertEquals("456", state.formattedValue)
     }
 }

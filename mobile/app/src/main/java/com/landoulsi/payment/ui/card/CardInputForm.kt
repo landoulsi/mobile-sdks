@@ -16,110 +16,54 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.runtime.rememberCoroutineScope
-import com.landoulsi.payment.shared.network.GatewayClient
-import com.landoulsi.payment.shared.network.dto.CardDetails
-import com.landoulsi.payment.shared.network.dto.CardTokenRequest
-import com.landoulsi.payment.shared.network.dto.CardTokenResponse
+import com.landoulsi.payment.R
+import com.landoulsi.payment.shared.validation.CardFieldError
 import com.landoulsi.payment.shared.validation.CardFormState
 import com.landoulsi.payment.shared.validation.CardNumberUpdateResult
 import com.landoulsi.payment.shared.validation.CvcUpdateResult
 import com.landoulsi.payment.shared.validation.ExpiryUpdateResult
 import com.landoulsi.payment.ui.theme.PaymentSpacing
-import kotlinx.coroutines.launch
 
 /**
- * Card input form providing live formatting, Luhn validation, and in-SDK tokenization.
+ * Card input form providing live formatting, Luhn validation, and submission readiness detection.
  *
- * To ensure PCI-DSS compliance, raw PAN and CVC are never exposed outside the SDK.
- * Tokenization is performed inside this component (via [gatewayClient] or standard SDK tokenization)
- * before invoking [onCardComplete] with a sanitized [CardTokenResponse].
+ * When all fields are complete and valid, [onFormReady] is invoked with the validated
+ * [CardFormState] so the caller can perform tokenization and payment routing.
+ * This component does NOT perform tokenization itself -- that responsibility belongs to the
+ * orchestrator to maintain consistent ViewModel state transitions (Ready -> Processing -> Result).
  */
 @Composable
 fun CardInputForm(
-    onCardComplete: (CardTokenResponse) -> Unit,
-    gatewayClient: GatewayClient? = null,
-    onTokenizationError: ((Throwable) -> Unit)? = null,
+    onFormReady: (CardFormState) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     initialState: CardFormState = CardFormState.initial()
 ) {
     var formState by remember { mutableStateOf(initialState) }
-    var lastEmittedTokenId by remember { mutableStateOf<String?>(null) }
-    var isTokenizing by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
     val expiryFocusRequester = remember { FocusRequester() }
     val cvcFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    val numberError = formState.number.error
-    val expiryError = formState.expiry.error
-    val cvcError = formState.cvc.error
+    val requiredError = stringResource(id = R.string.card_field_error_required)
+    val incompleteError = stringResource(id = R.string.card_field_error_incomplete)
+    val invalidNumberError = stringResource(id = R.string.card_field_error_invalid_card_number)
+    val invalidExpiryError = stringResource(id = R.string.card_field_error_invalid_expiry)
+    val invalidCvcError = stringResource(id = R.string.card_field_error_invalid_cvc)
 
-    val showNumberError = numberError != null && formState.number.isComplete
-    val showExpiryError = expiryError != null && formState.expiry.isComplete
-    val showCvcError = cvcError != null && formState.cvc.isComplete
-
-    fun checkFormComplete(state: CardFormState) {
-        if (state.isFormComplete && state.isFormValid && !isTokenizing) {
-            val month = state.expiry.month
-            val rawYear = state.expiry.year
-            if (month != null && rawYear != null && month in 1..12) {
-                // Two-digit year (e.g. 30) is normalized to full four-digit year (2030) as required by standard gateway tokenization APIs (Stripe CardTokenRequest)
-                val fullYear = if (rawYear in 0..99) 2000 + rawYear else rawYear
-                val rawPan = state.number.rawValue
-                val rawCvc = state.cvc.rawValue
-                val cardholderName = state.cardholderName.takeIf { it.isNotBlank() }
-                val detectedNetwork = state.number.network
-
-                val tokenRequest = CardTokenRequest(
-                    number = rawPan,
-                    expiryMonth = month,
-                    expiryYear = fullYear,
-                    cvc = rawCvc,
-                    cardholderName = cardholderName
-                )
-
-                // Immediately clear sensitive authentication data and PAN from local UI state
-                formState = state.clearSensitiveData()
-
-                isTokenizing = true
-                coroutineScope.launch {
-                    try {
-                        val tokenResponse = if (gatewayClient != null) {
-                            gatewayClient.tokenizeCard(tokenRequest)
-                        } else {
-                            val last4 = rawPan.takeLast(4)
-                            CardTokenResponse(
-                                id = "tok_card_${last4}_${System.currentTimeMillis()}",
-                                `object` = "token",
-                                created = System.currentTimeMillis() / 1000,
-                                livemode = false,
-                                type = "card",
-                                card = CardDetails(
-                                    brand = detectedNetwork?.name?.lowercase(),
-                                    last4 = last4,
-                                    expMonth = month,
-                                    expYear = fullYear
-                                )
-                            )
-                        }
-
-                        if (tokenResponse.id != lastEmittedTokenId) {
-                            lastEmittedTokenId = tokenResponse.id
-                            onCardComplete(tokenResponse)
-                        }
-                    } catch (t: Throwable) {
-                        onTokenizationError?.invoke(t)
-                    } finally {
-                        isTokenizing = false
-                    }
-                }
-            }
-        }
+    fun CardFieldError.toLocalizedString(): String = when (this) {
+        CardFieldError.REQUIRED -> requiredError
+        CardFieldError.INCOMPLETE -> incompleteError
+        CardFieldError.INVALID_CARD_NUMBER -> invalidNumberError
+        CardFieldError.INVALID_EXPIRY -> invalidExpiryError
+        CardFieldError.INVALID_CVC -> invalidCvcError
     }
+
+    val showNumberError = formState.numberDisplayError != null
+    val showExpiryError = formState.expiryDisplayError != null
+    val showCvcError = formState.cvcDisplayError != null
 
     val onNumberChange = { result: CardNumberUpdateResult ->
         var updated = formState.copy(number = result.newState)
@@ -152,7 +96,11 @@ fun CardInputForm(
         formState = updated
         if (result.newState.isComplete && result.newState.isValid) {
             focusManager.clearFocus()
-            checkFormComplete(updated)
+            val submitted = updated.markSubmissionAttempted()
+            formState = submitted
+            if (submitted.isFormComplete && submitted.isFormValid) {
+                onFormReady(submitted)
+            }
         }
     }
 
@@ -166,7 +114,7 @@ fun CardInputForm(
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             isError = showNumberError,
-            supportingText = if (showNumberError) numberError else null,
+            supportingText = formState.numberDisplayError?.toLocalizedString(),
             keyboardActions = KeyboardActions(onNext = { expiryFocusRequester.requestFocus() })
         )
 
@@ -182,7 +130,7 @@ fun CardInputForm(
                     .focusRequester(expiryFocusRequester),
                 enabled = enabled,
                 isError = showExpiryError,
-                supportingText = if (showExpiryError) expiryError else null,
+                supportingText = formState.expiryDisplayError?.toLocalizedString(),
                 keyboardActions = KeyboardActions(onNext = { cvcFocusRequester.requestFocus() })
             )
 
@@ -195,10 +143,14 @@ fun CardInputForm(
                 enabled = enabled,
                 network = formState.number.network,
                 isError = showCvcError,
-                supportingText = if (showCvcError) cvcError else null,
+                supportingText = formState.cvcDisplayError?.toLocalizedString(),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
-                    checkFormComplete(formState)
+                    val submitted = formState.markSubmissionAttempted()
+                    formState = submitted
+                    if (submitted.isFormComplete && submitted.isFormValid) {
+                        onFormReady(submitted)
+                    }
                 })
             )
         }
@@ -212,7 +164,7 @@ private fun CardInputFormPreview() {
         modifier = Modifier.padding(PaymentSpacing.lg)
     ) {
         CardInputForm(
-            onCardComplete = { _ -> }
+            onFormReady = { _ -> }
         )
     }
 }

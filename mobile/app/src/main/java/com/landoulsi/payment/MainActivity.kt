@@ -5,7 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,18 +42,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.landoulsi.payment.shared.checkout.CheckoutUiState
 import com.landoulsi.payment.shared.checkout.CheckoutViewModel
 import com.landoulsi.payment.shared.googlepay.GooglePayPaymentTaskContract
@@ -69,12 +70,20 @@ import com.landoulsi.payment.shared.model.PaymentErrorCode
 import com.landoulsi.payment.shared.model.PaymentMethodType
 import com.landoulsi.payment.shared.model.PaymentRequest
 import com.landoulsi.payment.shared.model.PaymentResult
+import com.landoulsi.payment.shared.network.dto.CardTokenRequest
 import com.landoulsi.payment.shared.network.dto.CardTokenResponse
 import com.landoulsi.payment.ui.GooglePayButton
 import com.landoulsi.payment.ui.GooglePayButtonTheme
 import com.landoulsi.payment.ui.GooglePayButtonType
 import com.landoulsi.payment.ui.card.CardInputForm
+import com.landoulsi.payment.ui.payment.PaymentCanceledCard
+import com.landoulsi.payment.ui.payment.PaymentFailureCard
+import com.landoulsi.payment.ui.payment.PaymentSuccessCard
+import com.landoulsi.payment.ui.payment.ProcessingPaymentCard
+import com.landoulsi.payment.ui.payment.TokenizationErrorBanner
 import com.landoulsi.payment.ui.theme.PaymentsdkTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -153,6 +162,7 @@ fun CheckoutScreen(
     onPayWithCardClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     val googlePayLauncher = rememberLauncherForActivityResult(
         contract = GooglePayPaymentTaskContract()
@@ -189,73 +199,85 @@ fun CheckoutScreen(
             OrderSummaryCard(request = uiState.request)
 
             // Dynamic State Presentation
-            when (val state = uiState) {
-                is CheckoutUiState.Initial,
-                is CheckoutUiState.CheckingAvailability -> {
-                    CheckingAvailabilityCard()
-                }
+            AnimatedContent(
+                targetState = uiState,
+                transitionSpec = {
+                    fadeIn(spring()) + slideInVertically { it / 4 } togetherWith fadeOut(spring())
+                },
+                label = "checkout_state"
+            ) { state ->
+                when (state) {
+                    is CheckoutUiState.Initial,
+                    is CheckoutUiState.CheckingAvailability -> {
+                        CheckingAvailabilityCard()
+                    }
 
-                is CheckoutUiState.Ready -> {
-                    ReadyCheckoutSection(
-                        state = state,
-                        onGooglePayClick = {
-                            if (googlePayProvider != null) {
-                                viewModel.startProcessing(PaymentMethodType.GOOGLE_PAY)
-                                val taskInput = googlePayProvider.createPaymentTaskInput(state.request)
-                                googlePayLauncher.launch(taskInput)
-                            } else {
-                                viewModel.pay(PaymentMethodType.GOOGLE_PAY)
-                            }
-                        },
-                        onPayWithCardClick = {
-                            onPayWithCardClick()
-                        },
-                        onCardComplete = { tokenResponse ->
-                            val card = tokenResponse.card
-                            val network = card?.brand?.let { b ->
-                                try {
-                                    CardNetwork.valueOf(b.uppercase())
-                                } catch (e: Exception) {
-                                    null
+                    is CheckoutUiState.Ready -> {
+                        ReadyCheckoutSection(
+                            state = state,
+                            onGooglePayClick = {
+                                if (googlePayProvider != null) {
+                                    viewModel.startProcessing(PaymentMethodType.GOOGLE_PAY)
+                                    val taskInput = googlePayProvider.createPaymentTaskInput(state.request)
+                                    googlePayLauncher.launch(taskInput)
+                                } else {
+                                    viewModel.pay(PaymentMethodType.GOOGLE_PAY)
+                                }
+                            },
+                            onPayWithCardClick = {
+                                onPayWithCardClick()
+                            },
+                            onCardComplete = { tokenResponse ->
+                                val card = tokenResponse.card
+                                val network = card?.brand?.let { b ->
+                                    try {
+                                        CardNetwork.valueOf(b.uppercase())
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                }
+                                viewModel.startProcessing(PaymentMethodType.CARD)
+                                coroutineScope.launch {
+                                    delay(800)
+                                    viewModel.handlePaymentResult(
+                                        PaymentResult.Success(
+                                            transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
+                                            paymentMethodType = PaymentMethodType.CARD,
+                                            cardNetwork = network,
+                                            last4 = card?.last4,
+                                            token = tokenResponse.id
+                                        )
+                                    )
                                 }
                             }
-                            viewModel.handlePaymentResult(
-                                PaymentResult.Success(
-                                    transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
-                                    paymentMethodType = PaymentMethodType.CARD,
-                                    cardNetwork = network,
-                                    last4 = card?.last4,
-                                    token = tokenResponse.id
-                                )
-                            )
-                        }
-                    )
-                }
+                        )
+                    }
 
-                is CheckoutUiState.Processing -> {
-                    ProcessingPaymentCard(
-                        methodType = state.paymentMethodType
-                    )
-                }
+                    is CheckoutUiState.Processing -> {
+                        ProcessingPaymentCard(
+                            methodType = state.paymentMethodType
+                        )
+                    }
 
-                is CheckoutUiState.Success -> {
-                    PaymentSuccessCard(
-                        result = state.result,
-                        onResetClick = { viewModel.reset() }
-                    )
-                }
+                    is CheckoutUiState.Success -> {
+                        PaymentSuccessCard(
+                            result = state.result,
+                            onResetClick = { viewModel.reset() }
+                        )
+                    }
 
-                is CheckoutUiState.Failure -> {
-                    PaymentFailureCard(
-                        failure = state.failure,
-                        onRetryClick = { viewModel.reset() }
-                    )
-                }
+                    is CheckoutUiState.Failure -> {
+                        PaymentFailureCard(
+                            failure = state.failure,
+                            onRetryClick = { viewModel.reset() }
+                        )
+                    }
 
-                is CheckoutUiState.Canceled -> {
-                    PaymentCanceledCard(
-                        onRetryClick = { viewModel.reset() }
-                    )
+                    is CheckoutUiState.Canceled -> {
+                        PaymentCanceledCard(
+                            onRetryClick = { viewModel.reset() }
+                        )
+                    }
                 }
             }
         }
@@ -360,9 +382,13 @@ fun ReadyCheckoutSection(
     onGooglePayClick: () -> Unit,
     onPayWithCardClick: () -> Unit = {},
     onCardComplete: ((CardTokenResponse) -> Unit)? = null,
+    onCardTokenizeError: ((Throwable) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var isCardExpanded by remember { mutableStateOf(false) }
+    var isTokenizing by remember { mutableStateOf(false) }
+    var tokenizationError by remember { mutableStateOf<Throwable?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -448,267 +474,103 @@ fun ReadyCheckoutSection(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
-                    CardInputForm(
-                        onCardComplete = { tokenResponse ->
-                            onCardComplete?.invoke(tokenResponse)
+
+                    Box {
+                        CardInputForm(
+                            onFormReady = { formState ->
+                                if (isTokenizing) return@CardInputForm
+
+                                val month = formState.expiry.month
+                                val rawYear = formState.expiry.year
+                                if (month != null && rawYear != null && month in 1..12) {
+                                    val fullYear = if (rawYear in 0..99) 2000 + rawYear else rawYear
+                                    val rawPan = formState.number.rawValue
+                                    val rawCvc = formState.cvc.rawValue
+                                    val cardholderName = formState.cardholderName.takeIf { it.isNotBlank() }
+                                    val detectedNetwork = formState.number.network
+
+                                    val tokenRequest = CardTokenRequest(
+                                        number = rawPan,
+                                        expiryMonth = month,
+                                        expiryYear = fullYear,
+                                        cvc = rawCvc,
+                                        cardholderName = cardholderName
+                                    )
+
+                                    tokenizationError = null
+                                    isTokenizing = true
+
+                                    coroutineScope.launch {
+                                        try {
+                                            val tokenResponse = createMockTokenResponse(
+                                                tokenRequest, detectedNetwork
+                                            )
+                                            onCardComplete?.invoke(tokenResponse)
+                                        } catch (t: Throwable) {
+                                            tokenizationError = t
+                                            onCardTokenizeError?.invoke(t)
+                                        } finally {
+                                            isTokenizing = false
+                                        }
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isTokenizing
+                        )
+
+                        if (isTokenizing) {
+                            val processingDesc = stringResource(id = R.string.demo_payment_processing_card)
+                            Surface(
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .semantics {
+                                        contentDescription = processingDesc
+                                    }
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(36.dp),
+                                        strokeWidth = 3.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
-                    )
+                    }
+
+                    if (tokenizationError != null) {
+                        TokenizationErrorBanner(
+                            error = tokenizationError,
+                            onDismiss = { tokenizationError = null },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun ProcessingPaymentCard(
-    methodType: PaymentMethodType,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(36.dp),
-                strokeWidth = 3.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = stringResource(id = R.string.demo_payment_processing),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
-fun PaymentSuccessCard(
-    result: PaymentResult.Success,
-    onResetClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E3A2F)
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(Color(0xFF34A853), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "✓",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                }
-                Text(
-                    text = stringResource(id = R.string.demo_payment_success),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFE6F4EA)
-                )
-            }
-
-            HorizontalDivider(color = Color(0xFF2E5948))
-
-            PaymentDetailRow(label = stringResource(id = R.string.demo_transaction_id), value = result.transactionId, lightText = true)
-            PaymentDetailRow(label = stringResource(id = R.string.demo_payment_method), value = result.paymentMethodType.name, lightText = true)
-            val last4 = result.last4
-            if (last4 != null) {
-                PaymentDetailRow(
-                    label = stringResource(id = R.string.demo_card_details),
-                    value = "${result.cardNetwork?.networkName ?: "Card"} •••• $last4",
-                    lightText = true
-                )
-            }
-            val token = result.token
-            if (token != null) {
-                PaymentDetailRow(
-                    label = stringResource(id = R.string.demo_token),
-                    value = "${token.take(16)}…",
-                    lightText = true
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Button(
-                onClick = onResetClick,
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF34A853),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text(text = stringResource(id = R.string.demo_reset_checkout), fontWeight = FontWeight.Medium)
-            }
-        }
-    }
-}
-
-@Composable
-fun PaymentFailureCard(
-    failure: PaymentResult.Failure,
-    onRetryClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(MaterialTheme.colorScheme.error, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "!",
-                        color = MaterialTheme.colorScheme.onError,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                }
-                Text(
-                    text = stringResource(id = R.string.demo_payment_failed),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-
-            Text(
-                text = "${failure.errorCode.name}: ${failure.message}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onErrorContainer
-            )
-
-            Button(
-                onClick = onRetryClick,
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text(text = stringResource(id = R.string.demo_try_again), fontWeight = FontWeight.Medium)
-            }
-        }
-    }
-}
-
-@Composable
-fun PaymentCanceledCard(
-    onRetryClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.demo_payment_canceled),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "The payment sheet was dismissed. You can retry when ready.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            OutlinedButton(
-                onClick = onRetryClick,
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp)
-            ) {
-                Text(text = stringResource(id = R.string.demo_try_again))
-            }
-        }
-    }
-}
-
-@Composable
-fun PaymentDetailRow(
-    label: String,
-    value: String,
-    lightText: Boolean = false
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = if (lightText) Color(0xFFA8D5BA) else MaterialTheme.colorScheme.onSurfaceVariant
+private fun createMockTokenResponse(
+    request: CardTokenRequest,
+    network: com.landoulsi.payment.shared.model.CardNetwork?
+): CardTokenResponse {
+    val last4 = request.number.takeLast(4)
+    return CardTokenResponse(
+        id = "tok_card_${last4}_${System.currentTimeMillis()}",
+        `object` = "token",
+        created = System.currentTimeMillis() / 1000,
+        livemode = false,
+        type = "card",
+        card = com.landoulsi.payment.shared.network.dto.CardDetails(
+            brand = network?.name?.lowercase(),
+            last4 = last4,
+            expMonth = request.expiryMonth,
+            expYear = request.expiryYear
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = if (lightText) Color.White else MaterialTheme.colorScheme.onSurface
-        )
-    }
+    )
 }
 
 @Preview(showBackground = true)

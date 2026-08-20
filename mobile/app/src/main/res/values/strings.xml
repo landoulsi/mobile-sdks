@@ -20,7 +20,13 @@
     <string name="demo_pay_with_card">Pay with Card</string>
     <string name="demo_checking_wallets">Checking Google Pay availability…</string>
     <string name="demo_gpay_unavailable">Google Pay is unavailable on this device.</string>
-    <string name="demo_payment_processing">Authorizing Google Pay transaction…</string>
+
+    <!-- Processing State -->
+    <string name="demo_payment_processing">Processing payment…</string>
+    <string name="demo_payment_processing_google_pay">Authorizing Google Pay transaction…</string>
+    <string name="demo_payment_processing_card">Tokenizing card details…</string>
+
+    <!-- Payment Result States -->
     <string name="demo_payment_success">Payment Successful!</string>
     <string name="demo_payment_failed">Payment Failed</string>
     <string name="demo_payment_canceled">Payment Canceled</string>
@@ -31,4 +37,32 @@
     <string name="demo_card_details">Card</string>
     <string name="demo_card_details_title">Card Details</string>
     <string name="demo_token">Payment Token</string>
+    <string name="demo_canceled_description">The payment sheet was dismissed. You can retry when ready.</string>
+
+    <!-- Tokenization Error -->
+    <string name="demo_tokenization_error_default">Tokenization failed</string>
+    <string name="demo_tokenization_error_dismiss">Dismiss</string>
+
+    <!-- Card Field Validation Errors -->
+    <string name="card_field_error_required">This field is required</string>
+    <string name="card_field_error_incomplete">Input is incomplete</string>
+    <string name="card_field_error_invalid_card_number">Invalid card number</string>
+    <string name="card_field_error_invalid_expiry">Expired or invalid date</string>
+    <string name="card_field_error_invalid_cvc">CVC is invalid</string>
+
+    <!-- Payment Method Labels -->
+    <string name="payment_method_google_pay">Google Pay</string>
+    <string name="payment_method_card">Card</string>
+
+    <!-- Payment Error Code Labels -->
+    <string name="payment_error_network">Network error</string>
+    <string name="payment_error_gateway">Gateway error</string>
+    <string name="payment_error_configuration">Configuration error</string>
+    <string name="payment_error_method_unavailable">Payment method unavailable</string>
+    <string name="payment_error_card_declined">Card declined</string>
+    <string name="payment_error_expired_card">Expired card</string>
+    <string name="payment_error_insufficient_funds">Insufficient funds</string>
+    <string name="payment_error_authentication">Authentication failed</string>
+    <string name="payment_error_user_canceled">User canceled</string>
+    <string name="payment_error_unknown">Unknown error</string>
 </resources>

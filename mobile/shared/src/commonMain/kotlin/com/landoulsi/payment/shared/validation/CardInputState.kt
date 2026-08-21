@@ -32,6 +32,11 @@ data class CardNumberState(
     val formattedValue: String
         get() = CardValidation.formatCardNumber(rawValue, network)
 
+    override fun toString(): String {
+        val masked = CardValidation.maskCardNumber(rawValue)
+        return "CardNumberState(rawValue=$masked, network=$network, isValid=$isValid, isComplete=$isComplete, error=$error)"
+    }
+
     companion object {
         fun initial(): CardNumberState = CardNumberState()
     }
@@ -68,6 +73,10 @@ data class CvcState(
     val formattedValue: String
         get() = rawValue
 
+    override fun toString(): String {
+        return "CvcState(rawValue=[REDACTED], isValid=$isValid, isComplete=$isComplete, error=$error)"
+    }
+
     companion object {
         fun initial(): CvcState = CvcState()
     }
@@ -84,6 +93,10 @@ data class CardFormState(
     val cardholderName: String = "",
     val submissionAttempted: Boolean = false
 ) {
+    override fun toString(): String {
+        return "CardFormState(number=$number, expiry=$expiry, cvc=$cvc, cardholderName=$cardholderName, submissionAttempted=$submissionAttempted)"
+    }
+
     val isFormValid: Boolean
         get() = number.isValid && expiry.isValid && cvc.isValid && expiry.month != null && expiry.year != null
 

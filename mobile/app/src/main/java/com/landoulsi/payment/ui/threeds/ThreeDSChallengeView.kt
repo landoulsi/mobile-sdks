@@ -2,9 +2,12 @@ package com.landoulsi.payment.ui.threeds
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.net.http.SslError
+import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
@@ -338,8 +341,15 @@ fun ThreeDSWebView(
                         settings.loadWithOverviewMode = true
                         settings.useWideViewPort = true
                         settings.allowFileAccess = false
+                        settings.allowContentAccess = false
                         settings.allowFileAccessFromFileURLs = false
                         settings.allowUniversalAccessFromFileURLs = false
+                        settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                        settings.setGeolocationEnabled(false)
+                        @Suppress("DEPRECATION")
+                        settings.savePassword = false
+                        @Suppress("DEPRECATION")
+                        settings.saveFormData = false
 
                         webViewClient = object : WebViewClient() {
                             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -372,12 +382,32 @@ fun ThreeDSWebView(
                                     return true
                                 }
                                 if ((customScheme != null && targetUrl.startsWith(customScheme)) ||
-                                    targetUrl.startsWith("paymentsdk://") ||
-                                    targetUrl.startsWith("intent://")
+                                    targetUrl.startsWith("paymentsdk://")
                                 ) {
                                     return true
                                 }
-                                return false
+                                // Block unsafe or non-HTTPS schemes (e.g. file://, javascript://, plain http://)
+                                if (targetUrl.startsWith("https://") || targetUrl.startsWith("data:")) {
+                                    return false
+                                }
+                                return true
+                            }
+
+                            override fun onReceivedSslError(
+                                view: WebView?,
+                                handler: SslErrorHandler?,
+                                error: SslError?
+                            ) {
+                                handler?.cancel()
+                                hasError = true
+                                isLoading = false
+                                currentOnLoadingChanged(false)
+                                currentOnResult(
+                                    ThreeDSResult.Failed(
+                                        errorCode = PaymentErrorCode.NETWORK_ERROR,
+                                        message = "SSL certificate validation failed during 3DS challenge"
+                                    )
+                                )
                             }
 
                             override fun onReceivedError(

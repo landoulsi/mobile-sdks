@@ -817,4 +817,93 @@ class CardValidationTest {
         val state = CvcState(rawValue = "456")
         assertEquals("456", state.formattedValue)
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  Card Masking & Sensitive Data Tests (Security Audit)
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testMaskCardNumberStandard() {
+        assertEquals("•••• •••• •••• 4242", CardValidation.maskCardNumber("4242424242424242"))
+        assertEquals("•••• •••••• 00005", CardValidation.maskCardNumber("378282246310005"))
+        assertEquals("•••• •••• ••00 08", CardValidation.maskCardNumber("36000000000008"))
+    }
+
+    @Test
+    fun testMaskCardNumberWithBinPreserved() {
+        assertEquals("4242 42•• •••• 4242", CardValidation.maskCardNumber("4242424242424242", preserveLeading = 6, preserveTrailing = 4))
+        assertEquals("3782 82•• ••10 005", CardValidation.maskCardNumber("378282246310005", preserveLeading = 6, preserveTrailing = 5))
+    }
+
+    @Test
+    fun testMaskCardNumberUnformatted() {
+        assertEquals("••••••••••••4242", CardValidation.maskCardNumber("4242424242424242", format = false))
+        assertEquals("424242••••••4242", CardValidation.maskCardNumber("4242424242424242", preserveLeading = 6, preserveTrailing = 4, format = false))
+    }
+
+    @Test
+    fun testMaskCardNumberEdgeCases() {
+        assertEquals("", CardValidation.maskCardNumber(""))
+        assertEquals("123", CardValidation.maskCardNumber("123"))
+        assertEquals("1234", CardValidation.maskCardNumber("1234"))
+        assertEquals("• 2345", CardValidation.maskCardNumber("12345"))
+    }
+
+    @Test
+    fun testRedactCvc() {
+        assertEquals("•••", CardValidation.redactCvc("123"))
+        assertEquals("••••", CardValidation.redactCvc("1234"))
+        assertEquals("[REDACTED]", CardValidation.redactCvc("123", maskChar = null))
+        assertEquals("", CardValidation.redactCvc(""))
+    }
+
+    @Test
+    fun testPaymentMethodCardToStringRedactsPANAndCVC() {
+        val card = com.landoulsi.payment.shared.model.PaymentMethod.Card(
+            number = "4242424242424242",
+            expiryMonth = 12,
+            expiryYear = 2028,
+            cvc = "123",
+            cardholderName = "Jane Doe"
+        )
+        val str = card.toString()
+        assertFalse(str.contains("4242424242424242"))
+        assertFalse(str.contains("123"))
+        assertTrue(str.contains("•••• •••• •••• 4242"))
+        assertTrue(str.contains("[REDACTED]"))
+        assertTrue(str.contains("Jane Doe"))
+    }
+
+    @Test
+    fun testCardTokenRequestToStringRedactsPANAndCVC() {
+        val req = com.landoulsi.payment.shared.network.dto.CardTokenRequest(
+            number = "4242424242424242",
+            expiryMonth = 12,
+            expiryYear = 2028,
+            cvc = "999",
+            cardholderName = "Alice Smith"
+        )
+        val str = req.toString()
+        assertFalse(str.contains("4242424242424242"))
+        assertFalse(str.contains("999"))
+        assertTrue(str.contains("•••• •••• •••• 4242"))
+        assertTrue(str.contains("[REDACTED]"))
+        assertTrue(str.contains("Alice Smith"))
+    }
+
+    @Test
+    fun testCardInputStatesToStringRedaction() {
+        val numState = CardNumberState(rawValue = "4242424242424242", isValid = true)
+        val cvcState = CvcState(rawValue = "123", isValid = true)
+        val formState = CardFormState(number = numState, cvc = cvcState, cardholderName = "Bob")
+
+        assertFalse(numState.toString().contains("4242424242424242"))
+        assertTrue(numState.toString().contains("•••• •••• •••• 4242"))
+
+        assertFalse(cvcState.toString().contains("123"))
+        assertTrue(cvcState.toString().contains("[REDACTED]"))
+
+        assertFalse(formState.toString().contains("4242424242424242"))
+        assertFalse(formState.toString().contains("123"))
+    }
 }

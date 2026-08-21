@@ -39,6 +39,12 @@ sealed interface PaymentMethod {
         val cardholderName: String? = null
     ) : PaymentMethod {
         override val type: PaymentMethodType get() = PaymentMethodType.CARD
+
+        override fun toString(): String {
+            val maskedNum = com.landoulsi.payment.shared.validation.CardValidation.maskCardNumber(number)
+            val nameStr = if (cardholderName != null) ", name=$cardholderName" else ""
+            return "Card(number=$maskedNum, expiry=$expiryMonth/$expiryYear, cvc=[REDACTED]$nameStr)"
+        }
     }
 
     data class PayPal(

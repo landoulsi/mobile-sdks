@@ -724,5 +724,56 @@ class KtorGatewayClientTest {
         }
         assertEquals(503, ex.statusCode)
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  Security Tests: HTTPS Enforcement & Log Sanitization
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testKtorGatewayClientRejectsHttpUrl() {
+        val mockEngine = MockEngine { respond("") }
+        val ex = assertFailsWith<IllegalArgumentException> {
+            KtorGatewayClient(createMockClient(mockEngine), "http://insecure.gateway.com", publishableKey)
+        }
+        assertTrue(ex.message!!.contains("Insecure HTTP endpoint rejected"))
+    }
+
+    @Test
+    fun testKtorGatewayClientAllowsHttpWhenTestingFlagEnabled() {
+        val mockEngine = MockEngine { respond("") }
+        val client = KtorGatewayClient(
+            httpClient = createMockClient(mockEngine),
+            baseUrl = "http://localhost:8080",
+            publishableKey = publishableKey,
+            allowInsecureHttpForTesting = true
+        )
+        assertNotNull(client)
+    }
+
+    @Test
+    fun testCreatePaymentHttpClientRejectsHttpUrl() {
+        val mockEngine = MockEngine { respond("") }
+        val ex = assertFailsWith<IllegalArgumentException> {
+            createPaymentHttpClient(
+                engineFactory = MockEngine,
+                baseUrl = "http://api.insecure.com"
+            )
+        }
+        assertTrue(ex.message!!.contains("Insecure HTTP endpoint rejected"))
+    }
+
+    @Test
+    fun testSanitizeLogMessageRedactsSensitiveHeaders() {
+        val rawLog = "REQUEST: https://api.stripe.com/v1/tokens\nAuthorization: Bearer pk_test_123456789\nX-Api-Key: secret_key\nCookie: session=abc\nContent-Type: application/json"
+        val sanitized = sanitizeLogMessage(rawLog)
+
+        assertFalse(sanitized.contains("pk_test_123456789"))
+        assertFalse(sanitized.contains("secret_key"))
+        assertFalse(sanitized.contains("session=abc"))
+        assertTrue(sanitized.contains("Authorization: [REDACTED]"))
+        assertTrue(sanitized.contains("X-Api-Key: [REDACTED]"))
+        assertTrue(sanitized.contains("Cookie: [REDACTED]"))
+        assertTrue(sanitized.contains("Content-Type: application/json"))
+    }
 }
 

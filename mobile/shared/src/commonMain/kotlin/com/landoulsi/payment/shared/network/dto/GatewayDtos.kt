@@ -130,7 +130,13 @@ data class CardTokenRequest(
     @SerialName("exp_year") val expiryYear: Int,
     @SerialName("cvc") val cvc: String,
     @SerialName("name") val cardholderName: String? = null
-)
+) {
+    override fun toString(): String {
+        val maskedNum = com.landoulsi.payment.shared.validation.CardValidation.maskCardNumber(number)
+        val nameStr = if (cardholderName != null) ", name=$cardholderName" else ""
+        return "CardTokenRequest(number=$maskedNum, expiryMonth=$expiryMonth, expiryYear=$expiryYear, cvc=[REDACTED]$nameStr)"
+    }
+}
 
 /**
  * Card tokenization response returned by the payment gateway.

@@ -38,53 +38,138 @@ val PaymentJson: Json = Json {
     explicitNulls = false
 }
 
+private val SENSITIVE_HEADERS = setOf(
+    "authorization",
+    "cookie",
+    "set-cookie",
+    "x-api-key",
+    "api-key"
+)
+
+/**
+ * Sanitizes HTTP header log messages to prevent credential and token leakage.
+ */
+internal fun sanitizeLogMessage(message: String): String {
+    var sanitized = message
+    for (header in SENSITIVE_HEADERS) {
+        val pattern = Regex("(?i)($header:\\s*)(.+)")
+        sanitized = pattern.replace(sanitized) { matchResult ->
+            "${matchResult.groupValues[1]}[REDACTED]"
+        }
+    }
+    return sanitized
+}
+
 /**
  * Creates a platform-specific [HttpClient] using [engineFactory], configured with:
  *
+ * - **HTTPS Enforcement**: Asserts [baseUrl] uses the `https://` scheme (unless empty or explicitly permitted for testing).
  * - **ContentNegotiation** using kotlinx.serialization JSON via [PaymentJson].
- * - **Logging** at [LogLevel.HEADERS] in debug builds (sensitive body data is never logged).
+ * - **Logging** at [LogLevel.HEADERS] in debug builds with sensitive headers redacted.
  * - **Default request** headers: `Content-Type: application/json` and `Accept: application/json`.
  * - **Connect / request / socket timeouts** from [HttpTimeouts].
  *
  * @param engineFactory Platform engine factory (`OkHttp` on Android, `Darwin` on iOS).
- * @param baseUrl Optional base URL applied to every request via [defaultRequest].
- * @param additionalConfig Optional block for customizing the client beyond the defaults.
+ * @param baseUrl Optional base URL applied to every request via [defaultRequest]. Must begin with `https://`.
  * @param enableLogging Whether to install the [Logging] plugin (disable in production).
+ * @param allowInsecureHttpForTesting Optional flag to allow `http://` for local testing/mock servers.
+ * @param additionalConfig Optional block for customizing the client beyond the defaults.
  */
 fun createPaymentHttpClient(
     engineFactory: HttpClientEngineFactory<*>,
     baseUrl: String = "",
     enableLogging: Boolean = false,
+    allowInsecureHttpForTesting: Boolean = false,
     additionalConfig: HttpClientConfig<*>.() -> Unit = {}
-): HttpClient = HttpClient(engineFactory) {
-    expectSuccess = false
-
-    install(ContentNegotiation) {
-        json(PaymentJson)
+): HttpClient {
+    if (baseUrl.isNotEmpty()) {
+        val lowerUrl = baseUrl.trim().lowercase()
+        if (!allowInsecureHttpForTesting && !lowerUrl.startsWith("https://")) {
+            throw IllegalArgumentException("Insecure HTTP endpoint rejected: '$baseUrl'. HTTPS is strictly required for payment operations.")
+        }
     }
 
-    if (enableLogging) {
-        install(Logging) {
-            level = LogLevel.HEADERS
-            logger = object : Logger {
-                override fun log(message: String) {
-                    // Replace with platform-appropriate logging in production.
-                    println("[PaymentSDK/HTTP] $message")
+    return HttpClient(engineFactory) {
+        expectSuccess = false
+
+        install(ContentNegotiation) {
+            json(PaymentJson)
+        }
+
+        if (enableLogging) {
+            install(Logging) {
+                level = LogLevel.HEADERS
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        // Replace with platform-appropriate logging in production.
+                        println("[PaymentSDK/HTTP] ${sanitizeLogMessage(message)}")
+                    }
                 }
             }
         }
-    }
 
+        if (baseUrl.isNotEmpty()) {
+            defaultRequest {
+                url(baseUrl)
+                contentType(ContentType.Application.Json)
+            }
+        } else {
+            defaultRequest {
+                contentType(ContentType.Application.Json)
+            }
+        }
+
+        additionalConfig()
+    }
+}
+
+/**
+ * Creates a platform-specific [HttpClient] using an instantiated [engine].
+ */
+fun createPaymentHttpClient(
+    engine: io.ktor.client.engine.HttpClientEngine,
+    baseUrl: String = "",
+    enableLogging: Boolean = false,
+    allowInsecureHttpForTesting: Boolean = false,
+    additionalConfig: HttpClientConfig<*>.() -> Unit = {}
+): HttpClient {
     if (baseUrl.isNotEmpty()) {
-        defaultRequest {
-            url(baseUrl)
-            contentType(ContentType.Application.Json)
-        }
-    } else {
-        defaultRequest {
-            contentType(ContentType.Application.Json)
+        val lowerUrl = baseUrl.trim().lowercase()
+        if (!allowInsecureHttpForTesting && !lowerUrl.startsWith("https://")) {
+            throw IllegalArgumentException("Insecure HTTP endpoint rejected: '$baseUrl'. HTTPS is strictly required for payment operations.")
         }
     }
 
-    additionalConfig()
+    return HttpClient(engine) {
+        expectSuccess = false
+
+        install(ContentNegotiation) {
+            json(PaymentJson)
+        }
+
+        if (enableLogging) {
+            install(Logging) {
+                level = LogLevel.HEADERS
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        // Replace with platform-appropriate logging in production.
+                        println("[PaymentSDK/HTTP] ${sanitizeLogMessage(message)}")
+                    }
+                }
+            }
+        }
+
+        if (baseUrl.isNotEmpty()) {
+            defaultRequest {
+                url(baseUrl)
+                contentType(ContentType.Application.Json)
+            }
+        } else {
+            defaultRequest {
+                contentType(ContentType.Application.Json)
+            }
+        }
+
+        additionalConfig()
+    }
 }

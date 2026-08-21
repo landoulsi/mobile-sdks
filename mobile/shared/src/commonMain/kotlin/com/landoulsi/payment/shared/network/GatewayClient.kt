@@ -91,8 +91,15 @@ interface GatewayClient {
 class KtorGatewayClient(
     private val httpClient: HttpClient,
     private val baseUrl: String,
-    private val publishableKey: String
+    private val publishableKey: String,
+    private val allowInsecureHttpForTesting: Boolean = false
 ) : GatewayClient {
+
+    init {
+        if (baseUrl.isNotEmpty() && !allowInsecureHttpForTesting && !baseUrl.trim().lowercase().startsWith("https://")) {
+            throw IllegalArgumentException("Insecure HTTP endpoint rejected: '$baseUrl'. HTTPS is strictly required for payment operations.")
+        }
+    }
 
     private val cleanBaseUrl: String
         get() = baseUrl.trimEnd('/')

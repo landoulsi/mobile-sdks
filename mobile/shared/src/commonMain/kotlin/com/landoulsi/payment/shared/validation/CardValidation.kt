@@ -234,6 +234,86 @@ object CardValidation {
         if (!isCardNumberComplete(cardNumber)) return false
         return luhnCheck(digitsOnly)
     }
+
+    /**
+     * Masks a card number according to PCI-DSS rules.
+     * Preserves [preserveLeading] digits at the start and [preserveTrailing] digits at the end.
+     * By default, preserves the last 4 digits (or fewer if card is shorter) and masks the rest.
+     * Formats according to the detected network grouping if [format] is true.
+     *
+     * @param cardNumber Raw or formatted card number.
+     * @param maskChar Character to use for masked digits (default '•').
+     * @param preserveLeading Number of leading unmasked digits (e.g. 6 for BIN preservation).
+     * @param preserveTrailing Number of trailing unmasked digits (e.g. 4 for last 4).
+     * @param format Whether to apply network-specific space formatting to the output.
+     */
+    fun maskCardNumber(
+        cardNumber: String,
+        maskChar: Char = '•',
+        preserveLeading: Int = 0,
+        preserveTrailing: Int = 4,
+        format: Boolean = true
+    ): String {
+        val digitsOnly = cardNumber.filter { it.isDigit() }
+        if (digitsOnly.isEmpty()) return ""
+
+        val len = digitsOnly.length
+        val leadCount = preserveLeading.coerceIn(0, len)
+        val trailCount = preserveTrailing.coerceIn(0, len - leadCount)
+        val maskCount = (len - leadCount - trailCount).coerceAtLeast(0)
+
+        val maskedDigits = StringBuilder().apply {
+            if (leadCount > 0) {
+                append(digitsOnly.substring(0, leadCount))
+            }
+            repeat(maskCount) {
+                append(maskChar)
+            }
+            if (trailCount > 0) {
+                append(digitsOnly.substring(len - trailCount))
+            }
+        }.toString()
+
+        if (!format) return maskedDigits
+
+        val network = detectNetwork(digitsOnly)
+        return when (network) {
+            CardNetwork.AMEX -> {
+                val builder = StringBuilder()
+                for (i in maskedDigits.indices) {
+                    when (i) {
+                        4, 10 -> builder.append(' ')
+                    }
+                    builder.append(maskedDigits[i])
+                }
+                builder.toString()
+            }
+            else -> {
+                val builder = StringBuilder()
+                for (i in maskedDigits.indices) {
+                    if (i > 0 && i % 4 == 0) builder.append(' ')
+                    builder.append(maskedDigits[i])
+                }
+                builder.toString()
+            }
+        }
+    }
+
+    /**
+     * Redacts a Card Verification Code (CVC/CVV).
+     *
+     * @param cvc Raw CVC string.
+     * @param maskChar Mask character (e.g. '•'). If null, returns "[REDACTED]".
+     */
+    fun redactCvc(cvc: String, maskChar: Char? = '•'): String {
+        val digitsOnly = cvc.filter { it.isDigit() }
+        if (digitsOnly.isEmpty()) return ""
+        return if (maskChar != null) {
+            maskChar.toString().repeat(digitsOnly.length)
+        } else {
+            "[REDACTED]"
+        }
+    }
 }
 
 // Top-level aliases for backwards compatibility
@@ -251,6 +331,14 @@ fun isCvcValid(cvc: String, network: CardNetwork? = null): Boolean = CardValidat
 fun isCvcComplete(cvc: String, network: CardNetwork? = null): Boolean = CardValidation.isCvcComplete(cvc, network)
 fun isCardNumberComplete(cardNumber: String): Boolean = CardValidation.isCardNumberComplete(cardNumber)
 fun isCardNumberValid(cardNumber: String): Boolean = CardValidation.isCardNumberValid(cardNumber)
+fun maskCardNumber(
+    cardNumber: String,
+    maskChar: Char = '•',
+    preserveLeading: Int = 0,
+    preserveTrailing: Int = 4,
+    format: Boolean = true
+): String = CardValidation.maskCardNumber(cardNumber, maskChar, preserveLeading, preserveTrailing, format)
+fun redactCvc(cvc: String, maskChar: Char? = '•'): String = CardValidation.redactCvc(cvc, maskChar)
 
 /**
  * Platform-specific date/time provider for getting current year/month.

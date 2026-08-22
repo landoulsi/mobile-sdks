@@ -1,8 +1,12 @@
 package com.landoulsi.payment.ui.threeds
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.http.SslError
+import android.view.WindowManager
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -89,6 +93,17 @@ fun ThreeDSChallengeCard(
             hasDeliveredResult = true
             isAuthenticating = (result is ThreeDSResult.Completed)
             onResult(result)
+        }
+    }
+
+    // Prevent screenshots / screen recording during the 3DS challenge to protect
+    // sensitive authentication information in the recents switcher and overlays.
+    val context = LocalContext.current
+    DisposableEffect(Unit) {
+        val window = (context as? Activity)?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        onDispose {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
     }
 
@@ -194,20 +209,27 @@ fun ThreeDSChallengeCard(
             if (challenge.redirectUrl.isNotBlank()) {
                 when {
                     challenge.redirectUrl.startsWith("https://") -> {
-                        val context = LocalContext.current
                         LaunchedEffect(challenge.redirectUrl) {
                             try {
                                 val intent = CustomTabsIntent.Builder()
                                     .setShowTitle(true)
                                     .build()
                                 intent.launchUrl(context, challenge.redirectUrl.toUri())
-                            } catch (e: Exception) {
-                                deliverResult(
-                                    ThreeDSResult.Failed(
-                                        errorCode = PaymentErrorCode.CONFIGURATION_ERROR,
-                                        message = "Unable to open 3D Secure browser tab"
+                            } catch (e: ActivityNotFoundException) {
+                                // Fallback to a regular browser intent if no Custom Tabs provider
+                                // is installed on the device.
+                                val fallback = Intent(Intent.ACTION_VIEW, challenge.redirectUrl.toUri())
+                                fallback.addCategory(Intent.CATEGORY_BROWSABLE)
+                                try {
+                                    context.startActivity(fallback)
+                                } catch (_: ActivityNotFoundException) {
+                                    deliverResult(
+                                        ThreeDSResult.Failed(
+                                            errorCode = PaymentErrorCode.CONFIGURATION_ERROR,
+                                            message = "Unable to open 3D Secure browser tab"
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                         Text(
@@ -373,6 +395,10 @@ fun ThreeDSWebView(
         if (!hasError) {
             AndroidView(
                 factory = { context ->
+                    // Ensure WebView remote debugging is disabled in release builds.
+                    if (!BuildConfig.DEBUG) {
+                        WebView.setWebContentsDebuggingEnabled(false)
+                    }
                     WebView(context).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
@@ -481,6 +507,11 @@ fun ThreeDSWebView(
                 },
                 onRelease = { webView ->
                     webView.stopLoading()
+                    webView.loadUrl("about:blank")
+                    webView.clearHistory()
+                    webView.clearCache(true)
+                    @Suppress("DEPRECATION")
+                    webView.clearFormData()
                     (webView.parent as? android.view.ViewGroup)?.removeView(webView)
                     webView.destroy()
                 },

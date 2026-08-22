@@ -3,6 +3,8 @@ package com.landoulsi.payment.shared.network
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngineFactory
+import io.ktor.client.plugins.api.ClientPlugin
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -46,8 +48,22 @@ private val SENSITIVE_HEADERS = setOf(
     "api-key"
 )
 
+private val SENSITIVE_QUERY_PARAMS = setOf(
+    "client_secret",
+    "payment_intent",
+    "token",
+    "key",
+    "api_key",
+    "pan",
+    "card",
+    "cvc",
+    "cvv"
+)
+
 /**
- * Sanitizes HTTP header log messages to prevent credential and token leakage.
+ * Sanitizes HTTP log messages to prevent credential, token, and secret leakage.
+ *
+ * Redacts sensitive HTTP headers and query parameters commonly found in payment URLs.
  */
 internal fun sanitizeLogMessage(message: String): String {
     var sanitized = message
@@ -57,15 +73,115 @@ internal fun sanitizeLogMessage(message: String): String {
             "${matchResult.groupValues[1]}[REDACTED]"
         }
     }
+    for (param in SENSITIVE_QUERY_PARAMS) {
+        val pattern = Regex("(?i)([?&]$param=)([^&\\s]+)")
+        sanitized = pattern.replace(sanitized) { matchResult ->
+            "${matchResult.groupValues[1]}[REDACTED]"
+        }
+    }
     return sanitized
+}
+
+/**
+ * Default hosts preloaded with strict transport security for payment gateway traffic.
+ *
+ * These hosts must always be contacted over HTTPS. The list is configurable via
+ * [HstsEnforcementConfig]; this set provides safe defaults for common Stripe endpoints.
+ */
+internal val DEFAULT_HSTS_PRELOAD_HOSTS = setOf(
+    "api.stripe.com",
+    "hooks.stripe.com"
+)
+
+/**
+ * In-memory store for HSTS-covered hosts.
+ *
+ * Tracks exact hosts and parent domains marked with `includeSubDomains` so that
+ * plain-HTTP requests can be rejected before they reach the network.
+ */
+internal class HstsHostStore(preloadHosts: Set<String>) {
+    private val exactHosts = preloadHosts.toMutableSet()
+    private val includedSubDomains = mutableSetOf<String>()
+
+    fun addHost(host: String, includeSubDomains: Boolean) {
+        exactHosts.add(host)
+        if (includeSubDomains) {
+            val parts = host.split(".")
+            if (parts.size >= 2) {
+                includedSubDomains.add(parts.takeLast(2).joinToString("."))
+            }
+        }
+    }
+
+    fun covers(host: String): Boolean {
+        if (host in exactHosts) return true
+        val parts = host.split(".")
+        if (parts.size >= 2) {
+            val parent = parts.takeLast(2).joinToString(".")
+            if (parent in includedSubDomains) return true
+        }
+        return false
+    }
+}
+
+/**
+ * Configuration for the [HstsEnforcement] plugin.
+ *
+ * @property preloadHosts Hosts that are always required to use HTTPS.
+ */
+class HstsEnforcementConfig {
+    var preloadHosts: Set<String> = DEFAULT_HSTS_PRELOAD_HOSTS
+}
+
+/**
+ * Ktor client plugin that enforces HTTP Strict Transport Security (HSTS) for payment endpoints.
+ *
+ * - Rejects plain-HTTP requests to HSTS-covered hosts before they are sent.
+ * - Records `Strict-Transport-Security` response headers to expand the HSTS host list dynamically.
+ */
+val HstsEnforcement: ClientPlugin<HstsEnforcementConfig> = createClientPlugin(
+    name = "HstsEnforcement",
+    createConfiguration = ::HstsEnforcementConfig
+) {
+    val store = HstsHostStore(pluginConfig.preloadHosts)
+
+    onRequest { request, _ ->
+        val url = request.url
+        if (url.protocol.name != "https" && store.covers(url.host)) {
+            throw IllegalArgumentException(
+                "HSTS violation: plain-HTTP request to '${url.host}' is not allowed. " +
+                    "Use HTTPS for payment operations."
+            )
+        }
+    }
+
+    onResponse { response ->
+        val stsHeader = response.headers["Strict-Transport-Security"] ?: return@onResponse
+        val host = response.call.request.url.host
+        val maxAge = Regex("max-age=(\\d+)")
+            .find(stsHeader)
+            ?.groupValues
+            ?.get(1)
+            ?.toLongOrNull()
+            ?: 0L
+        if (maxAge > 0) {
+            store.addHost(
+                host,
+                includeSubDomains = stsHeader.contains("includeSubDomains", ignoreCase = true)
+            )
+        }
+    }
 }
 
 /**
  * Creates a platform-specific [HttpClient] using [engineFactory], configured with:
  *
  * - **HTTPS Enforcement**: Asserts [baseUrl] uses the `https://` scheme (unless empty or explicitly permitted for testing).
+ * - **HSTS Enforcement**: Rejects plain-HTTP requests to HSTS-preloaded payment hosts and records
+ *   `Strict-Transport-Security` response headers.
  * - **ContentNegotiation** using kotlinx.serialization JSON via [PaymentJson].
- * - **Logging** at [LogLevel.HEADERS] in debug builds with sensitive headers redacted.
+ * - **Logging** at [LogLevel.HEADERS] in debug builds with sensitive headers and URL parameters redacted.
+ *   Request and response bodies are never logged.
  * - **Default request** headers: `Content-Type: application/json` and `Accept: application/json`.
  * - **Connect / request / socket timeouts** from [HttpTimeouts].
  *
@@ -95,6 +211,8 @@ fun createPaymentHttpClient(
         install(ContentNegotiation) {
             json(PaymentJson)
         }
+
+        install(HstsEnforcement)
 
         if (enableLogging) {
             install(Logging) {
@@ -146,6 +264,8 @@ fun createPaymentHttpClient(
         install(ContentNegotiation) {
             json(PaymentJson)
         }
+
+        install(HstsEnforcement)
 
         if (enableLogging) {
             install(Logging) {

@@ -26,6 +26,20 @@ data class ThreeDSChallenge(
     companion object {
         const val DEFAULT_RETURN_URL = "paymentsdk://3ds-complete"
     }
+
+    /**
+     * Redacted string representation that never exposes the [clientSecret] or [cReq] payload.
+     */
+    override fun toString(): String {
+        return "ThreeDSChallenge(" +
+            "paymentIntentId=$paymentIntentId, " +
+            "clientSecret=[REDACTED], " +
+            "redirectUrl=$redirectUrl, " +
+            "returnUrl=$returnUrl, " +
+            "acsUrl=$acsUrl, " +
+            "cReq=[REDACTED], " +
+            "threeDSServerTransId=$threeDSServerTransId)"
+    }
 }
 
 /**
@@ -64,6 +78,13 @@ sealed interface ThreeDSResult {
  */
 fun parseThreeDSReturnUrl(url: String, expectedReturnUrl: String): ThreeDSResult? {
     if (url.isBlank() || expectedReturnUrl.isBlank()) return null
+
+    // Reject mismatched schemes before comparing the rest of the URL.
+    val expectedScheme = expectedReturnUrl.substringBefore("://", "").lowercase()
+    val urlScheme = url.substringBefore("://", "").lowercase()
+    if (expectedScheme.isBlank() || urlScheme != expectedScheme) {
+        return null
+    }
 
     val urlBase = url.substringBefore('?').substringBefore('#').trimEnd('/')
     val expectedBase = expectedReturnUrl.substringBefore('?').substringBefore('#').trimEnd('/')

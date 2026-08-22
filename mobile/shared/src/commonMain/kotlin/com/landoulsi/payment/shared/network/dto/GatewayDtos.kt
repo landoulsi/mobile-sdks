@@ -228,7 +228,14 @@ data class PaymentIntentConfirmRequest(
     @SerialName("payment_method") val paymentMethodId: String? = null,
     @SerialName("client_secret") val clientSecret: String? = null,
     @SerialName("return_url") val returnUrl: String? = null
-)
+) {
+    /**
+     * Redacted representation that never exposes the [clientSecret].
+     */
+    override fun toString(): String {
+        return "PaymentIntentConfirmRequest(paymentMethodId=$paymentMethodId, clientSecret=[REDACTED], returnUrl=$returnUrl)"
+    }
+}
 
 /**
  * Next action descriptor returned when a PaymentIntent requires 3DS or customer action.
@@ -270,7 +277,14 @@ data class ThreeDSChallengeData(
     @SerialName("creq") val cReq: String? = null,
     @SerialName("three_d_s_server_trans_id") val threeDSServerTransId: String? = null,
     @SerialName("stripe_js") val stripeJs: String? = null
-)
+) {
+    /**
+     * Redacted representation that never exposes the challenge request payload [cReq].
+     */
+    override fun toString(): String {
+        return "ThreeDSChallengeData(acsUrl=$acsUrl, cReq=[REDACTED], threeDSServerTransId=$threeDSServerTransId, stripeJs=$stripeJs)"
+    }
+}
 
 /**
  * Response returned from confirming or retrieving a PaymentIntent.

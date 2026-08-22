@@ -105,6 +105,13 @@ class KtorGatewayClient(
         get() = baseUrl.trimEnd('/')
 
     /**
+     * Redacted representation that never exposes the [publishableKey].
+     */
+    override fun toString(): String {
+        return "KtorGatewayClient(baseUrl=$cleanBaseUrl, publishableKey=[REDACTED], allowInsecureHttpForTesting=$allowInsecureHttpForTesting)"
+    }
+
+    /**
      * Tokenizes a card using the gateway's card token creation endpoint (`POST /tokens`).
      *
      * Request body is form-encoded as per Stripe API convention but sent as JSON here

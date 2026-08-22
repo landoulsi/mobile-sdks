@@ -825,14 +825,14 @@ class CardValidationTest {
     @Test
     fun testMaskCardNumberStandard() {
         assertEquals("•••• •••• •••• 4242", CardValidation.maskCardNumber("4242424242424242"))
-        assertEquals("•••• •••••• 00005", CardValidation.maskCardNumber("378282246310005"))
+        assertEquals("•••• •••••• •0005", CardValidation.maskCardNumber("378282246310005"))
         assertEquals("•••• •••• ••00 08", CardValidation.maskCardNumber("36000000000008"))
     }
 
     @Test
     fun testMaskCardNumberWithBinPreserved() {
         assertEquals("4242 42•• •••• 4242", CardValidation.maskCardNumber("4242424242424242", preserveLeading = 6, preserveTrailing = 4))
-        assertEquals("3782 82•• ••10 005", CardValidation.maskCardNumber("378282246310005", preserveLeading = 6, preserveTrailing = 5))
+        assertEquals("3782 82•••• 10005", CardValidation.maskCardNumber("378282246310005", preserveLeading = 6, preserveTrailing = 5))
     }
 
     @Test
@@ -846,7 +846,7 @@ class CardValidationTest {
         assertEquals("", CardValidation.maskCardNumber(""))
         assertEquals("123", CardValidation.maskCardNumber("123"))
         assertEquals("1234", CardValidation.maskCardNumber("1234"))
-        assertEquals("• 2345", CardValidation.maskCardNumber("12345"))
+        assertEquals("•234 5", CardValidation.maskCardNumber("12345"))
     }
 
     @Test

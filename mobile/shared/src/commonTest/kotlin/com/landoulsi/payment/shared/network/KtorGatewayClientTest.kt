@@ -775,5 +775,126 @@ class KtorGatewayClientTest {
         assertTrue(sanitized.contains("Cookie: [REDACTED]"))
         assertTrue(sanitized.contains("Content-Type: application/json"))
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  KtorGatewayClient construction & representation
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testKtorGatewayClientToStringRedactsPublishableKey() {
+        val mockEngine = MockEngine { respond("") }
+        val client = KtorGatewayClient(
+            httpClient = createMockClient(mockEngine),
+            baseUrl = baseUrl,
+            publishableKey = "pk_live_super_secret_key",
+            allowInsecureHttpForTesting = false
+        )
+
+        val str = client.toString()
+
+        assertFalse(str.contains("pk_live_super_secret_key"))
+        assertTrue(str.contains("baseUrl=$baseUrl"))
+        assertTrue(str.contains("publishableKey=[REDACTED]"))
+        assertTrue(str.contains("allowInsecureHttpForTesting=false"))
+    }
+
+    @Test
+    fun testKtorGatewayClientAllowsEmptyBaseUrl() {
+        val mockEngine = MockEngine { respond("") }
+        val client = KtorGatewayClient(
+            httpClient = createMockClient(mockEngine),
+            baseUrl = "",
+            publishableKey = publishableKey
+        )
+
+        assertNotNull(client)
+    }
+
+    @Test
+    fun testKtorGatewayClientTrimsTrailingSlashFromBaseUrl() = runTest {
+        var capturedUrl: String? = null
+
+        val mockEngine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            respond(
+                content = """{"id":"tok_slash"}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(
+            httpClient = createMockClient(mockEngine),
+            baseUrl = "$baseUrl/",
+            publishableKey = publishableKey
+        )
+        client.tokenizeCard(CardTokenRequest("4242424242424242", 12, 2028, "123"))
+
+        assertNotNull(capturedUrl)
+        assertFalse(capturedUrl!!.contains("//"))
+        assertTrue(capturedUrl!!.endsWith("/tokens"))
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  PaymentIntent / 3D Secure request body shapes
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testConfirmPaymentBodyIncludesReturnUrl() = runTest {
+        var capturedBody: String? = null
+
+        val mockEngine = MockEngine { request ->
+            capturedBody = request.bodyAsString()
+            respond(
+                content = """{"id":"pi_return","status":"succeeded"}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        client.confirmPayment(
+            paymentIntentId = "pi_return",
+            paymentMethodId = "pm_card",
+            clientSecret = "pi_return_secret",
+            returnUrl = "paymentsdk://3ds-complete"
+        )
+
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("payment_method"))
+        assertTrue(capturedBody!!.contains("pm_card"))
+        assertTrue(capturedBody!!.contains("client_secret"))
+        assertTrue(capturedBody!!.contains("pi_return_secret"))
+        assertTrue(capturedBody!!.contains("return_url"))
+        assertTrue(capturedBody!!.contains("paymentsdk://3ds-complete"))
+    }
+
+    @Test
+    fun testComplete3DSAuthenticationBodyOnlyContainsClientSecret() = runTest {
+        var capturedBody: String? = null
+
+        val mockEngine = MockEngine { request ->
+            capturedBody = request.bodyAsString()
+            respond(
+                content = """{"id":"pi_complete","status":"succeeded"}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = KtorGatewayClient(createMockClient(mockEngine), baseUrl, publishableKey)
+        client.complete3DSAuthentication(
+            paymentIntentId = "pi_complete",
+            clientSecret = "pi_complete_secret"
+        )
+
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("client_secret"))
+        assertTrue(capturedBody!!.contains("pi_complete_secret"))
+        assertFalse(
+            capturedBody!!.contains("payment_method"),
+            "complete3DSAuthentication must not include a payment_method id"
+        )
+    }
 }
 

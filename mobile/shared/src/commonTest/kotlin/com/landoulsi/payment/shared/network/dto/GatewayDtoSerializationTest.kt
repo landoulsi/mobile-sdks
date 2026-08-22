@@ -807,5 +807,43 @@ class GatewayDtoSerializationTest {
         assertEquals(original.amount, deserialized.amount)
         assertEquals(original.currency, deserialized.currency)
     }
+
+    // ─────────────────────────────────────────────────────────
+    //  Redaction / safe toString()
+    // ─────────────────────────────────────────────────────────
+
+    @Test
+    fun testPaymentIntentConfirmRequestToStringRedactsClientSecret() {
+        val request = PaymentIntentConfirmRequest(
+            paymentMethodId = "pm_redact_123",
+            clientSecret = "pi_redact_secret_xyz",
+            returnUrl = "paymentsdk://3ds-complete"
+        )
+
+        val str = request.toString()
+
+        assertTrue(str.contains("paymentMethodId=pm_redact_123"))
+        assertTrue(str.contains("returnUrl=paymentsdk://3ds-complete"))
+        assertFalse(str.contains("pi_redact_secret_xyz"))
+        assertTrue(str.contains("clientSecret=[REDACTED]"))
+    }
+
+    @Test
+    fun testThreeDSChallengeDataToStringRedactsCReq() {
+        val data = ThreeDSChallengeData(
+            acsUrl = "https://acs.example.com/challenge",
+            cReq = "super_secret_creq_payload",
+            threeDSServerTransId = "3ds_tx_123",
+            stripeJs = "https://js.stripe.com/3ds"
+        )
+
+        val str = data.toString()
+
+        assertTrue(str.contains("acsUrl=https://acs.example.com/challenge"))
+        assertTrue(str.contains("threeDSServerTransId=3ds_tx_123"))
+        assertTrue(str.contains("stripeJs=https://js.stripe.com/3ds"))
+        assertFalse(str.contains("super_secret_creq_payload"))
+        assertTrue(str.contains("cReq=[REDACTED]"))
+    }
 }
 

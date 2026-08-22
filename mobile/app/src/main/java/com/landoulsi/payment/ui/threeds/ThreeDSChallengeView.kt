@@ -10,6 +10,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
+import com.landoulsi.payment.BuildConfig
 import com.landoulsi.payment.R
 import com.landoulsi.payment.shared.model.PaymentErrorCode
 import com.landoulsi.payment.shared.model.PaymentRequest
@@ -186,28 +190,62 @@ fun ThreeDSChallengeCard(
                 textAlign = TextAlign.Start
             )
 
-            // In-App WebView / Challenge Interceptor
-            if (challenge.redirectUrl.isNotBlank() &&
-                (challenge.redirectUrl.startsWith("https://") || challenge.redirectUrl.startsWith("data:"))
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    ThreeDSWebView(
-                        redirectUrl = challenge.redirectUrl,
-                        returnUrl = challenge.returnUrl,
-                        onResult = deliverResult,
-                        onPageLoadingChanged = { loading ->
-                            if (!hasDeliveredResult) {
-                                isAuthenticating = loading
+            // 3DS challenge launcher: Chrome Custom Tabs for HTTPS ACS URLs; debug-only WebView fallback for local demo HTML.
+            if (challenge.redirectUrl.isNotBlank()) {
+                when {
+                    challenge.redirectUrl.startsWith("https://") -> {
+                        val context = LocalContext.current
+                        LaunchedEffect(challenge.redirectUrl) {
+                            try {
+                                val intent = CustomTabsIntent.Builder()
+                                    .setShowTitle(true)
+                                    .build()
+                                intent.launchUrl(context, challenge.redirectUrl.toUri())
+                            } catch (e: Exception) {
+                                deliverResult(
+                                    ThreeDSResult.Failed(
+                                        errorCode = PaymentErrorCode.CONFIGURATION_ERROR,
+                                        message = "Unable to open 3D Secure browser tab"
+                                    )
+                                )
                             }
                         }
-                    )
+                        Text(
+                            text = stringResource(id = R.string.threeds_browser_opened_prompt),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    challenge.redirectUrl.startsWith("data:") && BuildConfig.DEBUG -> {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            ThreeDSWebView(
+                                redirectUrl = challenge.redirectUrl,
+                                returnUrl = challenge.returnUrl,
+                                onResult = deliverResult,
+                                onPageLoadingChanged = { loading ->
+                                    if (!hasDeliveredResult) {
+                                        isAuthenticating = loading
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    else -> {
+                        Text(
+                            text = stringResource(id = R.string.threeds_unsupported_url_error),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Start
+                        )
+                    }
                 }
             }
 

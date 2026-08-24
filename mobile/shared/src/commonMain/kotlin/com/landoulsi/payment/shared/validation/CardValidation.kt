@@ -314,6 +314,30 @@ object CardValidation {
             "[REDACTED]"
         }
     }
+
+    /**
+     * Redacts a single key-value pair for safe logging, preventing PAN/CVC/token leakage.
+     *
+     * - Returns `[REDACTED]` when [key] matches a known-sensitive name (PAN, CVC, token, secret, etc.).
+     * - Masks values that look like a card number (12-19 digits) via [maskCardNumber].
+     * - Leaves all other values unchanged so logs remain debuggable.
+     *
+     * @param key The field name associated with the value.
+     * @param value The raw value to evaluate.
+     */
+    fun redactSensitiveValue(key: String, value: String): String {
+        return when (key.lowercase()) {
+            in SENSITIVE_DATA_KEYS -> "[REDACTED]"
+            else -> {
+                val digitsOnly = value.filter { it.isDigit() }
+                if (digitsOnly.length in 12..19) maskCardNumber(value) else value
+            }
+        }
+    }
+
+    private val SENSITIVE_DATA_KEYS = setOf(
+        "pan", "number", "cvc", "cvv", "card", "token", "key", "client_secret"
+    )
 }
 
 // Top-level aliases for backwards compatibility

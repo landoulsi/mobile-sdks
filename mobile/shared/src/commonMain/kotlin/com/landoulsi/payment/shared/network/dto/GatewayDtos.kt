@@ -1,5 +1,6 @@
 package com.landoulsi.payment.shared.network.dto
 
+import com.landoulsi.payment.shared.validation.CardValidation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,7 +21,14 @@ import kotlinx.serialization.Serializable
 data class GooglePayTokenizationData(
     @SerialName("type") val type: String,
     @SerialName("token") val token: String
-)
+) {
+    /**
+     * Redacted representation that never exposes the payment credential [token].
+     */
+    override fun toString(): String {
+        return "GooglePayTokenizationData(type=$type, token=[REDACTED])"
+    }
+}
 
 /**
  * Decoded gateway token payload for PAYMENT_GATEWAY tokenization (e.g., Stripe, Adyen).
@@ -35,7 +43,14 @@ data class GooglePayTokenizationData(
 data class GooglePayGatewayToken(
     @SerialName("id") val id: String,
     @SerialName("object") val `object`: String? = null
-)
+) {
+    /**
+     * Redacted representation that never exposes the gateway payment method token [id].
+     */
+    override fun toString(): String {
+        return "GooglePayGatewayToken(id=[REDACTED], object=$`object`)"
+    }
+}
 
 /**
  * Decoded ECv2 direct token payload for DIRECT tokenization.
@@ -54,7 +69,15 @@ data class GooglePayDirectToken(
     @SerialName("signature") val signature: String,
     @SerialName("signedMessage") val signedMessage: String,
     @SerialName("intermediateSigningKey") val intermediateSigningKey: GooglePayIntermediateSigningKey? = null
-)
+) {
+    /**
+     * Redacted representation that never exposes the [signature] or [signedMessage] payloads.
+     */
+    override fun toString(): String {
+        val maskedIntermediate = intermediateSigningKey?.toString() ?: "null"
+        return "GooglePayDirectToken(protocolVersion=$protocolVersion, signature=[REDACTED], signedMessage=[REDACTED], intermediateSigningKey=$maskedIntermediate)"
+    }
+}
 
 /**
  * Intermediate signing key used in DIRECT (ECv2) tokenization.
@@ -66,7 +89,14 @@ data class GooglePayDirectToken(
 data class GooglePayIntermediateSigningKey(
     @SerialName("signedKey") val signedKey: String,
     @SerialName("signatures") val signatures: List<String> = emptyList()
-)
+) {
+    /**
+     * Redacted representation that never exposes the [signedKey].
+     */
+    override fun toString(): String {
+        return "GooglePayIntermediateSigningKey(signedKey=[REDACTED], signatures=${signatures.size})"
+    }
+}
 
 /**
  * Parsed card info returned in `paymentData.paymentMethodData.info`.
@@ -132,7 +162,7 @@ data class CardTokenRequest(
     @SerialName("name") val cardholderName: String? = null
 ) {
     override fun toString(): String {
-        val maskedNum = com.landoulsi.payment.shared.validation.CardValidation.maskCardNumber(number)
+        val maskedNum = CardValidation.maskCardNumber(number)
         val nameStr = if (cardholderName != null) ", name=$cardholderName" else ""
         return "CardTokenRequest(number=$maskedNum, expiryMonth=$expiryMonth, expiryYear=$expiryYear, cvc=[REDACTED]$nameStr)"
     }
@@ -310,5 +340,13 @@ data class PaymentIntentConfirmResponse(
     @SerialName("amount") val amount: Long? = null,
     @SerialName("currency") val currency: String? = null,
     @SerialName("last_payment_error") val lastPaymentError: GatewayError? = null
-)
+) {
+    /**
+     * Redacted representation that never exposes the [clientSecret].
+     */
+    override fun toString(): String {
+        val maskedSecret = if (clientSecret != null) "[REDACTED]" else "null"
+        return "PaymentIntentConfirmResponse(id=$id, status=$status, clientSecret=$maskedSecret, paymentMethod=$paymentMethod, amount=$amount, currency=$currency)"
+    }
+}
 

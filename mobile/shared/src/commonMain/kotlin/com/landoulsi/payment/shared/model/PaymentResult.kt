@@ -54,7 +54,16 @@ sealed interface PaymentResult {
         val billingAddress: Address? = null,
         val shippingAddress: Address? = null,
         val email: String? = null
-    ) : PaymentResult
+    ) : PaymentResult {
+        /**
+         * Redacted representation that never exposes [token] or [rawPaymentData].
+         */
+        override fun toString(): String {
+            val maskedToken = if (token != null) "[REDACTED]" else "null"
+            val maskedRaw = if (rawPaymentData != null) "[REDACTED]" else "null"
+            return "PaymentResult.Success(transactionId=$transactionId, paymentMethodType=$paymentMethodType, token=$maskedToken, rawPaymentData=$maskedRaw, last4=$last4, cardNetwork=$cardNetwork)"
+        }
+    }
 
     /**
      * Payment attempt failed.

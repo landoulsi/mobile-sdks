@@ -1,5 +1,7 @@
 package com.landoulsi.payment.shared.model
 
+import com.landoulsi.payment.shared.validation.CardValidation
+
 /**
  * Encapsulates the details of a checkout transaction initiated by the client app.
  *
@@ -31,4 +33,14 @@ data class PaymentRequest(
     val requireBillingAddress: Boolean = false,
     val metadata: Map<String, String> = emptyMap(),
     val returnUrl: String? = null
-)
+) {
+    /**
+     * Redacted representation that never exposes sensitive [metadata] values.
+     */
+    override fun toString(): String {
+        val safeMetadata = metadata.entries.joinToString(", ") { (key, value) ->
+            "$key=${CardValidation.redactSensitiveValue(key, value)}"
+        }
+        return "PaymentRequest(id=$id, amount=$amount, merchantName=$merchantName, allowedPaymentMethods=${allowedPaymentMethods.joinToString(",")}, metadata={$safeMetadata}, returnUrl=$returnUrl)"
+    }
+}

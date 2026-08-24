@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -77,14 +78,16 @@ fun CardNumberInput(
                             text = "✓",
                             color = com.landoulsi.payment.ui.theme.PaymentColorTokens.success,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            modifier = Modifier.clearAndSetSemantics {}
                         )
                     } else {
                         Text(
                             text = "!",
                             color = MaterialTheme.colorScheme.error,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            modifier = Modifier.clearAndSetSemantics {}
                         )
                     }
                 }

@@ -1,11 +1,13 @@
 package com.landoulsi.payment
 
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,8 +49,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -199,6 +204,7 @@ fun CheckoutScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val reduceMotion = rememberReducedMotion()
 
     val googlePayLauncher = rememberLauncherForActivityResult(
         contract = GooglePayPaymentTaskContract()
@@ -212,7 +218,8 @@ fun CheckoutScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.demo_checkout_title),
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.semantics { heading() }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -227,125 +234,153 @@ fun CheckoutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .imePadding()
         ) {
-            // Order Summary Card
-            OrderSummaryCard(request = uiState.request)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                OrderSummaryCard(request = uiState.request)
 
-            // Dynamic State Presentation
-            AnimatedContent(
-                targetState = uiState,
-                transitionSpec = {
-                    fadeIn(spring()) + slideInVertically { it / 4 } togetherWith fadeOut(spring())
-                },
-                label = "checkout_state"
-            ) { state ->
-                when (state) {
-                    is CheckoutUiState.Initial,
-                    is CheckoutUiState.CheckingAvailability -> {
-                        CheckingAvailabilityCard()
-                    }
+                AnimatedContent(
+                    targetState = uiState,
+                    transitionSpec = {
+                        if (reduceMotion) {
+                            fadeIn(snap()) togetherWith fadeOut(snap())
+                        } else {
+                            fadeIn(spring()) + slideInVertically { it / 4 } togetherWith fadeOut(spring())
+                        }
+                    },
+                    label = "checkout_state"
+                ) { state ->
+                    when (state) {
+                        is CheckoutUiState.Initial,
+                        is CheckoutUiState.CheckingAvailability -> {
+                            CheckingAvailabilityCard()
+                        }
 
-                    is CheckoutUiState.Ready -> {
-                        ReadyCheckoutSection(
-                            state = state,
-                            onGooglePayClick = {
-                                if (googlePayProvider != null) {
-                                    viewModel.startProcessing(PaymentMethodType.GOOGLE_PAY)
-                                    val taskInput = googlePayProvider.createPaymentTaskInput(state.request)
-                                    googlePayLauncher.launch(taskInput)
-                                } else {
-                                    viewModel.pay(PaymentMethodType.GOOGLE_PAY)
+                        is CheckoutUiState.Ready -> Unit
+
+                        is CheckoutUiState.Processing -> {
+                            ProcessingPaymentCard(
+                                methodType = state.paymentMethodType
+                            )
+                        }
+
+                        is CheckoutUiState.RequiresAuthentication -> {
+                            ThreeDSChallengeCard(
+                                challenge = state.challenge,
+                                request = state.request,
+                                onResult = { result ->
+                                    viewModel.handle3DSResult(result)
                                 }
-                            },
-                            onPayWithCardClick = {
-                                onPayWithCardClick()
-                            },
-                            onCardComplete = { tokenResponse ->
-                                val card = tokenResponse.card
-                                val network = card?.brand?.let { b ->
-                                    try {
-                                        CardNetwork.valueOf(b.uppercase())
-                                    } catch (e: Exception) {
-                                        null
-                                    }
-                                }
-                                val last4 = card?.last4
-                                val is3dsCard = last4 == "3000" || last4 == "3220" || last4 == "0002"
+                            )
+                        }
 
-                                if (is3dsCard) {
-                                    val returnUrl = ThreeDSChallenge.DEFAULT_RETURN_URL
-                                    val paymentIntentId = "pi_3ds_${tokenResponse.id.takeLast(8)}"
-                                    val htmlContent = createDemo3DSChallengeHtml(paymentIntentId, returnUrl)
-                                    val redirectUrl = "data:text/html;charset=utf-8," + android.net.Uri.encode(htmlContent)
-                                    val challenge = ThreeDSChallenge(
-                                        paymentIntentId = paymentIntentId,
-                                        clientSecret = "${paymentIntentId}_secret_test",
-                                        redirectUrl = redirectUrl,
-                                        returnUrl = returnUrl,
-                                        acsUrl = "https://acs.test-bank.com/challenge",
-                                        threeDSServerTransId = "3ds_trans_${tokenResponse.id.takeLast(8)}"
-                                    )
-                                    viewModel.requireAuthentication(challenge, PaymentMethodType.CARD)
-                                } else {
-                                    viewModel.startProcessing(PaymentMethodType.CARD)
-                                    coroutineScope.launch {
-                                        delay(800)
-                                        viewModel.handlePaymentResult(
-                                            PaymentResult.Success(
-                                                transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
-                                                paymentMethodType = PaymentMethodType.CARD,
-                                                cardNetwork = network,
-                                                last4 = card?.last4,
-                                                token = tokenResponse.id
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    }
+                        is CheckoutUiState.Success -> {
+                            PaymentSuccessCard(
+                                result = state.result,
+                                onResetClick = { viewModel.reset() }
+                            )
+                        }
 
-                    is CheckoutUiState.Processing -> {
-                        ProcessingPaymentCard(
-                            methodType = state.paymentMethodType
-                        )
-                    }
+                        is CheckoutUiState.Failure -> {
+                            PaymentFailureCard(
+                                failure = state.failure,
+                                onRetryClick = { viewModel.reset() }
+                            )
+                        }
 
-                    is CheckoutUiState.RequiresAuthentication -> {
-                        ThreeDSChallengeCard(
-                            challenge = state.challenge,
-                            request = state.request,
-                            onResult = { result ->
-                                viewModel.handle3DSResult(result)
-                            }
-                        )
-                    }
-
-                    is CheckoutUiState.Success -> {
-                        PaymentSuccessCard(
-                            result = state.result,
-                            onResetClick = { viewModel.reset() }
-                        )
-                    }
-
-                    is CheckoutUiState.Failure -> {
-                        PaymentFailureCard(
-                            failure = state.failure,
-                            onRetryClick = { viewModel.reset() }
-                        )
-                    }
-
-                    is CheckoutUiState.Canceled -> {
-                        PaymentCanceledCard(
-                            onRetryClick = { viewModel.reset() }
-                        )
+                        is CheckoutUiState.Canceled -> {
+                            PaymentCanceledCard(
+                                onRetryClick = { viewModel.reset() }
+                            )
+                        }
                     }
                 }
             }
+
+            val readyState = uiState as? CheckoutUiState.Ready
+            if (readyState != null) {
+                ReadyCheckoutSection(
+                    state = readyState,
+                    onGooglePayClick = {
+                        if (googlePayProvider != null) {
+                            viewModel.startProcessing(PaymentMethodType.GOOGLE_PAY)
+                            val taskInput = googlePayProvider.createPaymentTaskInput(readyState.request)
+                            googlePayLauncher.launch(taskInput)
+                        } else {
+                            viewModel.pay(PaymentMethodType.GOOGLE_PAY)
+                        }
+                    },
+                    onPayWithCardClick = {
+                        onPayWithCardClick()
+                    },
+                    onCardComplete = { tokenResponse ->
+                        val card = tokenResponse.card
+                        val network = card?.brand?.let { b ->
+                            try {
+                                CardNetwork.valueOf(b.uppercase())
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                        val last4 = card?.last4
+                        val is3dsCard = last4 == "3000" || last4 == "3220" || last4 == "0002"
+
+                        if (is3dsCard) {
+                            val returnUrl = ThreeDSChallenge.DEFAULT_RETURN_URL
+                            val paymentIntentId = "pi_3ds_${tokenResponse.id.takeLast(8)}"
+                            val htmlContent = createDemo3DSChallengeHtml(paymentIntentId, returnUrl)
+                            val redirectUrl = "data:text/html;charset=utf-8," + android.net.Uri.encode(htmlContent)
+                            val challenge = ThreeDSChallenge(
+                                paymentIntentId = paymentIntentId,
+                                clientSecret = "${paymentIntentId}_secret_test",
+                                redirectUrl = redirectUrl,
+                                returnUrl = returnUrl,
+                                acsUrl = "https://acs.test-bank.com/challenge",
+                                threeDSServerTransId = "3ds_trans_${tokenResponse.id.takeLast(8)}"
+                            )
+                            viewModel.requireAuthentication(challenge, PaymentMethodType.CARD)
+                        } else {
+                            viewModel.startProcessing(PaymentMethodType.CARD)
+                            coroutineScope.launch {
+                                delay(800)
+                                viewModel.handlePaymentResult(
+                                    PaymentResult.Success(
+                                        transactionId = "tx_card_${tokenResponse.id.takeLast(8)}",
+                                        paymentMethodType = PaymentMethodType.CARD,
+                                        cardNetwork = network,
+                                        last4 = card?.last4,
+                                        token = tokenResponse.id
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(20.dp)
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun rememberReducedMotion(): Boolean {
+    val context = LocalContext.current
+    return remember {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        ) == 0f
     }
 }
 
@@ -386,7 +421,8 @@ fun OrderSummaryCard(
             Text(
                 text = request.description ?: stringResource(id = R.string.demo_order_title),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.semantics { heading() }
             )
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -544,7 +580,6 @@ fun ReadyCheckoutSection(
                         CardInputForm(
                             onFormReady = { formState ->
                                 if (isTokenizing) return@CardInputForm
-
                                 val month = formState.expiry.month
                                 val rawYear = formState.expiry.year
                                 if (month != null && rawYear != null && month in 1..12) {
@@ -581,7 +616,8 @@ fun ReadyCheckoutSection(
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = !isTokenizing
+                            enabled = !isTokenizing,
+                            autoFocusFirstField = isCardExpanded
                         )
 
                         if (isTokenizing) {
@@ -590,7 +626,7 @@ fun ReadyCheckoutSection(
                                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                                 modifier = Modifier
                                     .matchParentSize()
-                                    .semantics {
+                                    .semantics(mergeDescendants = true) {
                                         contentDescription = processingDesc
                                     }
                             ) {

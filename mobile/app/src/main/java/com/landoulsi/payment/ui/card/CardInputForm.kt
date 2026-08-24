@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,13 +40,19 @@ fun CardInputForm(
     onFormReady: (CardFormState) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    autoFocusFirstField: Boolean = false,
     initialState: CardFormState = CardFormState.initial()
 ) {
     var formState by remember { mutableStateOf(initialState) }
 
+    val numberFocusRequester = remember { FocusRequester() }
     val expiryFocusRequester = remember { FocusRequester() }
     val cvcFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(autoFocusFirstField) {
+        if (autoFocusFirstField) numberFocusRequester.requestFocus()
+    }
 
     val requiredError = stringResource(id = R.string.card_field_error_required)
     val incompleteError = stringResource(id = R.string.card_field_error_incomplete)
@@ -111,7 +118,9 @@ fun CardInputForm(
         CardNumberInput(
             state = formState.number,
             onValueChange = onNumberChange,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(numberFocusRequester),
             enabled = enabled,
             isError = showNumberError,
             supportingText = formState.numberDisplayError?.toLocalizedString(),

@@ -24,7 +24,7 @@ Active priority is security hardening, HTTPS validation, and credential protecti
 - [x] [complexity: moderate] Implement iOS ApplePayProvider using PassKit behind the common PaymentProvider abstraction
 - [x] [complexity: complex] Add 3D Secure challenge handling and authentication flow to common checkout
 - [x] [complexity: complex] Conduct security audit to identify and fix critical vulnerabilities across HTTPS enforcement, 3DS WebView navigation, and data masking
-- [ ] [complexity: moderate] Mask PAN and redact CVC in toString methods and debug logs to prevent sensitive credential exposure
+- [x] [complexity: moderate] Mask PAN and redact CVC in toString methods and debug logs to prevent sensitive credential exposure
 - [ ] [complexity: moderate] Add accessibility and one-handed reachability passes over checkout sheet
 - [ ] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
 - [ ] [complexity: moderate] Add regional alternative payment methods including Klarna and iDEAL

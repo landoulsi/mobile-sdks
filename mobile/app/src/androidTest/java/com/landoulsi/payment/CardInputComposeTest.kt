@@ -149,7 +149,7 @@ class CardInputComposeTest {
             }
         }
 
-        composeTestRule.onNodeWithText("✓").assertIsDisplayed()
+        composeTestRule.onNodeWithText("\u2713").assertDoesNotExist()
     }
 
     @Test
@@ -168,7 +168,7 @@ class CardInputComposeTest {
             }
         }
 
-        composeTestRule.onNodeWithText("!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("!").assertDoesNotExist()
     }
 
     @Test
@@ -200,7 +200,7 @@ class CardInputComposeTest {
             }
         }
 
-        composeTestRule.onNodeWithText("✓").assertIsDisplayed()
+        composeTestRule.onNodeWithText("\u2713").assertDoesNotExist()
     }
 
     @Test
@@ -219,7 +219,7 @@ class CardInputComposeTest {
             }
         }
 
-        composeTestRule.onNodeWithText("!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("!").assertDoesNotExist()
     }
 
     @Test
@@ -445,7 +445,7 @@ class CardInputComposeTest {
     }
 
     @Test
-    fun testCvcInput_withTrailingIcons_showsCheckmarkForComplete() {
+    fun testCvcInput_withTrailingIcons_glyphNotExposedToSemantics() {
         composeTestRule.setContent {
             PaymentsdkTheme {
                 CvcInput(
@@ -460,6 +460,6 @@ class CardInputComposeTest {
             }
         }
 
-        composeTestRule.onNodeWithText("✓").assertIsDisplayed()
+        composeTestRule.onNodeWithText("\u2713").assertDoesNotExist()
     }
 }

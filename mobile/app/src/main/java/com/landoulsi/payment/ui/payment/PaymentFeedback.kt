@@ -33,7 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,7 +71,10 @@ fun ProcessingPaymentCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(28.dp)
-                .semantics(mergeDescendants = true) { contentDescription = contentDesc },
+                .semantics(mergeDescendants = true) {
+                    contentDescription = contentDesc
+                    liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -125,7 +131,10 @@ fun PaymentSuccessCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(24.dp)
+                .semantics(mergeDescendants = true) {
+                    liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                },
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
@@ -135,7 +144,8 @@ fun PaymentSuccessCard(
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .background(PaymentColorTokens.success, CircleShape),
+                        .background(PaymentColorTokens.success, CircleShape)
+                        .clearAndSetSemantics {},
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -149,7 +159,8 @@ fun PaymentSuccessCard(
                     text = stringResource(id = R.string.demo_payment_success),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.semantics { heading() }
                 )
             }
 
@@ -222,7 +233,10 @@ fun PaymentFailureCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(24.dp)
+                .semantics(mergeDescendants = true) {
+                    liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                },
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
@@ -232,7 +246,8 @@ fun PaymentFailureCard(
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .background(MaterialTheme.colorScheme.error, CircleShape),
+                        .background(MaterialTheme.colorScheme.error, CircleShape)
+                        .clearAndSetSemantics {},
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -246,7 +261,8 @@ fun PaymentFailureCard(
                     text = stringResource(id = R.string.demo_payment_failed),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.semantics { heading() }
                 )
             }
 
@@ -288,14 +304,18 @@ fun PaymentCanceledCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(20.dp)
+                .semantics(mergeDescendants = true) {
+                    liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                },
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.demo_payment_canceled),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.semantics { heading() }
             )
             Text(
                 text = stringResource(id = R.string.demo_canceled_description),
@@ -307,7 +327,7 @@ fun PaymentCanceledCard(
                 shape = RoundedCornerShape(24.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp)
+                    .height(48.dp)
             ) {
                 Text(text = stringResource(id = R.string.demo_try_again))
             }
@@ -350,7 +370,9 @@ fun TokenizationErrorBanner(
         ?: error?.message
         ?: stringResource(id = R.string.demo_tokenization_error_default)
     Surface(
-        modifier = modifier,
+        modifier = modifier.semantics(mergeDescendants = true) {
+            liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+        },
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.errorContainer,
         contentColor = MaterialTheme.colorScheme.onErrorContainer

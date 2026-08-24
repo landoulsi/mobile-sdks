@@ -78,4 +78,5 @@
     <string name="threeds_security_prompt">Your bank requires additional authentication (SCA) to complete this transaction.</string>
     <string name="threeds_browser_opened_prompt">3D Secure authentication has opened in your browser. Complete the challenge there, then return to this app.</string>
     <string name="threeds_unsupported_url_error">Unsupported authentication URL. Only HTTPS challenge URLs are allowed in production.</string>
+    <string name="threeds_webview_loading">Loading authentication page…</string>
 </resources>

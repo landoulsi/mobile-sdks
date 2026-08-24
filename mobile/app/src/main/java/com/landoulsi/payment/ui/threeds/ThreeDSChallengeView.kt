@@ -52,6 +52,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -134,7 +139,8 @@ fun ThreeDSChallengeCard(
                     Box(
                         modifier = Modifier
                             .size(36.dp)
-                            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                            .clearAndSetSemantics {},
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -147,7 +153,8 @@ fun ThreeDSChallengeCard(
                             text = stringResource(id = R.string.threeds_challenge_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.semantics { heading() }
                         )
                         Text(
                             text = stringResource(id = R.string.threeds_challenge_subtitle),
@@ -342,7 +349,7 @@ fun ThreeDSChallengeCard(
                         ),
                         modifier = Modifier
                             .weight(1f)
-                            .height(44.dp)
+                            .height(48.dp)
                     ) {
                         Text(text = stringResource(id = R.string.threeds_decline_button))
                     }
@@ -355,7 +362,7 @@ fun ThreeDSChallengeCard(
                         shape = RoundedCornerShape(24.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(44.dp)
+                            .height(48.dp)
                     ) {
                         Text(text = stringResource(id = R.string.threeds_cancel_button))
                     }
@@ -544,10 +551,15 @@ fun ThreeDSWebView(
         }
 
         if (isLoading && !hasError) {
+            val loadingDesc = stringResource(id = R.string.threeds_webview_loading)
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = loadingDesc
+                        liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(

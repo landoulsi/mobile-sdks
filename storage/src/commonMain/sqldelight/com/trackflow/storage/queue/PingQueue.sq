@@ -1,0 +1,21 @@
+CREATE TABLE pingQueueEntry (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    payload TEXT NOT NULL,
+    createdAtMillis INTEGER NOT NULL
+);
+
+insertPing:
+INSERT INTO pingQueueEntry(payload, createdAtMillis)
+VALUES (?, ?);
+
+selectAllOrdered:
+SELECT * FROM pingQueueEntry ORDER BY id ASC;
+
+deleteById:
+DELETE FROM pingQueueEntry WHERE id = ?;
+
+deleteAll:
+DELETE FROM pingQueueEntry;
+
+countAll:
+SELECT COUNT(*) FROM pingQueueEntry;

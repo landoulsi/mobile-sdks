@@ -1,0 +1,81 @@
+package com.landoulsi.demo
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.landoulsi.demo.ui.PaymentDemoScreen
+import com.landoulsi.demo.ui.UpdateDemoScreen
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    DemoAppNavHost()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DemoAppNavHost() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            HomeScreen(navController)
+        }
+        composable("payment") {
+            PaymentDemoScreen(onBack = { navController.popBackStack() })
+        }
+        composable("update") {
+            UpdateDemoScreen(onBack = { navController.popBackStack() })
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Global SDK Demo",
+            style = MaterialTheme.typography.headlineLarge
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = { navController.navigate("payment") },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Payment SDK Demo")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("update") },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Update SDK Demo")
+        }
+    }
+}

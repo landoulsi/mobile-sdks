@@ -219,11 +219,11 @@ class IpLocationProvider(
     }
 
     private companion object {
-        private const val TAG = "IpLocationProvider"
-        private const val MIN_LATITUDE = -90.0
-        private const val MAX_LATITUDE = 90.0
-        private const val MIN_LONGITUDE = -180.0
-        private const val MAX_LONGITUDE = 180.0
+        const val TAG = "IpLocationProvider"
+        const val MIN_LATITUDE = -90.0
+        const val MAX_LATITUDE = 90.0
+        const val MIN_LONGITUDE = -180.0
+        const val MAX_LONGITUDE = 180.0
     }
 }
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.landoulsi.styles"
+    namespace = "com.landoulsi.design"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

@@ -4,6 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+kotlin {
+    jvmToolchain(11)
+}
+
 android {
     namespace = "com.landoulsi.demo"
     compileSdk = 37
@@ -47,6 +51,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    implementation(project(":styles"))
     implementation(project(":payment:shared"))
     implementation(project(":update:shared"))
 }

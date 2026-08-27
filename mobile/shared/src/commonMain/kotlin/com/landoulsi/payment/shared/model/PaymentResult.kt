@@ -1,5 +1,7 @@
 package com.landoulsi.payment.shared.model
 
+import com.landoulsi.payment.shared.validation.CardValidation
+
 /**
  * Standard error codes for payment operations.
  */
@@ -61,7 +63,10 @@ sealed interface PaymentResult {
         override fun toString(): String {
             val maskedToken = if (token != null) "[REDACTED]" else "null"
             val maskedRaw = if (rawPaymentData != null) "[REDACTED]" else "null"
-            return "PaymentResult.Success(transactionId=$transactionId, paymentMethodType=$paymentMethodType, token=$maskedToken, rawPaymentData=$maskedRaw, last4=$last4, cardNetwork=$cardNetwork)"
+            val maskedEmail = email?.let { CardValidation.redactSensitiveValue("email", it) }
+            val maskedBilling = if (billingAddress != null) "[REDACTED]" else "null"
+            val maskedShipping = if (shippingAddress != null) "[REDACTED]" else "null"
+            return "PaymentResult.Success(transactionId=$transactionId, paymentMethodType=$paymentMethodType, token=$maskedToken, rawPaymentData=$maskedRaw, last4=$last4, cardNetwork=$cardNetwork, billingAddress=$maskedBilling, shippingAddress=$maskedShipping, email=$maskedEmail)"
         }
     }
 

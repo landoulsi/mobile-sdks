@@ -7,6 +7,18 @@ set -e
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
+CHANGELOG="$ROOT/update/shared/CHANGELOG.md"
+
+if [ ! -f "$CHANGELOG" ]; then
+    echo "❌ CHANGELOG.md not found at $CHANGELOG"
+    exit 1
+fi
+
+if ! grep -q '^## \[Unreleased\]' "$CHANGELOG"; then
+    echo "❌ CHANGELOG.md missing required '[Unreleased]' section"
+    exit 1
+fi
+
 echo "=== Mobile (Kotlin Multiplatform: :app + :shared android targets) ==="
 # `test`, not `allTests` -- allTests also runs shared's iosX64Test/
 # iosSimulatorArm64Test, which need an Xcode/simulator setup this gate can't

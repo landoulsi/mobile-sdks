@@ -1,12 +1,15 @@
-# Payment SDK Roadmap
+# Mobile SDKs Roadmap
 
-A mobile payment SDK targeting Kotlin Multiplatform (Android + iOS), with wallet
-payments (Google Pay / Apple Pay) and a drop-in card checkout as the headline features.
+A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Payment SDK
+(Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate updates,
+version checking, and What's New / release notes popups), and a unified Styles design system library
+(:styles) providing shared Material 3 tokens, colors, typography, dimensions, and UI components.
 
-**Current reality check:** the repository contains a Kotlin Multiplatform structure
-under `mobile/` with an Android application module (`:app`) and a shared multiplatform
-module (`:shared`) targeting Android and iOS (`commonMain`, `androidMain`, `iosMain`).
-Active priority is security hardening, HTTPS validation, and credential protection.
+**Current reality check:** The repository contains modular KMP SDKs (`:payment`, `:update`, `:logger`,
+`:location`, `:security`, `:storage`, and `:demo`). The Payment SDK supports Google Pay,
+Apple Pay, PayPal, 3D Secure, and card validation. Current priority is establishing a dedicated `:styles`
+module consolidating common theme tokens (blue/teal/amber/red palettes, neutral scales, dimensions, typography)
+and shared Compose UI components across `:payment:app`, `:update:app`, `:demo:app`, and future apps.
 
 ## Goals
 
@@ -26,7 +29,15 @@ Active priority is security hardening, HTTPS validation, and credential protecti
 - [x] [complexity: complex] Conduct security audit to identify and fix critical vulnerabilities across HTTPS enforcement, 3DS WebView navigation, and data masking
 - [x] [complexity: moderate] Mask PAN and redact CVC in toString methods and debug logs to prevent sensitive credential exposure
 - [x] [complexity: moderate] Add accessibility and one-handed reachability passes over checkout sheet
-- [ ] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
+- [x] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
+- [ ] [complexity: moderate] Create and configure the :styles library module with Jetpack Compose Material 3 support in settings.gradle.kts
+- [ ] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :styles
+- [ ] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :styles
+- [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :styles module and remove duplicate themes
+- [ ] [complexity: simple] Add comprehensive unit tests for color tokens, typography scales, dimension values, and theme schemes in :styles
+- [ ] [complexity: moderate] Add release notes and changelog models for new features and bug fixes in update:shared
+- [ ] [complexity: moderate] Implement What's New popup dialog in update:app to display new features and bug fixes
+- [ ] [complexity: moderate] Add version changelog tracking and display triggers for What's New popup in UpdateManager
 - [ ] [complexity: moderate] Add regional alternative payment methods including Klarna and iDEAL
 - [ ] [complexity: simple] Write commonMain unit tests for domain models, validation, formatting and Google Pay config
 - [ ] [complexity: moderate] Write Android platform integration tests for Google Pay payment flow
@@ -40,49 +51,46 @@ Active priority is security hardening, HTTPS validation, and credential protecti
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Common Styles & Design System (`:styles`).** Centralize colors (Blue primary, Teal secondary, Amber tertiary,
+  Red error, Neutral surface scales, brand/status tokens), typography scales (Display, Headline, Title, Body, Label),
+  dimensions (Spacing xxs..xxxl, Radius xs..full, Elevation none..xl, TypeSize display..caption), and `AppTheme`
+  with dynamic color and light/dark theme schemes into a reusable `:styles` module.
+- **UI Component Library (`:styles`).** Provide reusable surface wrappers, card containers, badge chips, buttons,
+  status indicators, and modifier extensions to eliminate UI code duplication across apps.
+- **Consumer App Integration.** Replace duplicate `com.landoulsi.payment.ui.theme` and `com.landoulsi.update.ui.theme`
+  with dependencies on `:styles`, standardizing visual design tokens across all demo and production apps.
+- **What's New & Release Notes (`:update`).** Add domain models (`ReleaseNotes`, `ReleaseItem`, `ReleaseCategory`
+  for `FEATURE` and `BUG_FIX`) in `update:shared`. Support parsing release notes from `UpdateConfig` or local bundles.
+- **What's New UI (`:update:app`).** Build a Jetpack Compose dialog/bottom sheet displaying categorized items
+  with badge chips (e.g. "New Feature", "Bug Fix"), release date/version, and action buttons ("Update Now", "Got It", "Later").
+- **Update Triggers & Tracking (`:update`).** Coordinate `UpdateManager` with version history to trigger the What's New popup
+  on first launch of an updated version or when an optional/recommended update is available.
 - **Security & Vulnerability Hardening.** Audit gateway networking (enforce HTTPS for production endpoints),
   restrict WebView scheme handling and file access in 3DS challenges, and eliminate plaintext PAN/CVC logging
   and default data class `toString()` credential leaks.
-- **Google Pay Domain Models & Contracts (`commonMain`).** Define platform-agnostic models
-  including `PaymentRequest`, `PaymentResult`, `Money`, `Currency`, `PaymentMethod`, `GooglePayConfig`
-  (environment, merchant ID/name, allowed card networks, auth methods `PAN_ONLY`/`CRYPTOGRAM_3DS`,
-  tokenization spec for gateways like Stripe/Adyen/direct), and the `PaymentProvider` interface.
-- **Android GooglePayProvider (`androidMain`).** Integrate `com.google.android.gms:play-services-wallet`
-  behind `PaymentProvider`. Implement `isReadyToPay` readiness check and `PaymentDataRequest` JSON builder
-  compliant with Google Pay API v2 (`apiVersion: 2, apiVersionMinor: 0`).
-- **Google Pay UI & Activity Result (`:app` / Compose).** Build a Jetpack Compose `GooglePayButton`
-  following Google Pay Brand Guidelines (official assets, dark/light theme options, minimum 48dp touch target)
-  and manage resolution via `rememberLauncherForActivityResult` with `AutoResolveHelper` or `GetPaymentDataContract`.
-- **Shared Module Architecture.** Maintain clean separation where platform-specific wallet APIs
-  live in target source sets (`androidMain` for Google Pay, `iosMain` for Apple Pay) and are
-  orchestrated by common view models and state reducers in `commonMain`.
 
 ## Design direction
 
-Competitive review of Stripe PaymentSheet, Adyen Drop-in, Braintree Drop-in, Square
-In-App Payments, and Google Pay Brand Guidelines informs the SDK's UX architecture:
+Competitive review of modern design systems (Google Material 3, Apple Human Interface Guidelines, Stripe Elements,
+and GitHub Primer) informs the styles architecture:
 
-- **Wallets first, card second.** Express Google Pay buttons belong at the top of the sheet,
-  above an "Or pay with card" divider. Burying wallet buttons is the leading cause of mobile drop-off.
-- **Dynamic wallet availability.** The Google Pay button must only render if `isReadyToPay`
-  returns true on the user's device. If unavailable, the UI cleanly collapses to card checkout.
-- **Google Pay Brand Compliance.** Google Pay buttons must strictly adhere to Google's brand
-  rules (appropriate contrast, no distorted logos, localized button labels like "Pay with GPay",
-  minimum 48dp touch height).
-- **A drop-in sheet, not a screen.** A pre-built bottom sheet keeps the shopper in the host
-  app and keeps card/wallet data off the integrator's servers, holding them in the lightest PCI
-  tier (SAQ A).
-- **Immediate, explicit feedback.** Provide distinct states: disabled & spinning indicator during
-  payment authorization, clear inline error messages if user cancels or card is declined, and an
-  animated success confirmation.
-- **One-handed reachability.** Primary payment triggers and express buttons reside in the lower
-  half of the viewport, supporting seamless thumb reachability and keyboard avoidance.
+- **Unified design tokens.** Single source of truth for semantic colors, 8-pt spacing scales, rounded corners,
+  elevations, and typography hierarchies ensuring visual consistency across all apps.
+- **Semantic hierarchy.** Clear contrast between primary actions (trustworthy blue), secondary accents (teal),
+  tertiary highlights (warm amber), and error/destructive feedback (red).
+- **Categorized changelog items.** Distinguish new features (sparkle icon / primary badge) from bug fixes
+  (wrench icon / neutral badge) so users quickly grasp value and improvements.
+- **Wallets first, card second.** Express payment buttons belong at the top of checkout sheets above an "Or pay with card" divider.
+- **Immediate, explicit feedback.** Provide distinct states: disabled & spinning indicator during action authorization,
+  clear inline error messages, and animated confirmation.
+- **One-handed reachability.** Primary actions reside in the lower half of the viewport, supporting thumb reachability
+  and smooth keyboard avoidance.
 
 ## Phases
 
-- **Foundation & Google Pay** — core domain models, Google Pay provider, Compose button, sample checkout.
-- **Core checkout** — Ktor gateway client, payment theme tokens, card inputs with Luhn validation, drop-in sheet.
-- **iOS & Wallets** — Apple Pay provider with PassKit, unified cross-platform wallet orchestration.
-- **Hardening & Security** — 3D Secure challenges, PCI compliance audit, vulnerability scan, unit & platform integration tests.
-- **Reach** — PayPal, Braintree, and regional payment methods (Klarna, iDEAL).
-- **Release** — CI/CD automation, Dokka documentation, sample app polish, Maven Central release.
+- **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.
+- **Styles & Common Design System** — shared `:styles` module, design tokens, light/dark themes, common UI components, app refactoring.
+- **In-App Update SDK & Release Notes** — update version checker, native update integration, What's New release notes popup.
+- **Payment Methods Expansion** — PayPal/Braintree alternative methods, regional payment methods (Klarna, iDEAL).
+- **Hardening & Quality Assurance** — unit tests, platform integration tests, security audits, static analysis.
+- **Release & Distribution** — CI/CD automation, Dokka documentation, sample app polish, Maven Central publication.

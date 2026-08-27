@@ -30,7 +30,7 @@ and shared Compose UI components across `:payment:app`, `:update:app`, `:demo:ap
 - [x] [complexity: moderate] Mask PAN and redact CVC in toString methods and debug logs to prevent sensitive credential exposure
 - [x] [complexity: moderate] Add accessibility and one-handed reachability passes over checkout sheet
 - [x] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
-- [ ] [complexity: moderate] Create and configure the :styles library module with Jetpack Compose Material 3 support in settings.gradle.kts
+- [x] [complexity: moderate] Create and configure the :styles library module with Jetpack Compose Material 3 support in settings.gradle.kts
 - [ ] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :styles
 - [ ] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :styles
 - [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :styles module and remove duplicate themes

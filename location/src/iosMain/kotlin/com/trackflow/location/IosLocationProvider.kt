@@ -1,8 +1,10 @@
 package com.trackflow.location
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.withContext
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreLocation.CLLocationManager
@@ -26,15 +28,7 @@ class IosLocationProvider(
         ) {
             if (!isTracking) return
             val clLoc = didUpdateLocations.lastOrNull() as? CLLocation ?: return
-            val loc = Location(
-                latitude = clLoc.coordinate.useContents { latitude },
-                longitude = clLoc.coordinate.useContents { longitude },
-                accuracy = clLoc.horizontalAccuracy.takeIf { it >= 0 },
-                speed = clLoc.speed.takeIf { it >= 0 },
-                bearing = clLoc.course.takeIf { it >= 0 },
-                timestamp = timeProvider.currentTimestamp()
-            )
-            locationCallback?.invoke(loc)
+            clLoc.toLocationOrNull(timeProvider)?.let { locationCallback?.invoke(it) }
         }
     }
 
@@ -42,6 +36,11 @@ class IosLocationProvider(
         locationManager.delegate = delegate
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    // CLLocationManager must be touched on the main thread; a suspend fn may resume elsewhere.
+    override suspend fun lastKnownLocation(): Location? = withContext(Dispatchers.Main) {
+        locationManager.location?.toLocationOrNull(timeProvider)
     }
 
     override fun startTracking() {
@@ -58,4 +57,26 @@ class IosLocationProvider(
         locationCallback = { trySend(it) }
         awaitClose { locationCallback = null }
     }
+}
+
+/**
+ * Converts a [CLLocation] to a [Location], or `null` when the fix is unusable.
+ *
+ * A negative `horizontalAccuracy` means CoreLocation could not determine the coordinate and its
+ * latitude/longitude must not be used (per Apple's `CLLocation` docs).
+ */
+@OptIn(ExperimentalForeignApi::class)
+internal fun CLLocation.toLocationOrNull(timeProvider: TimeProvider): Location? {
+    if (horizontalAccuracy < 0.0) return null
+    return Location(
+        latitude = coordinate.useContents { latitude },
+        longitude = coordinate.useContents { longitude },
+        accuracy = horizontalAccuracy,
+        speed = speed.takeIf { it >= 0 },
+        bearing = course.takeIf { it >= 0 },
+        // Per the TimeProvider contract every Location.timestamp is the SDK's own RFC-3339 clock,
+        // not the platform fix time (CLLocation.timestamp). A cached fix from lastKnownLocation()
+        // is therefore stamped "now", not when CoreLocation acquired it.
+        timestamp = timeProvider.currentTimestamp(),
+    )
 }

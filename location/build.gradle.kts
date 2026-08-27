@@ -18,10 +18,16 @@ kotlin {
             implementation(libs.kotlin.stdlib)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            // Ktor client for the IP-based approximate location provider
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
 
         androidMain.dependencies {
@@ -30,6 +36,10 @@ kotlin {
             // FusedLocationProvider here, so the type must be visible to shared.
             api(libs.google.play.location)
             implementation(libs.google.play.time)
+            // await() on FusedLocationProviderClient.lastLocation Task
+            implementation(libs.kotlinx.coroutines.play.services)
+            // Ktor OkHttp engine for the IP-based approximate location provider
+            implementation(libs.ktor.client.okhttp)
         }
 
         val androidUnitTest by getting {
@@ -39,6 +49,7 @@ kotlin {
         }
 
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
         iosTest.dependencies {

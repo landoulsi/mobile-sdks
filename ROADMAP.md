@@ -31,6 +31,7 @@ and shared Compose UI components across `:payment:app`, `:update:app`, `:demo:ap
 - [x] [complexity: moderate] Add accessibility and one-handed reachability passes over checkout sheet
 - [x] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
 - [x] [complexity: moderate] Create and configure the :styles library module with Jetpack Compose Material 3 support in settings.gradle.kts
+- [x] [complexity: moderate] Add an IP-based approximate location provider to :location (plus a `lastKnownLocation()` API across all providers) so an early, coarse, permissionless fix is available before the OS location permission is granted
 - [ ] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :styles
 - [ ] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :styles
 - [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :styles module and remove duplicate themes

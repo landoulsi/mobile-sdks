@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.landoulsi.survery"
+    namespace = "com.landoulsi.survey"
     compileSdk {
         version = release(37)
     }

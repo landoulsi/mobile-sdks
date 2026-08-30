@@ -91,7 +91,7 @@ class KtorGatewayClientTest {
         assertEquals("token", result.`object`)
         assertEquals("card", result.type)
         assertNotNull(result.card)
-        assertEquals("visa", result.card!!.brand)
+        assertEquals("visa", result.card.brand)
         assertEquals("4242", result.card.last4)
         assertEquals(12, result.card.expMonth)
         assertEquals(2028, result.card.expYear)
@@ -101,7 +101,7 @@ class KtorGatewayClientTest {
         assertEquals(false, result.livemode)
 
         assertNotNull(capturedUrl)
-        assertTrue(capturedUrl!!.endsWith("/tokens"))
+        assertTrue(capturedUrl.endsWith("/tokens"))
         assertEquals("Bearer $publishableKey", capturedAuth)
     }
 
@@ -329,8 +329,8 @@ class KtorGatewayClientTest {
         client.tokenizeGooglePay("gpay_tok_abc123")
 
         assertNotNull(capturedBody)
-        assertTrue(capturedBody!!.contains("gpay_tok_abc123"))
-        assertTrue(capturedBody!!.contains("google_pay_token"))
+        assertTrue(capturedBody.contains("gpay_tok_abc123"))
+        assertTrue(capturedBody.contains("google_pay_token"))
     }
 
     @Test
@@ -358,8 +358,8 @@ class KtorGatewayClientTest {
         )
 
         assertNotNull(capturedBody)
-        assertTrue(capturedBody!!.contains("4242424242424242"))
-        assertTrue(capturedBody!!.contains("Jane Doe"))
+        assertTrue(capturedBody.contains("4242424242424242"))
+        assertTrue(capturedBody.contains("Jane Doe"))
     }
 
     @Test
@@ -386,9 +386,9 @@ class KtorGatewayClientTest {
         )
 
         assertNotNull(capturedBody)
-        assertTrue(capturedBody!!.contains("4242424242424242"))
-        assertFalse(capturedBody!!.contains("cardholderName"))
-        assertFalse(capturedBody!!.contains("name"))
+        assertTrue(capturedBody.contains("4242424242424242"))
+        assertFalse(capturedBody.contains("cardholderName"))
+        assertFalse(capturedBody.contains("name"))
     }
 
     // ─────────────────────────────────────────────────────────
@@ -448,7 +448,7 @@ class KtorGatewayClientTest {
         client.tokenizeCard(CardTokenRequest("4242424242424242", 12, 2028, "123"))
 
         assertNotNull(capturedUrl)
-        assertTrue(capturedUrl!!.endsWith("/tokens"))
+        assertTrue(capturedUrl.endsWith("/tokens"))
     }
 
     @Test
@@ -468,7 +468,7 @@ class KtorGatewayClientTest {
         client.tokenizeGooglePay("token")
 
         assertNotNull(capturedUrl)
-        assertTrue(capturedUrl!!.endsWith("/payment_methods"))
+        assertTrue(capturedUrl.endsWith("/payment_methods"))
     }
 
     // ─────────────────────────────────────────────────────────
@@ -635,10 +635,10 @@ class KtorGatewayClientTest {
         assertEquals("requires_action", result.status)
         assertEquals("pi_3ds_secret_xyz", result.clientSecret)
         assertNotNull(result.nextAction)
-        assertEquals("redirect_to_url", result.nextAction!!.type)
-        assertNotNull(result.nextAction?.redirectToUrl)
-        assertEquals("https://hooks.stripe.com/three_d_secure/authenticate", result.nextAction?.redirectToUrl?.url)
-        assertEquals("paymentsdk://3ds-complete", result.nextAction?.redirectToUrl?.returnUrl)
+        assertEquals("redirect_to_url", result.nextAction.type)
+        assertNotNull(result.nextAction.redirectToUrl)
+        assertEquals("https://hooks.stripe.com/three_d_secure/authenticate", result.nextAction.redirectToUrl.url)
+        assertEquals("paymentsdk://3ds-complete", result.nextAction.redirectToUrl.returnUrl)
     }
 
     @Test
@@ -703,9 +703,10 @@ class KtorGatewayClientTest {
 
         assertEquals("pi_3ds_completed", result.id)
         assertEquals("succeeded", result.status)
-        assertTrue(capturedUrl!!.endsWith("/payment_intents/pi_3ds_completed/confirm"))
+        assertNotNull(capturedUrl)
+        assertTrue(capturedUrl.endsWith("/payment_intents/pi_3ds_completed/confirm"))
         assertNotNull(capturedBody)
-        assertTrue(capturedBody!!.contains("secret_complete"))
+        assertTrue(capturedBody.contains("secret_complete"))
     }
 
     @Test
@@ -831,8 +832,8 @@ class KtorGatewayClientTest {
         client.tokenizeCard(CardTokenRequest("4242424242424242", 12, 2028, "123"))
 
         assertNotNull(capturedUrl)
-        assertFalse(capturedUrl!!.contains("//"))
-        assertTrue(capturedUrl!!.endsWith("/tokens"))
+        assertFalse(capturedUrl.substringAfter("://").contains("//"))
+        assertTrue(capturedUrl.endsWith("/tokens"))
     }
 
     // ─────────────────────────────────────────────────────────
@@ -861,12 +862,12 @@ class KtorGatewayClientTest {
         )
 
         assertNotNull(capturedBody)
-        assertTrue(capturedBody!!.contains("payment_method"))
-        assertTrue(capturedBody!!.contains("pm_card"))
-        assertTrue(capturedBody!!.contains("client_secret"))
-        assertTrue(capturedBody!!.contains("pi_return_secret"))
-        assertTrue(capturedBody!!.contains("return_url"))
-        assertTrue(capturedBody!!.contains("paymentsdk://3ds-complete"))
+        assertTrue(capturedBody.contains("payment_method"))
+        assertTrue(capturedBody.contains("pm_card"))
+        assertTrue(capturedBody.contains("client_secret"))
+        assertTrue(capturedBody.contains("pi_return_secret"))
+        assertTrue(capturedBody.contains("return_url"))
+        assertTrue(capturedBody.contains("paymentsdk://3ds-complete"))
     }
 
     @Test
@@ -889,10 +890,10 @@ class KtorGatewayClientTest {
         )
 
         assertNotNull(capturedBody)
-        assertTrue(capturedBody!!.contains("client_secret"))
-        assertTrue(capturedBody!!.contains("pi_complete_secret"))
+        assertTrue(capturedBody.contains("client_secret"))
+        assertTrue(capturedBody.contains("pi_complete_secret"))
         assertFalse(
-            capturedBody!!.contains("payment_method"),
+            capturedBody.contains("payment_method"),
             "complete3DSAuthentication must not include a payment_method id"
         )
     }

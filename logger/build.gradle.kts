@@ -6,6 +6,10 @@ plugins {
 kotlin {
     jvmToolchain(17)
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     android {
         namespace = "com.landoulsi.logger"
         compileSdk = libs.versions.android.compileSdk.get().toInt()

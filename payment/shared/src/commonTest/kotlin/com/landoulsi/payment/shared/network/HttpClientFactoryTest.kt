@@ -327,7 +327,11 @@ class HttpClientFactoryTest {
             engineFactory = MockEngine,
             baseUrl = "http://localhost:8080",
             allowInsecureHttpForTesting = true
-        )
+        ) {
+            engine {
+                addHandler { respond("") }
+            }
+        }
         assertNotNull(client)
     }
 
@@ -336,7 +340,11 @@ class HttpClientFactoryTest {
         val client = createPaymentHttpClient(
             engineFactory = MockEngine,
             baseUrl = ""
-        )
+        ) {
+            engine {
+                addHandler { respond("") }
+            }
+        }
         assertNotNull(client)
     }
 

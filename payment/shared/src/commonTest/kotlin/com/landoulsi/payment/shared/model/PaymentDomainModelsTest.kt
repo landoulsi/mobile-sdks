@@ -370,7 +370,7 @@ class PaymentDomainModelsTest {
         )
 
         assertNotNull(config.merchantSessionProvider)
-        val sessionJson = config.merchantSessionProvider?.provideMerchantSession("https://apple-pay-gateway.apple.com/paymentservices/startSession")
+        val sessionJson = config.merchantSessionProvider.provideMerchantSession("https://apple-pay-gateway.apple.com/paymentservices/startSession")
         assertEquals("https://apple-pay-gateway.apple.com/paymentservices/startSession", calledUrl)
         assertTrue(sessionJson?.contains("SSH_123") == true)
     }
@@ -507,14 +507,14 @@ class PaymentDomainModelsTest {
     fun testThreeDSResultVariants() {
         val completed: ThreeDSResult = ThreeDSResult.Completed("payload_token_123")
         assertTrue(completed is ThreeDSResult.Completed)
-        assertEquals("payload_token_123", (completed as ThreeDSResult.Completed).returnPayload)
+        assertEquals("payload_token_123", completed.returnPayload)
 
         val failed: ThreeDSResult = ThreeDSResult.Failed(
             errorCode = PaymentErrorCode.AUTHENTICATION_FAILED,
             message = "Authentication timed out"
         )
         assertTrue(failed is ThreeDSResult.Failed)
-        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (failed as ThreeDSResult.Failed).errorCode)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, failed.errorCode)
         assertEquals("Authentication timed out", failed.message)
 
         val canceled: ThreeDSResult = ThreeDSResult.Canceled
@@ -548,7 +548,7 @@ class PaymentDomainModelsTest {
         val res2 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=Y&payment_intent=pi_123", expected)
         assertNotNull(res2)
         assertTrue(res2 is ThreeDSResult.Completed)
-        assertEquals("paymentsdk://3ds-complete?transStatus=Y&payment_intent=pi_123", (res2 as ThreeDSResult.Completed).returnPayload)
+        assertEquals("paymentsdk://3ds-complete?transStatus=Y&payment_intent=pi_123", res2.returnPayload)
 
         // transStatus = A (EMV 3DS Attempted / Proof Generated)
         val res3 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=A", expected)
@@ -578,7 +578,7 @@ class PaymentDomainModelsTest {
         val res1 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=N", expected)
         assertNotNull(res1)
         assertTrue(res1 is ThreeDSResult.Failed)
-        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (res1 as ThreeDSResult.Failed).errorCode)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, res1.errorCode)
 
         // transStatus = R (Rejected)
         val res2 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=R", expected)
@@ -603,7 +603,7 @@ class PaymentDomainModelsTest {
         val res6 = parseThreeDSReturnUrl("paymentsdk://3ds-complete?error=invalid_otp&error_description=Call%201800%20Phishing", expected)
         assertNotNull(res6)
         assertTrue(res6 is ThreeDSResult.Failed)
-        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (res6 as ThreeDSResult.Failed).errorCode)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, res6.errorCode)
     }
 
     @Test
@@ -614,7 +614,7 @@ class PaymentDomainModelsTest {
         val bareRes = parseThreeDSReturnUrl("paymentsdk://3ds-complete", expected)
         assertNotNull(bareRes)
         assertTrue(bareRes is ThreeDSResult.Failed)
-        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, (bareRes as ThreeDSResult.Failed).errorCode)
+        assertEquals(PaymentErrorCode.AUTHENTICATION_FAILED, bareRes.errorCode)
 
         // transStatus = C (Challenge required, incomplete redirect) fails closed
         val cRes = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=C", expected)

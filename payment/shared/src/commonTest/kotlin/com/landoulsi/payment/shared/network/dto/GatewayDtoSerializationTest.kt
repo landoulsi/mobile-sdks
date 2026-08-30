@@ -128,7 +128,7 @@ class GatewayDtoSerializationTest {
         assertEquals("base64sig==", token.signature)
         assertEquals("base64msg==", token.signedMessage)
         assertNotNull(token.intermediateSigningKey)
-        assertEquals("base64key==", token.intermediateSigningKey!!.signedKey)
+        assertEquals("base64key==", token.intermediateSigningKey.signedKey)
         assertEquals(listOf("sig1", "sig2"), token.intermediateSigningKey.signatures)
     }
 
@@ -174,7 +174,7 @@ class GatewayDtoSerializationTest {
         assertEquals("VISA", info.cardNetwork)
         assertEquals("1234", info.cardDetails)
         assertNotNull(info.billingAddress)
-        assertEquals("John Doe", info.billingAddress!!.name)
+        assertEquals("John Doe", info.billingAddress.name)
         assertEquals("123 Main St", info.billingAddress.address1)
         assertEquals("San Francisco", info.billingAddress.locality)
         assertEquals("CA", info.billingAddress.administrativeArea)
@@ -284,7 +284,7 @@ class GatewayDtoSerializationTest {
         assertEquals(false, response.livemode)
         assertEquals("card", response.type)
         assertNotNull(response.card)
-        assertEquals("visa", response.card!!.brand)
+        assertEquals("visa", response.card.brand)
         assertEquals("4242", response.card.last4)
         assertEquals(12, response.card.expMonth)
         assertEquals(2028, response.card.expYear)
@@ -354,7 +354,7 @@ class GatewayDtoSerializationTest {
         val errorResponse = PaymentJson.decodeFromString<GatewayErrorResponse>(json)
 
         assertNotNull(errorResponse.error)
-        assertEquals("card_error", errorResponse.error!!.type)
+        assertEquals("card_error", errorResponse.error.type)
         assertEquals("card_declined", errorResponse.error.code)
         assertEquals("insufficient_funds", errorResponse.error.declineCode)
         assertEquals("Your card has insufficient funds.", errorResponse.error.message)
@@ -387,7 +387,7 @@ class GatewayDtoSerializationTest {
         val errorResponse = PaymentJson.decodeFromString<GatewayErrorResponse>(json)
 
         assertNotNull(errorResponse.error)
-        assertNull(errorResponse.error!!.type)
+        assertNull(errorResponse.error.type)
         assertNull(errorResponse.error.code)
         assertNull(errorResponse.error.message)
     }
@@ -600,7 +600,7 @@ class GatewayDtoSerializationTest {
         assertEquals(true, deserialized.livemode)
         assertEquals("card", deserialized.type)
         assertNotNull(deserialized.card)
-        assertEquals("amex", deserialized.card!!.brand)
+        assertEquals("amex", deserialized.card.brand)
         assertEquals("0005", deserialized.card.last4)
         assertEquals(3, deserialized.card.expMonth)
         assertEquals(2031, deserialized.card.expYear)
@@ -645,8 +645,8 @@ class GatewayDtoSerializationTest {
         assertEquals("sig_base64", deserialized.signature)
         assertEquals("msg_base64", deserialized.signedMessage)
         assertNotNull(deserialized.intermediateSigningKey)
-        assertEquals("key_base64", deserialized.intermediateSigningKey!!.signedKey)
-        assertEquals(listOf("ecdsa_sig"), deserialized.intermediateSigningKey!!.signatures)
+        assertEquals("key_base64", deserialized.intermediateSigningKey.signedKey)
+        assertEquals(listOf("ecdsa_sig"), deserialized.intermediateSigningKey.signatures)
     }
 
     // ─────────────────────────────────────────────────────────
@@ -671,7 +671,7 @@ class GatewayDtoSerializationTest {
         assertEquals("VISA", deserialized.cardNetwork)
         assertEquals("4242", deserialized.cardDetails)
         assertNotNull(deserialized.billingAddress)
-        assertEquals("RT Test", deserialized.billingAddress!!.name)
+        assertEquals("RT Test", deserialized.billingAddress.name)
         assertEquals("DE", deserialized.billingAddress.countryCode)
     }
 
@@ -752,7 +752,7 @@ class GatewayDtoSerializationTest {
         assertEquals(5000L, response.amount)
         assertEquals("eur", response.currency)
         assertNotNull(response.nextAction)
-        assertEquals("redirect_to_url", response.nextAction!!.type)
+        assertEquals("redirect_to_url", response.nextAction.type)
         assertEquals("https://hooks.stripe.com/redirect/3ds", response.nextAction.redirectToUrl?.url)
         assertEquals("paymentsdk://3ds-complete", response.nextAction.redirectToUrl?.returnUrl)
         assertEquals("https://acs.bank.com", response.nextAction.useStripeSdk?.acsUrl)
@@ -780,7 +780,7 @@ class GatewayDtoSerializationTest {
         assertEquals("pi_declined_intent", response.id)
         assertEquals("requires_payment_method", response.status)
         assertNotNull(response.lastPaymentError)
-        assertEquals("card_error", response.lastPaymentError!!.type)
+        assertEquals("card_error", response.lastPaymentError.type)
         assertEquals("card_declined", response.lastPaymentError.code)
         assertEquals("stolen_card", response.lastPaymentError.declineCode)
         assertEquals("Card was declined as stolen", response.lastPaymentError.message)

@@ -511,9 +511,9 @@ class ApplePayProviderTest {
 
         val pkRequest = client.createPKPaymentRequest(request)
         assertNotNull(pkRequest.requiredBillingContactFields)
-        assertEquals(5L, pkRequest.requiredBillingContactFields!!.count().toLong())
+        assertEquals(5L, pkRequest.requiredBillingContactFields.count().toLong())
         assertNotNull(pkRequest.requiredShippingContactFields)
-        assertEquals(5L, pkRequest.requiredShippingContactFields!!.count().toLong())
+        assertEquals(5L, pkRequest.requiredShippingContactFields.count().toLong())
     }
 
     @Test

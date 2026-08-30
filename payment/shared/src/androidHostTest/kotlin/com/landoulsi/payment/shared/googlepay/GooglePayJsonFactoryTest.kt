@@ -206,18 +206,18 @@ class GooglePayJsonFactoryTest {
         assertEquals("janedoe@example.com", result.email)
 
         assertNotNull(result.billingAddress)
-        assertEquals("Jane Doe", result.billingAddress?.name)
-        assertEquals("123 Market St", result.billingAddress?.address1)
-        assertEquals("Suite 400", result.billingAddress?.address2)
-        assertEquals("San Francisco", result.billingAddress?.city)
-        assertEquals("CA", result.billingAddress?.state)
-        assertEquals("US", result.billingAddress?.countryCode)
-        assertEquals("94105", result.billingAddress?.postalCode)
-        assertEquals("+14155552671", result.billingAddress?.phoneNumber)
+        assertEquals("Jane Doe", result.billingAddress.name)
+        assertEquals("123 Market St", result.billingAddress.address1)
+        assertEquals("Suite 400", result.billingAddress.address2)
+        assertEquals("San Francisco", result.billingAddress.city)
+        assertEquals("CA", result.billingAddress.state)
+        assertEquals("US", result.billingAddress.countryCode)
+        assertEquals("94105", result.billingAddress.postalCode)
+        assertEquals("+14155552671", result.billingAddress.phoneNumber)
 
         assertNotNull(result.shippingAddress)
-        assertEquals("Jane Doe", result.shippingAddress?.name)
-        assertEquals("123 Market St", result.shippingAddress?.address1)
+        assertEquals("Jane Doe", result.shippingAddress.name)
+        assertEquals("123 Market St", result.shippingAddress.address1)
     }
 
     @Test

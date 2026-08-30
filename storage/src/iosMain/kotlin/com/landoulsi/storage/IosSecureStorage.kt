@@ -105,10 +105,9 @@ class IosSecureStorage : SecureStorage {
     private fun String.toNSData(): NSData? =
         NSString.create(string = this).dataUsingEncoding(NSUTF8StringEncoding)
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     @OptIn(kotlinx.cinterop.BetaInteropApi::class)
     private fun NSData.toKotlinString(): String? =
-        NSString.create(this, NSUTF8StringEncoding) as String?
+        NSString.create(this, NSUTF8StringEncoding)?.toString()
 
     private fun OSStatus.isSuccess(): Boolean = toUInt() == noErr
 

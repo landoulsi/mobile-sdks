@@ -437,7 +437,7 @@ class DefaultApplePayClient(
         }
     }
 
-    private fun mapContactField(field: ApplePayContactField): PKContactField? {
+    private fun mapContactField(field: ApplePayContactField): PKContactField {
         return when (field) {
             ApplePayContactField.POSTAL_ADDRESS -> PKContactFieldPostalAddress
             ApplePayContactField.EMAIL -> PKContactFieldEmailAddress

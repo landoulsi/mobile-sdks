@@ -2,14 +2,13 @@
 
 A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Payment SDK
 (Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate updates,
-version checking, and What's New / release notes popups), and a unified Styles design system library
-(:styles) providing shared Material 3 tokens, colors, typography, dimensions, and UI components.
+version checking, and What's New / release notes popups), unified Design system library
+(:design), and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
 
 **Current reality check:** The repository contains modular KMP SDKs (`:payment`, `:update`, `:logger`,
-`:location`, `:security`, `:storage`, and `:demo`). The Payment SDK supports Google Pay,
-Apple Pay, PayPal, 3D Secure, and card validation. Current priority is establishing a dedicated `:styles`
-module consolidating common theme tokens (blue/teal/amber/red palettes, neutral scales, dimensions, typography)
-and shared Compose UI components across `:payment:app`, `:update:app`, `:demo:app`, and future apps.
+`:location`, `:security`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, and `:demo`).
+Current priority is setting up the `:analytics` module with a core event tracking abstraction (`EventTracker` / `EventManager`),
+an `Event` model holding event names and parameters, and concrete tracking implementations including Firebase Analytics.
 
 ## Goals
 
@@ -32,11 +31,14 @@ and shared Compose UI components across `:payment:app`, `:update:app`, `:demo:ap
 - [x] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
 - [x] [complexity: moderate] Create and configure the :styles library module with Jetpack Compose Material 3 support in settings.gradle.kts
 - [x] [complexity: moderate] Add an IP-based approximate location provider to :location (plus a `lastKnownLocation()` API across all providers) so an early, coarse, permissionless fix is available before the OS location permission is granted
-- [ ] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :styles
-- [ ] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :styles
-- [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :styles module and remove duplicate themes
-- [ ] [complexity: simple] Add comprehensive unit tests for color tokens, typography scales, dimension values, and theme schemes in :styles
-- [ ] [complexity: moderate] Add release notes and changelog models for new features and bug fixes in update:shared
+- [x] [complexity: moderate] Build and maintain a comprehensive changelog for the update:shared module detailing new features and bug fixes
+- [x] [complexity: moderate] Define Event data class and EventTracker interface with standard tracking methods in :analytics commonMain
+- [ ] [complexity: moderate] Implement Firebase Analytics EventTracker for Android and iOS in :analytics module
+- [ ] [complexity: simple] Add composite multi-tracker support and unit tests for Event and EventTracker in :analytics
+- [ ] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :design
+- [ ] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
+- [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :design module and remove duplicate themes
+- [ ] [complexity: simple] Add comprehensive unit tests for color tokens, typography scales, dimension values, and theme schemes in :design
 - [ ] [complexity: moderate] Implement What's New popup dialog in update:app to display new features and bug fixes
 - [ ] [complexity: moderate] Add version changelog tracking and display triggers for What's New popup in UpdateManager
 - [ ] [complexity: moderate] Add regional alternative payment methods including Klarna and iDEAL
@@ -52,14 +54,20 @@ and shared Compose UI components across `:payment:app`, `:update:app`, `:demo:ap
 
 Guidance for implementing the current and upcoming milestones:
 
-- **Common Styles & Design System (`:styles`).** Centralize colors (Blue primary, Teal secondary, Amber tertiary,
+- **Analytics SDK (`:analytics`).** Define generic cross-platform analytics interfaces and data models in `commonMain`:
+  `Event` (name, parameter map of primitives/strings/numbers), `EventTracker` (or `EventManager`) with methods
+  like `track(event: Event)`, `track(name: String, params: Map<String, Any?>)`, `setUserId(userId: String?)`,
+  and `setUserProperty(name: String, value: String?)`. Provide concrete platform implementations (such as Firebase
+  Analytics wrapping Android's `FirebaseAnalytics` and iOS Firebase SDK or no-op/delegation fallbacks) and a
+  composite `CompositeEventTracker` for broadcasting events to multiple backends simultaneously.
+- **Common Design System (`:design`).** Centralize colors (Blue primary, Teal secondary, Amber tertiary,
   Red error, Neutral surface scales, brand/status tokens), typography scales (Display, Headline, Title, Body, Label),
   dimensions (Spacing xxs..xxxl, Radius xs..full, Elevation none..xl, TypeSize display..caption), and `AppTheme`
-  with dynamic color and light/dark theme schemes into a reusable `:styles` module.
-- **UI Component Library (`:styles`).** Provide reusable surface wrappers, card containers, badge chips, buttons,
+  with dynamic color and light/dark theme schemes into the reusable `:design` module.
+- **UI Component Library (`:design`).** Provide reusable surface wrappers, card containers, badge chips, buttons,
   status indicators, and modifier extensions to eliminate UI code duplication across apps.
 - **Consumer App Integration.** Replace duplicate `com.landoulsi.payment.ui.theme` and `com.landoulsi.update.ui.theme`
-  with dependencies on `:styles`, standardizing visual design tokens across all demo and production apps.
+  with dependencies on `:design`, standardizing visual design tokens across all demo and production apps.
 - **What's New & Release Notes (`:update`).** Add domain models (`ReleaseNotes`, `ReleaseItem`, `ReleaseCategory`
   for `FEATURE` and `BUG_FIX`) in `update:shared`. Support parsing release notes from `UpdateConfig` or local bundles.
 - **What's New UI (`:update:app`).** Build a Jetpack Compose dialog/bottom sheet displaying categorized items
@@ -72,9 +80,10 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems (Google Material 3, Apple Human Interface Guidelines, Stripe Elements,
-and GitHub Primer) informs the styles architecture:
+Competitive review of modern design systems and analytics SDKs (Firebase Analytics, Segment, Amplitude, Google Material 3, Apple Human Interface Guidelines, Stripe Elements):
 
+- **Clean Analytics Abstractions.** Decouple app analytics instrumentation from vendor SDKs via provider-agnostic
+  interfaces (`EventTracker`), typed event builders, and flexible parameter structures.
 - **Unified design tokens.** Single source of truth for semantic colors, 8-pt spacing scales, rounded corners,
   elevations, and typography hierarchies ensuring visual consistency across all apps.
 - **Semantic hierarchy.** Clear contrast between primary actions (trustworthy blue), secondary accents (teal),
@@ -90,7 +99,8 @@ and GitHub Primer) informs the styles architecture:
 ## Phases
 
 - **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.
-- **Styles & Common Design System** — shared `:styles` module, design tokens, light/dark themes, common UI components, app refactoring.
+- **Cross-Platform Analytics SDK** — Event model, EventTracker interface, Firebase Analytics provider, composite tracker.
+- **Design System & Common UI** — shared `:design` module, design tokens, light/dark themes, common UI components, app refactoring.
 - **In-App Update SDK & Release Notes** — update version checker, native update integration, What's New release notes popup.
 - **Payment Methods Expansion** — PayPal/Braintree alternative methods, regional payment methods (Klarna, iDEAL).
 - **Hardening & Quality Assurance** — unit tests, platform integration tests, security audits, static analysis.

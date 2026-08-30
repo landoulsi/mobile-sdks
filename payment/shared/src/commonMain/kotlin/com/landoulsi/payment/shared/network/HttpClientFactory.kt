@@ -74,7 +74,7 @@ internal fun sanitizeLogMessage(message: String): String {
         }
     }
     for (param in SENSITIVE_QUERY_PARAMS) {
-        val pattern = Regex("(?i)([?&]$param=)([^&\\s]+)")
+        val pattern = Regex("(?i)(\\b$param=)([^&\\s]+)")
         sanitized = pattern.replace(sanitized) { matchResult ->
             "${matchResult.groupValues[1]}[REDACTED]"
         }
@@ -191,12 +191,12 @@ val HstsEnforcement: ClientPlugin<HstsEnforcementConfig> = createClientPlugin(
  * @param allowInsecureHttpForTesting Optional flag to allow `http://` for local testing/mock servers.
  * @param additionalConfig Optional block for customizing the client beyond the defaults.
  */
-fun createPaymentHttpClient(
-    engineFactory: HttpClientEngineFactory<*>,
+fun <T : io.ktor.client.engine.HttpClientEngineConfig> createPaymentHttpClient(
+    engineFactory: HttpClientEngineFactory<T>,
     baseUrl: String = "",
     enableLogging: Boolean = false,
     allowInsecureHttpForTesting: Boolean = false,
-    additionalConfig: HttpClientConfig<*>.() -> Unit = {}
+    additionalConfig: HttpClientConfig<T>.() -> Unit = {}
 ): HttpClient {
     if (baseUrl.isNotEmpty()) {
         val lowerUrl = baseUrl.trim().lowercase()

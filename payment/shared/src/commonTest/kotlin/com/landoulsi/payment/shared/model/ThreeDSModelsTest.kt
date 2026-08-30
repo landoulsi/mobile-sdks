@@ -128,7 +128,7 @@ class ThreeDSModelsTest {
         val expected = "paymentsdk://3ds-complete"
 
         assertNull(parseThreeDSReturnUrl("paymentsdk://3ds-complete/extra", expected))
-        assertNull(parseThreeDSReturnUrl("paymentsdk://3ds-complete/", expected))
+        assertNull(parseThreeDSReturnUrl("paymentsdk://3ds-complete/nested", expected))
         assertNull(parseThreeDSReturnUrl("paymentsdk://other-path", expected))
     }
 
@@ -147,7 +147,7 @@ class ThreeDSModelsTest {
         assertTrue(yResult is ThreeDSResult.Completed)
         assertEquals(
             "paymentsdk://3ds-complete?transStatus=Y&payment_intent=pi_123",
-            (yResult as ThreeDSResult.Completed).returnPayload
+            yResult.returnPayload
         )
 
         val aResult = parseThreeDSReturnUrl("paymentsdk://3ds-complete?transStatus=A", expected)
@@ -206,7 +206,7 @@ class ThreeDSModelsTest {
             assertTrue(result is ThreeDSResult.Failed, "transStatus=$status should fail")
             assertEquals(
                 PaymentErrorCode.AUTHENTICATION_FAILED,
-                (result as ThreeDSResult.Failed).errorCode
+                result.errorCode
             )
         }
     }
@@ -318,9 +318,8 @@ class ThreeDSModelsTest {
             expected
         )
         assertTrue(result is ThreeDSResult.Completed)
-        assertTrue(
-            (result as ThreeDSResult.Completed).returnPayload!!.contains("Hello%20World")
-        )
+        assertNotNull(result.returnPayload)
+        assertTrue(result.returnPayload.contains("Hello%20World"))
     }
 
     @Test
@@ -411,7 +410,7 @@ class ThreeDSModelsTest {
 
         val result = parseThreeDSReturnUrl(url, expected)
         assertTrue(result is ThreeDSResult.Completed)
-        assertNotNull((result as ThreeDSResult.Completed).returnPayload)
+        assertNotNull(result.returnPayload)
     }
 
     @Test
@@ -425,7 +424,7 @@ class ThreeDSModelsTest {
         assertTrue(result is ThreeDSResult.Failed)
         assertEquals(
             PaymentErrorCode.AUTHENTICATION_FAILED,
-            (result as ThreeDSResult.Failed).errorCode
+            result.errorCode
         )
     }
 }

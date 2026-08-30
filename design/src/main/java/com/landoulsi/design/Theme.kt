@@ -1,4 +1,4 @@
-package com.landoulsi.styles
+package com.landoulsi.design
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

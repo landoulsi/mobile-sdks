@@ -1,4 +1,4 @@
-package com.landoulsi.styles
+package com.landoulsi.design
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp

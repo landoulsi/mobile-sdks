@@ -16,7 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.landoulsi.demo.ui.PaymentDemoScreen
 import com.landoulsi.demo.ui.UpdateDemoScreen
-import com.landoulsi.styles.AppTheme
+import com.landoulsi.design.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

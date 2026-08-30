@@ -35,7 +35,7 @@ an `Event` model holding event names and parameters, and concrete tracking imple
 - [x] [complexity: moderate] Define Event data class and EventTracker interface with standard tracking methods in :analytics commonMain
 - [x] [complexity: moderate] Implement Firebase Analytics EventTracker for Android and iOS in :analytics module
 - [x] [complexity: simple] Add composite multi-tracker support and unit tests for Event and EventTracker in :analytics
-- [ ] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :design
+- [x] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :design
 - [ ] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
 - [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :design module and remove duplicate themes
 - [ ] [complexity: simple] Add comprehensive unit tests for color tokens, typography scales, dimension values, and theme schemes in :design

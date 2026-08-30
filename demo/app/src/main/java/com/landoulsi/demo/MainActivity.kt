@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.landoulsi.demo.ui.DesignComponentsDemoScreen
 import com.landoulsi.demo.ui.PaymentDemoScreen
 import com.landoulsi.demo.ui.UpdateDemoScreen
 import com.landoulsi.design.AppTheme
@@ -48,6 +49,9 @@ fun DemoAppNavHost() {
         composable("update") {
             UpdateDemoScreen(onBack = { navController.popBackStack() })
         }
+        composable("design") {
+            DesignComponentsDemoScreen(onBack = { navController.popBackStack() })
+        }
     }
 }
 
@@ -77,6 +81,13 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text("Update SDK Demo")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("design") },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Design Components")
         }
     }
 }

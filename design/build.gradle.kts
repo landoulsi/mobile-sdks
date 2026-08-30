@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.android.built.in1.kotlin)
@@ -24,7 +26,7 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
@@ -33,4 +35,6 @@ dependencies {
     api(libs.androidx.compose.material3)
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.ui.graphics)
+    api(libs.androidx.compose.foundation)
+    api(libs.androidx.compose.material.icons.core)
 }

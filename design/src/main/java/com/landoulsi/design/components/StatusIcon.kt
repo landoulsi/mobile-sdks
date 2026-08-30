@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,7 +37,7 @@ fun DesignStatusIcon(
         StatusIconVariant.Success -> Triple(
             SuccessGreen,
             Icons.Filled.Check,
-            androidx.compose.ui.graphics.Color.White,
+            Color.White,
         )
         StatusIconVariant.Error -> Triple(
             MaterialTheme.colorScheme.error,

@@ -40,8 +40,8 @@ fun DesignBanner(
             content = MaterialTheme.colorScheme.onErrorContainer,
         )
         BannerTone.Success -> BannerColors(
-            container = MaterialTheme.colorScheme.primaryContainer,
-            content = MaterialTheme.colorScheme.onPrimaryContainer,
+            container = SuccessGreen.copy(alpha = 0.15f),
+            content = SuccessGreen,
         )
     }
 

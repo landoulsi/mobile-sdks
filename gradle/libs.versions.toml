@@ -32,6 +32,7 @@ sqldelight = "2.2.1"
 work = "2.9.0"
 firebase-messaging = "24.0.0"
 firebase-analytics = "22.4.0"
+firebase-config = "22.1.0"
 
 
 playServicesWallet = "19.4.0"
@@ -119,6 +120,7 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 # Firebase
 firebase-analytics = { module = "com.google.firebase:firebase-analytics", version.ref = "firebase-analytics" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebase-messaging" }
+firebase-config = { module = "com.google.firebase:firebase-config", version.ref = "firebase-config" }
 
 
 play-services-wallet = { group = "com.google.android.gms", name = "play-services-wallet", version.ref = "playServicesWallet" }

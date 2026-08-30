@@ -1,9 +1,10 @@
 package com.landoulsi.screenshot.capture
 
-import com.landoulsi.screenshot.currentTimeMillis
 import com.landoulsi.screenshot.config.CaptureConfig
 import com.landoulsi.screenshot.model.ImageFormat
 import com.landoulsi.screenshot.model.ScreenshotImage
+import com.landoulsi.timeprovider.SystemTimeProvider
+import com.landoulsi.timeprovider.TimeProvider
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.useContents
@@ -26,7 +27,8 @@ import platform.posix.memcpy
  * iOS implementation of [ScreenshotCapturer] capturing screenshot from the active key window or supplied view.
  */
 class IosScreenshotCapturer(
-    private val windowProvider: () -> UIWindow? = { findKeyWindow() }
+    private val windowProvider: () -> UIWindow? = { findKeyWindow() },
+    private val timeProvider: TimeProvider = SystemTimeProvider(),
 ) : ScreenshotCapturer {
 
     override fun isAvailable(): Boolean {
@@ -64,7 +66,7 @@ class IosScreenshotCapturer(
             format = if (config.format == ImageFormat.WEBP) ImageFormat.JPEG else config.format,
             width = width,
             height = height,
-            timestamp = currentTimeMillis()
+            timestamp = timeProvider.currentTimeMillis()
         )
     }
 

@@ -10,10 +10,11 @@ import android.os.Looper
 import android.view.PixelCopy
 import android.view.View
 import android.view.Window
-import com.landoulsi.screenshot.currentTimeMillis
 import com.landoulsi.screenshot.config.CaptureConfig
 import com.landoulsi.screenshot.model.ImageFormat
 import com.landoulsi.screenshot.model.ScreenshotImage
+import com.landoulsi.timeprovider.SystemTimeProvider
+import com.landoulsi.timeprovider.TimeProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -24,7 +25,8 @@ import kotlin.coroutines.resume
  * Android implementation of [ScreenshotCapturer] capturing screenshot from the current [Activity] or [Window].
  */
 class AndroidScreenshotCapturer(
-    private val activityProvider: () -> Activity?
+    private val activityProvider: () -> Activity?,
+    private val timeProvider: TimeProvider = SystemTimeProvider(),
 ) : ScreenshotCapturer {
 
     override fun isAvailable(): Boolean {
@@ -68,7 +70,7 @@ class AndroidScreenshotCapturer(
                 format = config.format,
                 width = finalWidth,
                 height = finalHeight,
-                timestamp = currentTimeMillis()
+                timestamp = timeProvider.currentTimeMillis()
             )
         }
     }

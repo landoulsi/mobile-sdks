@@ -1,6 +1,8 @@
 package com.landoulsi.screenshot.metadata
 
 import com.landoulsi.screenshot.config.MetadataConfig
+import com.landoulsi.timeprovider.SystemTimeProvider
+import com.landoulsi.timeprovider.TimeProvider
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 
@@ -11,9 +13,10 @@ object IosMetadataCollector {
 
     fun create(
         config: MetadataConfig = MetadataConfig(),
+        timeProvider: TimeProvider = SystemTimeProvider(),
         screenNameProvider: () -> String? = { null },
         userIdProvider: () -> String? = { null },
-        sessionIdProvider: () -> String? = { null }
+        sessionIdProvider: () -> String? = { null },
     ): MetadataCollector {
         val mainBundle = NSBundle.mainBundle
         val infoDict = mainBundle.infoDictionary
@@ -23,6 +26,7 @@ object IosMetadataCollector {
 
         return DefaultMetadataCollector(
             config = config,
+            timeProvider = timeProvider,
             deviceModelProvider = { UIDevice.currentDevice.model },
             osNameProvider = { UIDevice.currentDevice.systemName },
             osVersionProvider = { "${UIDevice.currentDevice.systemName} ${UIDevice.currentDevice.systemVersion}" },

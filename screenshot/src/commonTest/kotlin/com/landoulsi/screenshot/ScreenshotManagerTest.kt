@@ -3,21 +3,23 @@ package com.landoulsi.screenshot
 import com.landoulsi.screenshot.capture.ScreenshotCapturer
 import com.landoulsi.screenshot.config.CaptureConfig
 import com.landoulsi.screenshot.config.EventTriggerConfig
+import com.landoulsi.screenshot.config.MetadataConfig
 import com.landoulsi.screenshot.config.PushTriggerConfig
 import com.landoulsi.screenshot.config.ScreenshotConfig
 import com.landoulsi.screenshot.config.ServerConfig
+import com.landoulsi.screenshot.config.TriggerConfig
+import com.landoulsi.screenshot.metadata.DefaultMetadataCollector
 import com.landoulsi.screenshot.model.ImageFormat
 import com.landoulsi.screenshot.model.ScreenshotImage
 import com.landoulsi.screenshot.model.ScreenshotTriggerType
 import com.landoulsi.screenshot.network.KtorScreenshotUploader
+import com.landoulsi.timeprovider.FakeTimeProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,7 +36,7 @@ class ScreenshotManagerTest {
                 format = ImageFormat.PNG,
                 width = 1080,
                 height = 1920,
-                timestamp = 1700000000000L
+                timestamp = 1_700_000_000_000L
             )
         )
     ) : ScreenshotCapturer {
@@ -104,7 +106,7 @@ class ScreenshotManagerTest {
 
         val config = ScreenshotConfig(
             server = ServerConfig(endpointUrl = "https://backend.test/upload"),
-            triggers = com.landoulsi.screenshot.config.TriggerConfig(
+            triggers = TriggerConfig(
                 push = PushTriggerConfig(
                     isEnabled = true,
                     payloadActionKey = "action",
@@ -138,7 +140,7 @@ class ScreenshotManagerTest {
 
         val config = ScreenshotConfig(
             server = ServerConfig(endpointUrl = "https://backend.test/upload"),
-            triggers = com.landoulsi.screenshot.config.TriggerConfig(
+            triggers = TriggerConfig(
                 events = EventTriggerConfig(
                     isEnabled = true,
                     triggerEvents = setOf("CRASH_DETECTED", "BUG_REPORT_CLICKED")
@@ -196,5 +198,36 @@ class ScreenshotManagerTest {
         assertTrue(result.isFailure)
         assertEquals("ScreenshotCapturer is not available in the current context", result.exceptionOrNull()?.message)
         assertEquals(0, capturer.captureCallCount)
+    }
+
+    @Test
+    fun testMetadataWithInjectedTimeProvider() = runTest {
+        val initialTimestamp = 1_725_000_000_000L
+        val advanceMillis = 5_000L
+        val fakeTimeProvider = FakeTimeProvider(initialTimestamp)
+
+        val metadataCollector = DefaultMetadataCollector(
+            config = MetadataConfig(includeTimestamp = true),
+            timeProvider = fakeTimeProvider
+        )
+
+        val metadata = metadataCollector.collectMetadata(ScreenshotTriggerType.MANUAL)
+        assertEquals(initialTimestamp, metadata.timestamp)
+
+        fakeTimeProvider.advanceBy(advanceMillis)
+        val updated = metadataCollector.collectMetadata(ScreenshotTriggerType.MANUAL)
+        assertEquals(initialTimestamp + advanceMillis, updated.timestamp)
+    }
+
+    @Test
+    fun testMetadataWithoutTimestamp() = runTest {
+        val fakeTimeProvider = FakeTimeProvider(1_725_000_000_000L)
+        val metadataCollector = DefaultMetadataCollector(
+            config = MetadataConfig(includeTimestamp = false),
+            timeProvider = fakeTimeProvider
+        )
+
+        val metadata = metadataCollector.collectMetadata(ScreenshotTriggerType.MANUAL)
+        assertEquals(0L, metadata.timestamp)
     }
 }

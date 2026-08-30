@@ -1,9 +1,10 @@
 package com.landoulsi.screenshot.metadata
 
-import com.landoulsi.screenshot.currentTimeMillis
 import com.landoulsi.screenshot.config.MetadataConfig
 import com.landoulsi.screenshot.model.ScreenshotMetadata
 import com.landoulsi.screenshot.model.ScreenshotTriggerType
+import com.landoulsi.timeprovider.SystemTimeProvider
+import com.landoulsi.timeprovider.TimeProvider
 
 /**
  * Interface responsible for gathering device, operating system, and application metadata.
@@ -28,6 +29,7 @@ interface MetadataCollector {
  */
 class DefaultMetadataCollector(
     private val config: MetadataConfig = MetadataConfig(),
+    private val timeProvider: TimeProvider = SystemTimeProvider(),
     private val deviceModelProvider: () -> String? = { null },
     private val osNameProvider: () -> String? = { null },
     private val osVersionProvider: () -> String? = { null },
@@ -49,7 +51,7 @@ class DefaultMetadataCollector(
 
         return ScreenshotMetadata(
             triggerType = triggerType,
-            timestamp = if (config.includeTimestamp) currentTimeMillis() else 0L,
+            timestamp = if (config.includeTimestamp) timeProvider.currentTimeMillis() else 0L,
             deviceModel = if (config.includeDeviceInfo) deviceModelProvider() else null,
             osName = if (config.includeDeviceInfo) osNameProvider() else null,
             osVersion = if (config.includeDeviceInfo) osVersionProvider() else null,

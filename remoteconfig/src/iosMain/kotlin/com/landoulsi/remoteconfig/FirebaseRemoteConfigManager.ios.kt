@@ -2,17 +2,18 @@ package com.landoulsi.remoteconfig
 
 import cocoapods.FirebaseRemoteConfig.FIRRemoteConfig
 import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigFetchAndActivateStatus
-import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote
-import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigFetchStatus
+import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigSource
 import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigSettings
-import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigSourceStatic
 import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import platform.Foundation.NSError
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * iOS implementation of [RemoteConfigManager] backed by Firebase Remote Config CocoaPod SDK.
@@ -42,60 +43,54 @@ class FirebaseRemoteConfigManager(
     override suspend fun fetchAndActivate(): Result<Boolean> = runCatchingCancelling {
         suspendCancellableCoroutine { continuation ->
             remoteConfig.fetchAndActivateWithCompletionHandler { status, error ->
-                if (error != null) {
-                    continuation.resume(Result.failure(Exception(error.localizedDescription)))
-                } else {
-                    val activated = status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote ||
-                            status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
-                    continuation.resume(Result.success(activated))
+                if (continuation.isActive) {
+                    if (error != null) {
+                        continuation.resumeWithException(Exception(error.localizedDescription))
+                    } else {
+                        val activated = status == FIRRemoteConfigFetchAndActivateStatus.FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote ||
+                                status == FIRRemoteConfigFetchAndActivateStatus.FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+                        continuation.resume(activated)
+                    }
                 }
             }
-        }.getOrThrow()
+        }
     }
 
     override suspend fun fetch(minimumFetchIntervalInSeconds: Long?): Result<Unit> = runCatchingCancelling {
         suspendCancellableCoroutine { continuation ->
-            val completion: (FIRRemoteConfigFetchAndActivateStatus, platform.Foundation.NSError?) -> Unit = { _, error ->
-                if (error != null) {
-                    continuation.resume(Result.failure(Exception(error.localizedDescription)))
-                } else {
-                    continuation.resume(Result.success(Unit))
+            val completion: (FIRRemoteConfigFetchStatus, NSError?) -> Unit = { _, error ->
+                if (continuation.isActive) {
+                    if (error != null) {
+                        continuation.resumeWithException(Exception(error.localizedDescription))
+                    } else {
+                        continuation.resume(Unit)
+                    }
                 }
             }
 
             if (minimumFetchIntervalInSeconds != null) {
                 remoteConfig.fetchWithExpirationDuration(
                     minimumFetchIntervalInSeconds.toDouble(),
-                    completionHandler = { _, error ->
-                        if (error != null) {
-                            continuation.resume(Result.failure(Exception(error.localizedDescription)))
-                        } else {
-                            continuation.resume(Result.success(Unit))
-                        }
-                    }
+                    completionHandler = completion
                 )
             } else {
-                remoteConfig.fetchWithCompletionHandler { _, error ->
-                    if (error != null) {
-                        continuation.resume(Result.failure(Exception(error.localizedDescription)))
-                    } else {
-                        continuation.resume(Result.success(Unit))
-                    }
-                }
+                remoteConfig.fetchWithCompletionHandler(completion)
             }
-        }.getOrThrow()
+        }
     }
 
     override suspend fun activate(): Result<Boolean> = runCatchingCancelling {
         suspendCancellableCoroutine { continuation ->
             remoteConfig.activateWithCompletion { changed, error ->
-                if (error != null) {
-                    continuation.resume(Result.failure(Exception(error.localizedDescription)))
-                } else {
-                    continuation.resume(Result.success(changed))
+                if (continuation.isActive) {
+                    if (error != null) {
+                        continuation.resumeWithException(Exception(error.localizedDescription))
+                    } else {
+                        continuation.resume(changed)
+                    }
                 }
             }
-        }.getOrThrow()
+        }
     }
 
     override suspend fun setDefaults(defaults: Map<String, Any?>): Result<Unit> = runCatchingCancelling {
@@ -196,13 +191,12 @@ class FirebaseRemoteConfigManager(
         Unit
     }
 
-    suspend fun clearLocalOverrides() = mutex.withLock {
-        localOverrides.clear()
+    override suspend fun clearLocalOverrides(): Result<Unit> = runCatchingCancelling {
+        mutex.withLock { localOverrides.clear() }
     }
 
-    private fun isStaticEmpty(value: FIRRemoteConfigValue): Boolean {
-        return value.source == FIRRemoteConfigSourceStatic && (value.stringValue.isNullOrEmpty())
-    }
+    private fun isStaticEmpty(value: FIRRemoteConfigValue): Boolean =
+        value.source == FIRRemoteConfigSource.FIRRemoteConfigSourceStatic && value.stringValue.isNullOrEmpty()
 
     private inline fun <T> runCatchingCancelling(block: () -> T): Result<T> = try {
         Result.success(block())

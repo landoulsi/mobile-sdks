@@ -148,13 +148,12 @@ class FirebaseRemoteConfigManager(
     /**
      * Clears any active local overrides.
      */
-    fun clearLocalOverrides() {
+    override suspend fun clearLocalOverrides(): Result<Unit> = runCatchingCancelling {
         localOverrides.clear()
     }
 
-    private fun isStaticEmpty(value: FirebaseRemoteConfigValue): Boolean {
-        return value.source == FirebaseRemoteConfig.VALUE_SOURCE_STATIC && value.asString().isEmpty()
-    }
+    private fun isStaticEmpty(value: FirebaseRemoteConfigValue): Boolean =
+        value.source == FirebaseRemoteConfig.VALUE_SOURCE_STATIC && value.asString().isEmpty()
 
     private inline fun <T> runCatchingCancelling(block: () -> T): Result<T> = try {
         Result.success(block())

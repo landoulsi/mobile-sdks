@@ -9,7 +9,7 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "com.landoulsi.security"
+        namespace = "com.landoulsi.biometric"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 

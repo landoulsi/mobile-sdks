@@ -130,6 +130,13 @@ class InMemoryRemoteConfigManager(
         runCatching { localOverrides[key] = value }
     }
 
+    /**
+     * Clears any active local overrides.
+     */
+    override suspend fun clearLocalOverrides(): Result<Unit> = mutex.withLock {
+        runCatching { localOverrides.clear() }
+    }
+
     private fun findValue(key: String): Any? {
         return localOverrides[key] ?: activeRemote[key] ?: defaults[key]
     }

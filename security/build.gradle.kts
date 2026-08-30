@@ -53,7 +53,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.trackflow.security"
+    namespace = "com.trackmit.security"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

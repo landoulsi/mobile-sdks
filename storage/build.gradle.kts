@@ -33,14 +33,14 @@ kotlin {
 
 sqldelight {
     databases {
-        create("TrackFlowDatabase") {
-            packageName.set("com.trackflow.storage.queue")
+        create("TrackMitDatabase") {
+            packageName.set("com.trackmit.storage.queue")
         }
     }
 }
 
 android {
-    namespace = "com.trackflow.storage"
+    namespace = "com.trackmit.storage"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

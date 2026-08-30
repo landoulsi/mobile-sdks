@@ -1,4 +1,4 @@
-# TrackFlow Security Module (`:security`)
+# TrackMit Security Module (`:security`)
 
 A robust, Kotlin Multiplatform (KMP) security module providing cryptographic and biometric authentication abstractions across Android and iOS platforms.
 
@@ -19,7 +19,7 @@ The `:security` module abstracts platform-specific biometric APIs behind the uni
                               v
 +-------------------------------------------------------------+
 |                          :shared                            |
-|             (Metro DI Scope: TrackFlowScope)                |
+|             (Metro DI Scope: TrackMitScope)                |
 +-------------------------------------------------------------+
                               |
                               v
@@ -140,7 +140,7 @@ when (result) {
 
 ## 5. Testing & Verification
 
-Unit tests and fake implementations are provided under `com.trackflow.security.testing.*`:
+Unit tests and fake implementations are provided under `com.trackmit.security.testing.*`:
 - `FakeBiometricAuthenticator`: Configurable fake for biometric authentication states and crypto results.
 - `FakeSecureStorage`: In-memory storage for token lifecycle tests.
 

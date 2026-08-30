@@ -59,7 +59,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.trackflow.location"
+    namespace = "com.trackmit.location"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

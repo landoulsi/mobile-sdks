@@ -1,4 +1,4 @@
-with open('/Users/ahmed/Work/trackflow/mobile/gradle/libs.versions.toml', 'r') as f:
+with open('/Users/ahmed/Work/trackmit/mobile/gradle/libs.versions.toml', 'r') as f:
     content = f.read()
 
 versions_to_add = """

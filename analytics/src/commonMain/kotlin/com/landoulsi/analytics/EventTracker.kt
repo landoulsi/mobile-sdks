@@ -32,4 +32,17 @@ interface EventTracker {
      * @param userId An opaque, stable identifier. MUST NOT be PII (email, phone, etc.).
      */
     fun identifyUser(userId: String)
+
+    /**
+     * Set a user property for subsequent events.
+     *
+     * User properties are key-value pairs that describe segments of your user base.
+     * Implementations should silently drop invalid keys/values.
+     *
+     * @param name The property name. Must be a non-empty snake_case string.
+     * @param value The property value, or null to clear the property.
+     */
+    fun setUserProperty(name: String, value: String?) {
+        // Default no-op so existing implementations don't break.
+    }
 }

@@ -372,7 +372,7 @@ class PaymentDomainModelsTest {
         assertNotNull(config.merchantSessionProvider)
         val sessionJson = config.merchantSessionProvider.provideMerchantSession("https://apple-pay-gateway.apple.com/paymentservices/startSession")
         assertEquals("https://apple-pay-gateway.apple.com/paymentservices/startSession", calledUrl)
-        assertTrue(sessionJson?.contains("SSH_123") == true)
+        assertTrue(sessionJson.contains("SSH_123"))
     }
 
     @Test

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.kotlin.serialization)
+    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 kotlin {
@@ -29,32 +30,24 @@ kotlin {
         }
     }
 
-    // For iOS targets, this is also where you should
-    // configure native binary output. For more information, see:
-    // https://kotlinlang.org/docs/multiplatform-build-native-binaries.html#build-xcframeworks
-
-    // A step-by-step guide on how to include this library in an XCode
-    // project can be found here:
-    // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "analyticsKit"
-
-    iosX64 {
-        binaries.framework {
-            baseName = xcfName
+    // CocoaPods integration for iOS Firebase SDK dependency
+    cocoapods {
+        name = "analyticsKit"
+        version = "1.0.0"
+        summary = "Cross-platform analytics event tracking with Firebase Analytics"
+        homepage = "https://github.com/landoulsi/mobile-sdks"
+        license = "Apache-2.0"
+        ios.deploymentTarget = "16.0"
+        framework {
+            baseName = "analyticsKit"
+            isStatic = true
         }
+        pod("FirebaseAnalytics", "~> 11.0")
     }
 
-    iosArm64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
-
-    iosSimulatorArm64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     // Source set declarations.
     // Declaring a target automatically creates a source set with the same name. By default, the
@@ -77,9 +70,7 @@ kotlin {
 
         androidMain {
             dependencies {
-                // Add Android-specific dependencies here. Note that this source set depends on
-                // commonMain by default and will correctly pull the Android artifacts of any KMP
-                // dependencies declared in commonMain.
+                implementation(libs.firebase.analytics)
             }
         }
 

@@ -6,6 +6,9 @@ package com.landoulsi.analytics
  * Useful for development, demos, and testing without any backend dependency.
  * Real backends (Firebase, Ktor, etc.) should be implemented in separate modules.
  *
+ * Delegates sensitive-key redaction to [EventMapper] so all trackers share
+ * the same redaction logic.
+ *
  * @property log Function that receives formatted event strings. Defaults to `println`.
  */
 class LoggingEventTracker(
@@ -16,18 +19,9 @@ class LoggingEventTracker(
 
     override fun trackEvent(event: Event) {
         val id = userId ?: "anonymous"
-        val redactedProps = event.properties.entries.joinToString(prefix = "{", postfix = "}") { (key, value) ->
-            val formattedValue = if (SENSITIVE_KEYS.any { pattern -> key.startsWith(pattern, ignoreCase = true) }) {
-                "[REDACTED]"
-            } else {
-                when (value) {
-                    is AnalyticsValue.String -> value.value
-                    is AnalyticsValue.Long -> value.value.toString()
-                    is AnalyticsValue.Double -> value.value.toString()
-                    is AnalyticsValue.Boolean -> value.value.toString()
-                }
-            }
-            "$key=$formattedValue"
+        val flatMap = EventMapper.toFlatMap(event)
+        val redactedProps = flatMap.entries.joinToString(prefix = "{", postfix = "}") { (key, value) ->
+            "$key=$value"
         }
         log("[Analytics] user=$id event=${event.eventName} timestamp=${event.timestamp} properties=$redactedProps")
     }
@@ -37,18 +31,7 @@ class LoggingEventTracker(
         log("[Analytics] identifyUser: $userId")
     }
 
-    companion object {
-        private val SENSITIVE_KEYS = listOf(
-            "email",
-            "card_",
-            "token",
-            "password",
-            "secret",
-            "phone",
-            "address",
-            "ssn",
-            "cvv",
-            "pan",
-        )
+    override fun setUserProperty(name: String, value: String?) {
+        log("[Analytics] setUserProperty: $name=$value")
     }
 }

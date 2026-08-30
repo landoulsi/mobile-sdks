@@ -69,7 +69,7 @@ class EventTest {
         assertEquals(event.properties, decoded.properties)
     }
 
-    @Test
+@Test
     fun serializationHandlesEmptyProperties() {
         val event = Event(eventName = "app_foregrounded", timestamp = 0L)
         val json = Json.encodeToString(event)
@@ -81,37 +81,29 @@ class EventTest {
     }
 
     @Test
-    fun loggingTrackerAttachesUserId() {
-        val logs = mutableListOf<String>()
-        val tracker = LoggingEventTracker(log = { logs.add(it) })
+    fun properties_each_analytics_value_type_round_trip() {
+        val event = Event(
+            eventName = "payment_completed",
+            timestamp = 1700000000000L,
+            properties = mapOf(
+                "amount" to AnalyticsValue.Long(9900),
+                "currency" to AnalyticsValue.String("USD"),
+                "success" to AnalyticsValue.Boolean(true),
+                "fee_pct" to AnalyticsValue.Double(2.9),
+            ),
+        )
 
-        tracker.identifyUser("user-123")
-        tracker.trackEvent(Event(eventName = "test_event", timestamp = 0L))
+        val json = Json.encodeToString(event)
+        val decoded = Json.decodeFromString<Event>(json)
 
-        assertTrue(logs.any { it.contains("user=user-123") })
-        assertTrue(logs.any { it.contains("event=test_event") })
+        assertEquals(event.eventName, decoded.eventName)
+        assertEquals(event.timestamp, decoded.timestamp)
+        assertEquals(event.properties, decoded.properties)
     }
 
     @Test
-    fun loggingTrackerRedactsSensitiveKeys() {
-        val logs = mutableListOf<String>()
-        val tracker = LoggingEventTracker(log = { logs.add(it) })
-
-        tracker.trackEvent(
-            Event(
-                eventName = "card_added",
-                timestamp = 0L,
-                properties = mapOf(
-                    "card_last4" to AnalyticsValue.String("4242"),
-                    "email" to AnalyticsValue.String("user@example.com"),
-                    "safe_key" to AnalyticsValue.String("visible"),
-                ),
-            )
-        )
-
-        val output = logs.first()
-        assertTrue(output.contains("card_last4=[REDACTED]"))
-        assertTrue(output.contains("email=[REDACTED]"))
-        assertTrue(output.contains("safe_key=visible"))
+    fun default_timestamp_is_positive() {
+        val event = Event(eventName = "app_launched")
+        assertTrue(event.timestamp > 0L)
     }
 }

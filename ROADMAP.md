@@ -3,12 +3,14 @@
 A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Payment SDK
 (Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate updates,
 version checking, and What's New / release notes popups), unified Design system library
-(:design), and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
+(:design), Document Processing SDK (:document), and cross-platform infrastructure libraries
+(Analytics, Location, Logger, RemoteConfig, Storage).
 
 **Current reality check:** The repository contains modular KMP SDKs (`:payment`, `:update`, `:logger`,
-`:location`, `:security`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, and `:demo`).
-Current priority is setting up the `:analytics` module with a core event tracking abstraction (`EventTracker` / `EventManager`),
-an `Event` model holding event names and parameters, and concrete tracking implementations including Firebase Analytics.
+`:location`, `:security`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, `:document`, and `:demo`).
+Current priority is expanding the `:document` module into a cross-platform document processing SDK
+capable of reading and writing PDF documents, extracting text/metadata, and performing bi-directional
+conversions between PDF, plain text, and Markdown (`.md`) files.
 
 ## Goals
 
@@ -37,6 +39,12 @@ an `Event` model holding event names and parameters, and concrete tracking imple
 - [x] [complexity: simple] Add composite multi-tracker support and unit tests for Event and EventTracker in :analytics
 - [x] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :design
 - [x] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
+- [ ] [complexity: moderate] Define core Document, DocumentFormat, and DocumentReader/DocumentWriter interfaces with conversion models in :document commonMain
+- [ ] [complexity: moderate] Implement cross-platform PDF reading and text/metadata extraction for Android and iOS in :document module
+- [ ] [complexity: moderate] Implement cross-platform PDF generation and writing from plain text with page formatting in :document module
+- [ ] [complexity: complex] Implement bi-directional Markdown and PDF converter supporting headings, lists, and formatting in :document module
+- [ ] [complexity: simple] Add comprehensive unit and host tests for PDF reading, writing, and format conversions in :document module
+- [ ] [complexity: moderate] Add a document viewer and converter showcase screen in :demo:app demonstrating PDF, Text, and Markdown workflows
 - [ ] [complexity: moderate] Refactor :payment:app, :update:app, and :demo:app to consume the shared :design module and remove duplicate themes
 - [ ] [complexity: simple] Add comprehensive unit tests for color tokens, typography scales, dimension values, and theme schemes in :design
 - [ ] [complexity: moderate] Implement What's New popup dialog in update:app to display new features and bug fixes
@@ -54,6 +62,14 @@ an `Event` model holding event names and parameters, and concrete tracking imple
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Document Processing SDK (`:document`).** Provide a Kotlin Multiplatform library for reading, creating, and converting
+  documents across PDF, Markdown (`.md`), and plain text (`.txt`) formats:
+  - `Document`, `DocumentFormat` (PDF, PLAIN_TEXT, MARKDOWN), `DocumentMetadata` (title, author, page count, creation date).
+  - Reader/Writer contracts: `DocumentReader`, `DocumentWriter`, `PdfReader`, `PdfWriter`.
+  - Platform implementations for PDF handling:
+    - Android: `android.graphics.pdf.PdfRenderer` (for reading and rendering pages/extracting text) and `android.graphics.pdf.PdfDocument` (for drawing pages, text layouts, headers/footers).
+    - iOS: `PDFKit` (`PDFDocument`, `PDFPage`) and `UIGraphicsPDFRenderer` / CoreGraphics for native PDF rendering and creation.
+  - Bi-directional conversion engine: `DocumentConverter` supporting `pdfToText`, `textToPdf`, `pdfToMarkdown`, `markdownToPdf`, and `markdownToText`.
 - **Analytics SDK (`:analytics`).** Define generic cross-platform analytics interfaces and data models in `commonMain`:
   `Event` (name, parameter map of primitives/strings/numbers), `EventTracker` (or `EventManager`) with methods
   like `track(event: Event)`, `track(name: String, params: Map<String, Any?>)`, `setUserId(userId: String?)`,
@@ -80,8 +96,12 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems and analytics SDKs (Firebase Analytics, Segment, Amplitude, Google Material 3, Apple Human Interface Guidelines, Stripe Elements):
+Competitive review of modern design systems, document engines, and mobile SDKs (Adobe PDF SDK, PSPDFKit, Google Docs, Apple PDFKit, Firebase Analytics, Material 3):
 
+- **Modular Document Pipeline.** Clear separation between document parsing/reading, structured content representation,
+  layout formatting, and binary serialization across platforms.
+- **Bi-directional Conversion Fidelity.** Preserve headings (H1-H6), bulleted/numbered lists, inline emphasis (bold, italic),
+  code snippets, and paragraphs when converting between Markdown, plain text, and PDF formats.
 - **Clean Analytics Abstractions.** Decouple app analytics instrumentation from vendor SDKs via provider-agnostic
   interfaces (`EventTracker`), typed event builders, and flexible parameter structures.
 - **Unified design tokens.** Single source of truth for semantic colors, 8-pt spacing scales, rounded corners,
@@ -100,6 +120,7 @@ Competitive review of modern design systems and analytics SDKs (Firebase Analyti
 
 - **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.
 - **Cross-Platform Analytics SDK** — Event model, EventTracker interface, Firebase Analytics provider, composite tracker.
+- **Document Processing & Conversion SDK** — Document domain models, Android & iOS PDF reading/writing, Markdown-PDF bi-directional converter, demo viewer screen.
 - **Design System & Common UI** — shared `:design` module, design tokens, light/dark themes, common UI components, app refactoring.
 - **In-App Update SDK & Release Notes** — update version checker, native update integration, What's New release notes popup.
 - **Payment Methods Expansion** — PayPal/Braintree alternative methods, regional payment methods (Klarna, iDEAL).

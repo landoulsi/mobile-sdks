@@ -33,14 +33,14 @@ kotlin {
 
 sqldelight {
     databases {
-        create("TrackMitDatabase") {
-            packageName.set("com.trackmit.storage.queue")
+        create("LandoulsiDatabase") {
+            packageName.set("com.landoulsi.storage.queue")
         }
     }
 }
 
 android {
-    namespace = "com.trackmit.storage"
+    namespace = "com.landoulsi.storage"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

@@ -1,4 +1,4 @@
-# TrackMit Update SDK (`:update:shared`)
+# Landoulsi Update SDK (`:update:shared`)
 
 A Kotlin Multiplatform SDK module providing in-app update version checking and update flow orchestration for Android and iOS applications.
 

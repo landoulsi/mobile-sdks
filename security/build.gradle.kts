@@ -53,7 +53,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.trackmit.security"
+    namespace = "com.landoulsi.security"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

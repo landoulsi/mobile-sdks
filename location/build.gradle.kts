@@ -59,7 +59,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.trackmit.location"
+    namespace = "com.landoulsi.location"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

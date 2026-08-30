@@ -1,4 +1,4 @@
-# TrackMit Update SDK (`:update:shared`)
+# Landoulsi Update SDK (`:update:shared`)
 
 All notable changes to this project will be documented in this file.
 

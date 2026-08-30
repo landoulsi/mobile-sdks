@@ -21,7 +21,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.trackmit.logger"
+    namespace = "com.landoulsi.logger"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

@@ -1,16 +1,15 @@
 # Mobile SDKs Roadmap
 
-A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Payment SDK
-(Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate updates,
-version checking, and What's New / release notes popups), unified Design system library
-(:design), Document Processing SDK (:document), and cross-platform infrastructure libraries
-(Analytics, Location, Logger, RemoteConfig, Storage).
+A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Tutorial & Onboarding SDK
+(:tutorial), Payment SDK (Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate
+updates, version checking, and What's New / release notes popups), unified Design system library (:design),
+Document Processing SDK (:document), and cross-platform infrastructure libraries (Analytics, Location,
+Logger, RemoteConfig, Storage).
 
-**Current reality check:** The repository contains modular KMP SDKs (`:payment`, `:update`, `:logger`,
-`:location`, `:security`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, `:document`, and `:demo`).
-Current priority is expanding the `:document` module into a cross-platform document processing SDK
-capable of reading and writing PDF documents, extracting text/metadata, and performing bi-directional
-conversions between PDF, plain text, and Markdown (`.md`) files.
+**Current reality check:** The repository contains modular KMP SDKs (`:tutorial`, `:payment`, `:update`,
+`:logger`, `:location`, `:security`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, `:document`,
+and `:demo`). Current priority is building the `:tutorial` module into a reusable onboarding and feature
+walkthrough SDK featuring swipeable onboarding carousels and interactive button/target spotlight coach marks.
 
 ## Goals
 
@@ -32,13 +31,19 @@ conversions between PDF, plain text, and Markdown (`.md`) files.
 - [x] [complexity: moderate] Add accessibility and one-handed reachability passes over checkout sheet
 - [x] [complexity: moderate] Integrate PayPal or Braintree as alternative payment method
 - [x] [complexity: moderate] Create and configure the :styles library module with Jetpack Compose Material 3 support in settings.gradle.kts
-- [x] [complexity: moderate] Add an IP-based approximate location provider to :location (plus a `lastKnownLocation()` API across all providers) so an early, coarse, permissionless fix is available before the OS location permission is granted
+- [x] [complexity: moderate] Add IP-based approximate location provider and lastKnownLocation API across providers in :location
 - [x] [complexity: moderate] Build and maintain a comprehensive changelog for the update:shared module detailing new features and bug fixes
 - [x] [complexity: moderate] Define Event data class and EventTracker interface with standard tracking methods in :analytics commonMain
 - [x] [complexity: moderate] Implement Firebase Analytics EventTracker for Android and iOS in :analytics module
 - [x] [complexity: simple] Add composite multi-tracker support and unit tests for Event and EventTracker in :analytics
 - [x] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :design
 - [x] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
+- [ ] [complexity: moderate] Define tutorial domain models, step configurations, and persistent completion tracker in :tutorial commonMain
+- [ ] [complexity: moderate] Implement customizable onboarding pager and feature carousel with swipe gestures and page indicator in :tutorial
+- [ ] [complexity: complex] Implement interactive spotlight overlay engine with target cutouts, pointer/finger animations, and tooltip bubble in :tutorial
+- [ ] [complexity: moderate] Add multi-step tour orchestrator and automated first-install/new-feature trigger manager in :tutorial
+- [ ] [complexity: moderate] Add interactive tutorial and spotlight showcase demo screen in :demo:app demonstrating onboarding and button tour
+- [ ] [complexity: simple] Add unit tests for tutorial state machine, persistence tracker, and spotlight layout coordinates in :tutorial
 - [ ] [complexity: moderate] Define core Document, DocumentFormat, and DocumentReader/DocumentWriter interfaces with conversion models in :document commonMain
 - [ ] [complexity: moderate] Implement cross-platform PDF reading and text/metadata extraction for Android and iOS in :document module
 - [ ] [complexity: moderate] Implement cross-platform PDF generation and writing from plain text with page formatting in :document module
@@ -62,6 +67,11 @@ conversions between PDF, plain text, and Markdown (`.md`) files.
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Tutorial & Onboarding SDK (`:tutorial`).** Provide a Kotlin Multiplatform library for app onboarding and feature discovery:
+  - Domain models: `TutorialStep`, `TutorialPage`, `SpotlightTarget`, `SpotlightShape` (Circle, RoundedRectangle, Oval), `PointerStyle` (Hand/Finger, Arrow, PulseRing), `TooltipPosition` (Top, Bottom, Start, End, Auto), `TutorialConfig`, `TutorialTracker`.
+  - Onboarding Pager: Jetpack Compose / KMP `TutorialPager` and `OnboardingScreen` supporting swipeable card carousels, animated progress dots/bars, custom illustration/Lottie slots, title, description, and skip/next/get-started actions.
+  - Interactive Spotlight & Coach Marks: `SpotlightOverlay` with dynamic canvas cutout masking (`BlendMode.Clear`), pulsating target highlight rings, animated finger/hand pointer gestures pointing directly to UI elements (buttons, icons, cards), rich tooltip callout balloons with title, description, and action controls.
+  - Tour Controller & Persistence: `TutorialController` for multi-step guided sequence execution, target measurement coordination via Compose modifiers (`Modifier.spotlightTarget(...)`), and `TutorialTracker` (backed by key-value storage) tracking seen steps to automatically show tutorials on fresh installs or when new features are introduced.
 - **Document Processing SDK (`:document`).** Provide a Kotlin Multiplatform library for reading, creating, and converting
   documents across PDF, Markdown (`.md`), and plain text (`.txt`) formats:
   - `Document`, `DocumentFormat` (PDF, PLAIN_TEXT, MARKDOWN), `DocumentMetadata` (title, author, page count, creation date).
@@ -96,28 +106,25 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems, document engines, and mobile SDKs (Adobe PDF SDK, PSPDFKit, Google Docs, Apple PDFKit, Firebase Analytics, Material 3):
+Competitive review of modern design systems, onboarding engines, and mobile SDKs (Google Apps, Duolingo, Slack, TapTargetView, ShowcaseView, Balloon, Adobe PDF SDK, Material 3):
 
-- **Modular Document Pipeline.** Clear separation between document parsing/reading, structured content representation,
-  layout formatting, and binary serialization across platforms.
-- **Bi-directional Conversion Fidelity.** Preserve headings (H1-H6), bulleted/numbered lists, inline emphasis (bold, italic),
-  code snippets, and paragraphs when converting between Markdown, plain text, and PDF formats.
-- **Clean Analytics Abstractions.** Decouple app analytics instrumentation from vendor SDKs via provider-agnostic
-  interfaces (`EventTracker`), typed event builders, and flexible parameter structures.
-- **Unified design tokens.** Single source of truth for semantic colors, 8-pt spacing scales, rounded corners,
-  elevations, and typography hierarchies ensuring visual consistency across all apps.
-- **Semantic hierarchy.** Clear contrast between primary actions (trustworthy blue), secondary accents (teal),
-  tertiary highlights (warm amber), and error/destructive feedback (red).
-- **Categorized changelog items.** Distinguish new features (sparkle icon / primary badge) from bug fixes
-  (wrench icon / neutral badge) so users quickly grasp value and improvements.
+- **Zero-Friction Onboarding Carousels.** Full-bleed swipeable onboarding cards with fluid animations, intuitive page indicators, accessible skip options, and clear calls-to-action ("Get Started", "Continue").
+- **Interactive Feature Spotlight & Coach Marks.** Non-intrusive backdrop dimming with clean cutouts around target UI elements, animated finger tap / pulse indicators directing attention, and context-aware tooltips with auto-positioning.
+- **Declarative Compose Modifiers.** Seamless integration via `Modifier.spotlightTarget(tag = "button_id")` allowing developers to annotate existing UI components with zero invasive layout changes.
+- **Smart Triggering & State Persistence.** Local persistence of completed tutorials preventing annoying repeated prompts while supporting feature-specific version triggers for new releases.
+- **Modular Document Pipeline.** Clear separation between document parsing/reading, structured content representation, layout formatting, and binary serialization across platforms.
+- **Bi-directional Conversion Fidelity.** Preserve headings (H1-H6), bulleted/numbered lists, inline emphasis (bold, italic), code snippets, and paragraphs when converting between Markdown, plain text, and PDF formats.
+- **Clean Analytics Abstractions.** Decouple app analytics instrumentation from vendor SDKs via provider-agnostic interfaces (`EventTracker`), typed event builders, and flexible parameter structures.
+- **Unified design tokens.** Single source of truth for semantic colors, 8-pt spacing scales, rounded corners, elevations, and typography hierarchies ensuring visual consistency across all apps.
+- **Semantic hierarchy.** Clear contrast between primary actions (trustworthy blue), secondary accents (teal), tertiary highlights (warm amber), and error/destructive feedback (red).
+- **Categorized changelog items.** Distinguish new features (sparkle icon / primary badge) from bug fixes (wrench icon / neutral badge) so users quickly grasp value and improvements.
 - **Wallets first, card second.** Express payment buttons belong at the top of checkout sheets above an "Or pay with card" divider.
-- **Immediate, explicit feedback.** Provide distinct states: disabled & spinning indicator during action authorization,
-  clear inline error messages, and animated confirmation.
-- **One-handed reachability.** Primary actions reside in the lower half of the viewport, supporting thumb reachability
-  and smooth keyboard avoidance.
+- **Immediate, explicit feedback.** Provide distinct states: disabled & spinning indicator during action authorization, clear inline error messages, and animated confirmation.
+- **One-handed reachability.** Primary actions reside in the lower half of the viewport, supporting thumb reachability and smooth keyboard avoidance.
 
 ## Phases
 
+- **Tutorial & Onboarding SDK** — onboarding carousel pager, interactive spotlight & coach mark overlay, finger/hand pointing animations, multi-step sequence orchestrator, showcase demo screen.
 - **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.
 - **Cross-Platform Analytics SDK** — Event model, EventTracker interface, Firebase Analytics provider, composite tracker.
 - **Document Processing & Conversion SDK** — Document domain models, Android & iOS PDF reading/writing, Markdown-PDF bi-directional converter, demo viewer screen.

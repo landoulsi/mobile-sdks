@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 /**
  * Categorized cause of a [BiometricAuthResult.Error] or [BiometricCryptoResult.Error].

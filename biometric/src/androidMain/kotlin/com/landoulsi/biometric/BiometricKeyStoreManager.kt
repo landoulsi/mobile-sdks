@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec

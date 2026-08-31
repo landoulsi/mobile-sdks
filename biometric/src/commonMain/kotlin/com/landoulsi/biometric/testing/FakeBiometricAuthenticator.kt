@@ -1,11 +1,11 @@
-package com.landoulsi.security.testing
+package com.landoulsi.biometric.testing
 
-import com.landoulsi.security.BiometricAuthResult
-import com.landoulsi.security.BiometricAuthenticator
-import com.landoulsi.security.BiometricCryptoOperation
-import com.landoulsi.security.BiometricCryptoResult
-import com.landoulsi.security.BiometricPromptInfo
-import com.landoulsi.security.BiometricStatus
+import com.landoulsi.biometric.BiometricAuthResult
+import com.landoulsi.biometric.BiometricAuthenticator
+import com.landoulsi.biometric.BiometricCryptoOperation
+import com.landoulsi.biometric.BiometricCryptoResult
+import com.landoulsi.biometric.BiometricPromptInfo
+import com.landoulsi.biometric.BiometricStatus
 
 class FakeBiometricAuthenticator : BiometricAuthenticator {
 

@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 /**
  * Indicates the current availability and readiness of biometric hardware on the device.

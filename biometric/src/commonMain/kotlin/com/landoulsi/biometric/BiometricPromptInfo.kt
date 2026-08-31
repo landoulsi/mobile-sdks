@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 /**
  * Configuration and user-facing copy for the biometric authentication prompt.

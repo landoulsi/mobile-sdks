@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 import com.landoulsi.logger.Logger
 import dev.zacsweers.metro.Inject

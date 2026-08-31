@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 /**
  * Result of a hardware-backed cryptographic biometric operation.

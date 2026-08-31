@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 /**
  * Core interface providing abstracted biometric authentication and hardware-backed cryptographic operations.

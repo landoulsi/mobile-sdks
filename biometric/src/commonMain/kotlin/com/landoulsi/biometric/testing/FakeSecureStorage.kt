@@ -1,4 +1,4 @@
-package com.landoulsi.security.testing
+package com.landoulsi.biometric.testing
 
 import com.landoulsi.storage.SecureStorage
 

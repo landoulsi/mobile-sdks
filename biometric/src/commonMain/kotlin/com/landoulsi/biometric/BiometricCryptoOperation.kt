@@ -1,4 +1,4 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
 /**
  * Cryptographic operation to execute inside hardware-backed TEE / StrongBox once authenticated.

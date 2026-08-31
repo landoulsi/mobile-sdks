@@ -1,12 +1,12 @@
-# Landoulsi Security Module (`:security`)
+# Landoulsi Biometric Module (`:biometric`)
 
-A robust, Kotlin Multiplatform (KMP) security module providing cryptographic and biometric authentication abstractions across Android and iOS platforms.
+A robust, Kotlin Multiplatform (KMP) biometric module providing cryptographic and biometric authentication abstractions across Android and iOS platforms.
 
 ---
 
 ## 1. Overview & Architecture
 
-The `:security` module abstracts platform-specific biometric APIs behind the unified, platform-agnostic `BiometricAuthenticator` and `BiometricTokenManager` interfaces in `commonMain`.
+The `:biometric` module abstracts platform-specific biometric APIs behind the unified, platform-agnostic `BiometricAuthenticator` and `BiometricTokenManager` interfaces in `commonMain`.
 
 ### Architecture Diagram
 
@@ -24,7 +24,7 @@ The `:security` module abstracts platform-specific biometric APIs behind the uni
                               |
                               v
 +-------------------------------------------------------------+
-|                         :security                           |
+|                         :biometric                          |
 |                                                             |
 |  [commonMain]                                               |
 |  - BiometricAuthenticator (Interface)                       |
@@ -140,12 +140,12 @@ when (result) {
 
 ## 5. Testing & Verification
 
-Unit tests and fake implementations are provided under `com.landoulsi.security.testing.*`:
+Unit tests and fake implementations are provided under `com.landoulsi.biometric.testing.*`:
 - `FakeBiometricAuthenticator`: Configurable fake for biometric authentication states and crypto results.
 - `FakeSecureStorage`: In-memory storage for token lifecycle tests.
 
 Run tests using Gradle:
 ```bash
-./gradlew :security:testDebugUnitTest
+./gradlew :biometric:testDebugUnitTest
 ./gradlew :driver-android:testDebugUnitTest
 ```

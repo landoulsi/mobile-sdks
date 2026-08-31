@@ -1,7 +1,7 @@
-package com.landoulsi.security
+package com.landoulsi.biometric
 
-import com.landoulsi.security.testing.FakeBiometricAuthenticator
-import com.landoulsi.security.testing.FakeSecureStorage
+import com.landoulsi.biometric.testing.FakeBiometricAuthenticator
+import com.landoulsi.biometric.testing.FakeSecureStorage
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

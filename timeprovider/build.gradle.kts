@@ -20,6 +20,14 @@ kotlin {
         }
     }
 
+    jvm {
+        // Emit Java 17 bytecode so JVM consumers running on a Java 17 runtime
+        // (e.g. the Compose Desktop app) can load these classes.
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -42,6 +50,11 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(kotlin("test-junit"))
             }
         }
         androidMain {

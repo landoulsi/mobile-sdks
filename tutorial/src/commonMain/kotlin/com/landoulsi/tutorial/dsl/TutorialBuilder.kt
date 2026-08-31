@@ -1,5 +1,8 @@
 package com.landoulsi.tutorial.dsl
 
+import com.landoulsi.tutorial.model.IndicatorStyle
+import com.landoulsi.tutorial.model.OnboardingFlow
+import com.landoulsi.tutorial.model.PagerConfig
 import com.landoulsi.tutorial.model.PointerStyle
 import com.landoulsi.tutorial.model.SpotlightShape
 import com.landoulsi.tutorial.model.SpotlightTarget
@@ -9,6 +12,7 @@ import com.landoulsi.tutorial.model.StepConditionContext
 import com.landoulsi.tutorial.model.StepConditions
 import com.landoulsi.tutorial.model.TooltipPosition
 import com.landoulsi.tutorial.model.Tutorial
+import com.landoulsi.tutorial.model.TutorialPage
 import com.landoulsi.tutorial.model.TutorialStep
 
 @DslMarker
@@ -126,3 +130,94 @@ class TutorialBuilder(val id: String, val version: Int = 1) {
 fun tutorial(id: String, version: Int = 1, block: TutorialBuilder.() -> Unit): Tutorial {
     return TutorialBuilder(id = id, version = version).apply(block).build()
 }
+
+/**
+ * Fluent builder for declaring [TutorialPage] definitions in onboarding sequences.
+ */
+@TutorialDsl
+class TutorialPageBuilder(val id: String) {
+    var title: String = ""
+    var description: String = ""
+    var imageRes: String? = null
+    var badge: String? = null
+    var actionText: String? = null
+    private val metadata = mutableMapOf<String, String>()
+
+    fun metadata(key: String, value: String) {
+        metadata[key] = value
+    }
+
+    fun metadata(entries: Map<String, String>) {
+        metadata.putAll(entries)
+    }
+
+    fun build(): TutorialPage {
+        return TutorialPage(
+            id = id,
+            title = title,
+            description = description,
+            imageRes = imageRes,
+            badge = badge,
+            actionText = actionText,
+            metadata = metadata.toMap()
+        )
+    }
+}
+
+/**
+ * Fluent builder for declaring [OnboardingFlow] sequences.
+ */
+@TutorialDsl
+class OnboardingFlowBuilder(val id: String, val version: Int = 1) {
+    var title: String = ""
+    var description: String? = null
+    var targetGroup: String? = null
+    var pagerConfig: PagerConfig = PagerConfig.Default
+    var indicatorStyle: IndicatorStyle = IndicatorStyle.ExpandingPill()
+
+    private val pageBuilders = mutableListOf<TutorialPageBuilder>()
+    private val metadata = mutableMapOf<String, String>()
+
+    fun page(id: String, block: TutorialPageBuilder.() -> Unit = {}) {
+        val builder = TutorialPageBuilder(id).apply(block)
+        pageBuilders.add(builder)
+    }
+
+    fun pagerConfig(config: PagerConfig) {
+        this.pagerConfig = config
+    }
+
+    fun indicatorStyle(style: IndicatorStyle) {
+        this.indicatorStyle = style
+    }
+
+    fun metadata(key: String, value: String) {
+        metadata[key] = value
+    }
+
+    fun metadata(entries: Map<String, String>) {
+        metadata.putAll(entries)
+    }
+
+    fun build(): OnboardingFlow {
+        return OnboardingFlow(
+            id = id,
+            title = title,
+            version = version,
+            description = description,
+            targetGroup = targetGroup,
+            pages = pageBuilders.map { it.build() },
+            pagerConfig = pagerConfig,
+            indicatorStyle = indicatorStyle,
+            metadata = metadata.toMap()
+        )
+    }
+}
+
+/**
+ * Entry point DSL function for constructing an [OnboardingFlow].
+ */
+fun onboardingFlow(id: String, version: Int = 1, block: OnboardingFlowBuilder.() -> Unit): OnboardingFlow {
+    return OnboardingFlowBuilder(id = id, version = version).apply(block).build()
+}
+

@@ -217,3 +217,130 @@ data class TutorialProgress(
     val isInProgress: Boolean get() = status == CompletionStatus.IN_PROGRESS
     val isNotStarted: Boolean get() = status == CompletionStatus.NOT_STARTED
 }
+
+/**
+ * Model representing a single page in an onboarding sequence or carousel.
+ */
+@Serializable
+data class TutorialPage(
+    val id: String,
+    val title: String,
+    val description: String,
+    val imageRes: String? = null,
+    val badge: String? = null,
+    val actionText: String? = null,
+    val metadata: Map<String, String> = emptyMap()
+) {
+    init {
+        require(id.isNotBlank()) { "TutorialPage ID cannot be blank" }
+        require(title.isNotBlank()) { "TutorialPage title cannot be blank" }
+    }
+}
+
+/**
+ * Configuration for pager gesture behaviors, spacing, and scrolling.
+ */
+data class PagerConfig(
+    val isSwipeEnabled: Boolean = true,
+    val userScrollEnabled: Boolean = true,
+    val contentPaddingDp: Float = 0f,
+    val pageSpacingDp: Float = 0f
+) {
+    companion object {
+        val Default = PagerConfig()
+    }
+}
+
+/**
+ * Configuration for feature carousels including auto-scroll, loop, and card peeking.
+ */
+data class CarouselConfig(
+    val autoScrollIntervalMs: Long = 3000L,
+    val isAutoScrollEnabled: Boolean = false,
+    val infiniteLoop: Boolean = false,
+    val aspectRatio: Float = 16f / 9f,
+    val peekOffsetDp: Float = 32f,
+    val pageSpacingDp: Float = 16f
+) {
+    companion object {
+        val Default = CarouselConfig()
+    }
+}
+
+/**
+ * Sealed hierarchy defining the visual presentation and styling of page indicators.
+ */
+@Serializable
+sealed interface IndicatorStyle {
+    /**
+     * Classic circular dots.
+     */
+    @Serializable
+    data class Dots(
+        val dotSizeDp: Float = 8f,
+        val spacingDp: Float = 8f,
+        val activeColorHex: Long = 0xFF1976D2,
+        val inactiveColorHex: Long = 0xFFBDBDBD
+    ) : IndicatorStyle
+
+    /**
+     * Modern expanding pill indicator that smoothly stretches the active dot into a capsule.
+     */
+    @Serializable
+    data class ExpandingPill(
+        val dotHeightDp: Float = 8f,
+        val inactiveWidthDp: Float = 8f,
+        val activeWidthDp: Float = 24f,
+        val spacingDp: Float = 8f,
+        val activeColorHex: Long = 0xFF1976D2,
+        val inactiveColorHex: Long = 0xFFBDBDBD
+    ) : IndicatorStyle
+
+    /**
+     * Continuous progress bar indicator spanning the width.
+     */
+    @Serializable
+    data class ProgressBar(
+        val heightDp: Float = 4f,
+        val activeColorHex: Long = 0xFF1976D2,
+        val inactiveColorHex: Long = 0xFFE0E0E0
+    ) : IndicatorStyle
+
+    /**
+     * Compact numeric counter badge (e.g. "1 / 4").
+     */
+    @Serializable
+    data class NumericCounter(
+        val textColorHex: Long = 0xFFFFFFFF,
+        val backgroundColorHex: Long = 0x88000000,
+        val cornerRadiusDp: Float = 12f,
+        val fontSizeSp: Float = 12f
+    ) : IndicatorStyle
+}
+
+/**
+ * Represents a complete multi-page onboarding flow.
+ */
+data class OnboardingFlow(
+    val id: String,
+    val title: String,
+    val version: Int = 1,
+    val description: String? = null,
+    val targetGroup: String? = null,
+    val pages: List<TutorialPage>,
+    val pagerConfig: PagerConfig = PagerConfig.Default,
+    val indicatorStyle: IndicatorStyle = IndicatorStyle.ExpandingPill(),
+    val metadata: Map<String, String> = emptyMap()
+) {
+    init {
+        require(id.isNotBlank()) { "OnboardingFlow ID cannot be blank" }
+        require(pages.isNotEmpty()) { "OnboardingFlow must contain at least one page" }
+        val duplicateIds = pages.groupBy { it.id }.filter { it.value.size > 1 }.keys
+        require(duplicateIds.isEmpty()) { "Pages must have unique IDs, duplicates found: $duplicateIds" }
+    }
+
+    val pageCount: Int get() = pages.size
+    fun getPage(index: Int): TutorialPage? = pages.getOrNull(index)
+    fun indexOfPage(pageId: String): Int = pages.indexOfFirst { it.id == pageId }
+}
+

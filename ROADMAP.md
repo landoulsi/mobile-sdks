@@ -38,7 +38,7 @@ walkthrough SDK featuring swipeable onboarding carousels and interactive button/
 - [x] [complexity: simple] Add composite multi-tracker support and unit tests for Event and EventTracker in :analytics
 - [x] [complexity: moderate] Define shared design tokens (colors, typography, spacing, radius, elevation) and M3 light/dark theme in :design
 - [x] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
-- [ ] [complexity: moderate] Define tutorial domain models, step configurations, and persistent completion tracker in :tutorial commonMain
+- [x] [complexity: moderate] Define tutorial domain models, step configurations, and persistent completion tracker in :tutorial commonMain
 - [ ] [complexity: moderate] Implement customizable onboarding pager and feature carousel with swipe gestures and page indicator in :tutorial
 - [ ] [complexity: complex] Implement interactive spotlight overlay engine with target cutouts, pointer/finger animations, and tooltip bubble in :tutorial
 - [ ] [complexity: moderate] Add multi-step tour orchestrator and automated first-install/new-feature trigger manager in :tutorial

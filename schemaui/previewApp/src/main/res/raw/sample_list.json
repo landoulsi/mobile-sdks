@@ -1,0 +1,141 @@
+{
+  "type": "column",
+  "modifiers": {
+    "size": { "fillMaxWidth": true, "fillMaxHeight": true }
+  },
+  "children": [
+    {
+      "type": "row",
+      "modifiers": {
+        "padding": { "horizontal": 16, "vertical": 12 },
+        "background": { "color": "#6366F1" },
+        "size": { "fillMaxWidth": true }
+      },
+      "children": [
+        {
+          "type": "text",
+          "text": "🌟 Top Picks",
+          "style": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "color": "#FFFFFF"
+          }
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "dividers": true,
+      "modifiers": {
+        "size": { "fillMaxWidth": true, "fillMaxHeight": true }
+      },
+      "items": [
+        {
+          "type": "row",
+          "modifiers": { "padding": { "all": 16 }, "size": { "fillMaxWidth": true } },
+          "children": [
+            {
+              "type": "column",
+              "modifiers": { "size": { "fillMaxWidth": true } },
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Wireless Headphones Pro",
+                  "style": { "fontSize": 16, "fontWeight": "semiBold", "color": "#111827" }
+                },
+                { "type": "spacer", "height": 4 },
+                {
+                  "type": "text",
+                  "text": "Noise-cancelling · 30hr battery",
+                  "style": { "fontSize": 13, "color": "#6B7280" }
+                },
+                { "type": "spacer", "height": 8 },
+                {
+                  "type": "text",
+                  "text": "$149.99",
+                  "style": { "fontSize": 15, "fontWeight": "bold", "color": "#6366F1" }
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "label": "Add",
+              "action": "add_item_1",
+              "style": "tonal"
+            }
+          ]
+        },
+        {
+          "type": "row",
+          "modifiers": { "padding": { "all": 16 }, "size": { "fillMaxWidth": true } },
+          "children": [
+            {
+              "type": "column",
+              "modifiers": { "size": { "fillMaxWidth": true } },
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mechanical Keyboard TKL",
+                  "style": { "fontSize": 16, "fontWeight": "semiBold", "color": "#111827" }
+                },
+                { "type": "spacer", "height": 4 },
+                {
+                  "type": "text",
+                  "text": "RGB · Brown switches",
+                  "style": { "fontSize": 13, "color": "#6B7280" }
+                },
+                { "type": "spacer", "height": 8 },
+                {
+                  "type": "text",
+                  "text": "$89.00",
+                  "style": { "fontSize": 15, "fontWeight": "bold", "color": "#6366F1" }
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "label": "Add",
+              "action": "add_item_2",
+              "style": "tonal"
+            }
+          ]
+        },
+        {
+          "type": "row",
+          "modifiers": { "padding": { "all": 16 }, "size": { "fillMaxWidth": true } },
+          "children": [
+            {
+              "type": "column",
+              "modifiers": { "size": { "fillMaxWidth": true } },
+              "children": [
+                {
+                  "type": "text",
+                  "text": "USB-C Hub 7-in-1",
+                  "style": { "fontSize": 16, "fontWeight": "semiBold", "color": "#111827" }
+                },
+                { "type": "spacer", "height": 4 },
+                {
+                  "type": "text",
+                  "text": "4K HDMI · 100W PD · SD Card",
+                  "style": { "fontSize": 13, "color": "#6B7280" }
+                },
+                { "type": "spacer", "height": 8 },
+                {
+                  "type": "text",
+                  "text": "$59.99",
+                  "style": { "fontSize": 15, "fontWeight": "bold", "color": "#6366F1" }
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "label": "Add",
+              "action": "add_item_3",
+              "style": "tonal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

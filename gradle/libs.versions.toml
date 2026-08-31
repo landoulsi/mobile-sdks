@@ -1,6 +1,8 @@
 [versions]
 agp = "9.2.1"
 android-compileSdk = "37"
+compose-for-kmp = "1.8.2"
+
 android-minSdk = "24"
 android-targetSdk = "37"
 kotlin = "2.4.0"
@@ -34,6 +36,8 @@ firebase-messaging = "24.0.0"
 firebase-analytics = "22.4.0"
 firebase-config = "22.1.0"
 
+
+coil = "3.2.0"
 
 playServicesWallet = "19.4.0"
 browser = "1.8.0"
@@ -100,6 +104,12 @@ androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version = "1.7.0" }
 
+# Compose Versioned (for KMP sourceSets — BOM not usable there)
+compose-ui-kmp = { module = "androidx.compose.ui:ui", version.ref = "compose-for-kmp" }
+compose-foundation-kmp = { module = "androidx.compose.foundation:foundation", version.ref = "compose-for-kmp" }
+compose-material3-kmp = { module = "androidx.compose.material3:material3", version.ref = "androidx-material3" }
+compose-ui-tooling-preview-kmp = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-for-kmp" }
+
 # Compose Multiplatform
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
@@ -129,6 +139,11 @@ firebase-analytics = { module = "com.google.firebase:firebase-analytics", versio
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebase-messaging" }
 firebase-config = { module = "com.google.firebase:firebase-config", version.ref = "firebase-config" }
 
+
+# Coil (image loading)
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil-core = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
 
 play-services-wallet = { group = "com.google.android.gms", name = "play-services-wallet", version.ref = "playServicesWallet" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }

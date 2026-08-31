@@ -1,0 +1,78 @@
+{
+  "type": "column",
+  "modifiers": {
+    "padding": { "all": 24 },
+    "size": { "fillMaxWidth": true }
+  },
+  "children": [
+    {
+      "type": "text",
+      "text": "Create Account",
+      "style": {
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "color": "#1A1A2E"
+      },
+      "modifiers": { "padding": { "bottom": 8 } }
+    },
+    {
+      "type": "text",
+      "text": "Fill in your details below to get started.",
+      "style": {
+        "fontSize": 14,
+        "color": "#6B7280"
+      },
+      "modifiers": { "padding": { "bottom": 24 } }
+    },
+    {
+      "type": "textField",
+      "label": "Full Name",
+      "placeholder": "Jane Doe",
+      "stateKey": "name",
+      "inputType": "text",
+      "modifiers": {
+        "size": { "fillMaxWidth": true },
+        "padding": { "bottom": 16 }
+      }
+    },
+    {
+      "type": "textField",
+      "label": "Email",
+      "placeholder": "jane@example.com",
+      "stateKey": "email",
+      "inputType": "email",
+      "modifiers": {
+        "size": { "fillMaxWidth": true },
+        "padding": { "bottom": 16 }
+      }
+    },
+    {
+      "type": "textField",
+      "label": "Password",
+      "placeholder": "••••••••",
+      "stateKey": "password",
+      "inputType": "password",
+      "modifiers": {
+        "size": { "fillMaxWidth": true },
+        "padding": { "bottom": 24 }
+      }
+    },
+    {
+      "type": "button",
+      "label": "Create Account",
+      "action": "register",
+      "style": "filled",
+      "modifiers": {
+        "size": { "fillMaxWidth": true },
+        "padding": { "bottom": 12 }
+      }
+    },
+    {
+      "type": "button",
+      "label": "Already have an account? Sign in",
+      "action": "navigate_login",
+      "style": "text",
+      "modifiers": { "size": { "fillMaxWidth": true } }
+    }
+  ]
+}

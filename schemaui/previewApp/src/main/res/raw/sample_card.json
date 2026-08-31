@@ -1,0 +1,146 @@
+{
+  "type": "column",
+  "modifiers": {
+    "padding": { "all": 20 },
+    "size": { "fillMaxWidth": true }
+  },
+  "children": [
+    {
+      "type": "text",
+      "text": "Featured",
+      "style": {
+        "fontSize": 22,
+        "fontWeight": "bold",
+        "color": "#111827"
+      },
+      "modifiers": { "padding": { "bottom": 16 } }
+    },
+    {
+      "type": "column",
+      "modifiers": {
+        "size": { "fillMaxWidth": true },
+        "background": { "color": "#FFFFFF", "cornerRadius": 16 },
+        "padding": { "all": 0 },
+        "clip": true
+      },
+      "children": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+          "contentDescription": "Mountain landscape",
+          "contentScale": "crop",
+          "modifiers": {
+            "size": { "fillMaxWidth": true, "height": 180 }
+          }
+        },
+        {
+          "type": "column",
+          "modifiers": {
+            "padding": { "all": 16 },
+            "size": { "fillMaxWidth": true }
+          },
+          "children": [
+            {
+              "type": "row",
+              "modifiers": { "size": { "fillMaxWidth": true } },
+              "horizontalArrangement": "spaceBetween",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mountain Retreat",
+                  "style": {
+                    "fontSize": 18,
+                    "fontWeight": "bold",
+                    "color": "#111827"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "⭐ 4.9",
+                  "style": {
+                    "fontSize": 14,
+                    "fontWeight": "semiBold",
+                    "color": "#F59E0B"
+                  }
+                }
+              ]
+            },
+            { "type": "spacer", "height": 6 },
+            {
+              "type": "text",
+              "text": "A breathtaking escape into the Swiss Alps. Perfect for adventure seekers and nature lovers alike.",
+              "style": {
+                "fontSize": 13,
+                "color": "#6B7280",
+                "maxLines": 3
+              }
+            },
+            { "type": "spacer", "height": 16 },
+            {
+              "type": "row",
+              "modifiers": { "size": { "fillMaxWidth": true } },
+              "horizontalArrangement": "spaceBetween",
+              "children": [
+                {
+                  "type": "column",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "From",
+                      "style": { "fontSize": 11, "color": "#9CA3AF" }
+                    },
+                    {
+                      "type": "text",
+                      "text": "$320 / night",
+                      "style": { "fontSize": 16, "fontWeight": "bold", "color": "#6366F1" }
+                    }
+                  ]
+                },
+                {
+                  "type": "button",
+                  "label": "Book Now",
+                  "action": "book_mountain_retreat",
+                  "style": "filled"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "type": "spacer", "height": 16 },
+    {
+      "type": "row",
+      "modifiers": {
+        "size": { "fillMaxWidth": true },
+        "background": { "color": "#EEF2FF", "cornerRadius": 12 },
+        "padding": { "all": 16 }
+      },
+      "children": [
+        {
+          "type": "column",
+          "modifiers": { "size": { "fillMaxWidth": true } },
+          "children": [
+            {
+              "type": "text",
+              "text": "🎒 Adventure Pack",
+              "style": { "fontSize": 15, "fontWeight": "semiBold", "color": "#4338CA" }
+            },
+            { "type": "spacer", "height": 4 },
+            {
+              "type": "text",
+              "text": "Gear rental included with every booking.",
+              "style": { "fontSize": 12, "color": "#6366F1" }
+            }
+          ]
+        },
+        {
+          "type": "button",
+          "label": "Learn more",
+          "action": "learn_more",
+          "style": "text"
+        }
+      ]
+    }
+  ]
+}

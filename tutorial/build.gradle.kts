@@ -1,10 +1,12 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.jetbrainsCompose)
 }
 
 kotlin {
@@ -14,8 +16,8 @@ kotlin {
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     android {
         namespace = "com.landoulsi.tutorial"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
 
         withHostTestBuilder {
         }
@@ -27,12 +29,14 @@ kotlin {
         }
     }
 
+    jvm {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
     // For iOS targets, this is also where you should
     // configure native binary output. For more information, see:
-    // https://kotlinlang.org/docs/multiplatform-build-native-binaries.html#build-xcframeworks
-
-    // A step-by-step guide on how to include this library in an XCode
-    // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
     val xcfName = "tutorialKit"
 
@@ -71,6 +75,11 @@ kotlin {
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.multiplatform.settings.test)
+            }
+        }
+
+        jvmMain {
+            dependencies {
             }
         }
 

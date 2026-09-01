@@ -1,16 +1,18 @@
 # Mobile SDKs Roadmap
 
-A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Push Notification SDK
-(:pushnotification), Tutorial & Onboarding SDK (:tutorial), Payment SDK (Google Pay, Apple Pay,
-card checkout, 3DS), In-App Update SDK (flexible/immediate updates, version checking, and What's New
-/ release notes popups), unified Design system library (:design), Document Processing SDK (:document),
-and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
+A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Fraud & Threat Detection
+SDK (:fraud), Push Notification SDK (:pushnotification), Tutorial & Onboarding SDK (:tutorial),
+Payment SDK (Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate
+updates, version checking, and What's New / release notes popups), unified Design system library
+(:design), Document Processing SDK (:document), and cross-platform infrastructure libraries
+(Analytics, Location, Logger, RemoteConfig, Storage).
 
-**Current reality check:** The repository contains modular KMP SDKs (`:pushnotification`, `:tutorial`,
-`:payment`, `:update`, `:logger`, `:location`, `:security`, `:storage`, `:design`, `:analytics`,
-`:remoteconfig`, `:document`, and `:demo`). Current priority is building the `:pushnotification` module
-into a cross-platform push notification and messaging SDK supporting Firebase Cloud Messaging on Android,
-Apple Push Notification service (APNs) on iOS, notification channels, permission handling, and topic subscriptions.
+**Current reality check:** The repository contains modular KMP SDKs (`:fraud`, `:pushnotification`,
+`:tutorial`, `:payment`, `:update`, `:logger`, `:location`, `:biometric`, `:storage`, `:design`,
+`:analytics`, `:remoteconfig`, `:document`, `:schemaui`, and `:demo`). Current priority is
+developing the `:fraud` module into a comprehensive, cross-platform device fraud and threat detection
+SDK capable of identifying rooted/jailbroken devices, virtual OS / emulators, mock location apps,
+hooking frameworks (Frida/Xposed), debugger attach, app cloners, and network anomalies.
 
 ## Goals
 
@@ -41,7 +43,16 @@ Apple Push Notification service (APNs) on iOS, notification channels, permission
 - [x] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
 - [x] [complexity: moderate] Define tutorial domain models, step configurations, and persistent completion tracker in :tutorial commonMain
 - [x] [complexity: moderate] Implement customizable onboarding pager and feature carousel with swipe gestures and page indicator in :tutorial
-- [ ] [complexity: moderate] Define PushNotification, NotificationChannel models and PushNotificationManager interface in :pushnotification commonMain
+- [x] [complexity: moderate] Define PushNotification, NotificationChannel models and PushNotificationManager interface in :pushnotification commonMain
+- [x] [complexity: moderate] Define FraudSignal, FraudCategory, FraudRiskScore models and FraudDetector interface in :fraud commonMain
+- [ ] [complexity: complex] Implement cross-platform root and jailbreak detection checks covering su binaries, Magisk, Cydia, and sandbox integrity in :fraud
+- [ ] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :fraud
+- [ ] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :fraud
+- [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, Substrate dynamic library injection, and debugger attach in :fraud
+- [ ] [complexity: moderate] Implement network fraud signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :fraud
+- [ ] [complexity: moderate] Implement composite risk scoring engine computing normalized FraudRiskScore with configurable thresholds and signal flows in :fraud
+- [ ] [complexity: simple] Add comprehensive unit and host tests for fraud signal evaluators, risk score calculations, and detection configurations in :fraud
+- [ ] [complexity: moderate] Add fraud detection showcase screen in :demo:app with real-time risk gauge, signal breakdown list, and threat inspection UI
 - [ ] [complexity: moderate] Implement Android push notification manager with FCM, NotificationChannel setup and POST_NOTIFICATIONS in :pushnotification
 - [ ] [complexity: moderate] Implement iOS push notification manager wrapping APNs and UNUserNotificationCenter in :pushnotification
 - [ ] [complexity: moderate] Add in-app notification banner UI and topic subscription manager in :pushnotification
@@ -74,6 +85,17 @@ Apple Push Notification service (APNs) on iOS, notification channels, permission
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Fraud & Threat Detection SDK (`:fraud`).** Provide a Kotlin Multiplatform library for comprehensive device fraud, tampering, and threat signal detection across Android and iOS:
+  - Domain models: `FraudSignal` (id, name, category, severity, details, detectedAt, confidence), `FraudCategory` (ROOT_OR_JAILBREAK, VIRTUAL_OS_OR_EMULATOR, MOCK_LOCATION, HOOKING_OR_TAMPERING, DEBUGGER_ATTACHED, APP_CLONING, NETWORK_ANOMALY, UNTRUSTED_INSTALLER), `SignalSeverity` (INFO, LOW, MEDIUM, HIGH, CRITICAL), `FraudRiskScore` (score 0-100, riskLevel: LOW/MEDIUM/HIGH/CRITICAL, action: ALLOW/WARN/CHALLENGE/BLOCK, signals: List<FraudSignal>), `FraudConfig` (thresholds, enabled categories, custom weights).
+  - FraudDetector interface: `detectSignals(): List<FraudSignal>`, `evaluateRisk(): FraudRiskScore`, `observeSignals(): Flow<List<FraudSignal>>`, `evaluateCategory(category: FraudCategory): List<FraudSignal>`.
+  - Platform detection checks:
+    - Root / Jailbreak: Android `su` binary inspection (`/system/bin/su`, `/system/xbin/su`, `/sbin/su`), Magisk / KernelSU mounts and packages, `test-keys` build tags, writable system mounts; iOS Cydia / Sileo / Zebra app paths (`/Applications/Cydia.app`), `/bin/sh`, `/usr/sbin/sshd`, fork() capability, and sandbox escape checks.
+    - Virtual OS & Emulator: Android build properties (goldfish, ranchu, generic, sdk_gphone, vbox86, qemu), absence of standard hardware sensors, telephony device ID anomalies, parallel space sandboxes (VirtualApp, DualSpace, Parallel Space UID/path anomalies); iOS `TARGET_OS_SIMULATOR` and sysctl model inspection.
+    - Mock Location & GPS Spoofing: Android `Location.isMock` (API 31+) / `Location.isFromMockProvider()`, `Settings.Secure.ALLOW_MOCK_LOCATION`, mock location provider active, developer mock app selection, and impossible velocity/jump anomalies.
+    - Hooking & Tampering: Frida server port 27042 inspection, `/proc/self/maps` scanning for `frida` and `gadget.so`, Xposed framework classes (`XposedBridge`), Substrate / Substitute dynamic library injection, debugger attach (`Debug.isDebuggerConnected()`, `P_TRACED`, `TracerPid`).
+    - Network & Proxy Anomaly: Active VPN interface detection (`NetworkCapabilities.TRANSPORT_VPN`), system HTTP proxy configuration (`http.proxyHost`), and developer ADB status.
+  - Risk Scoring Engine: Composite 0-100 score weighted by severity (CRITICAL: 40 pts, HIGH: 25 pts, MEDIUM: 15 pts, LOW: 5 pts) mapped to actionable verdicts (`ALLOW`, `WARN`, `CHALLENGE`, `BLOCK`).
+  - Demo App Showcase: Compose UI with risk radar gauge, threat indicator chips, categorized signal drill-downs, and manual test triggers.
 - **Push Notification SDK (`:pushnotification`).** Provide a Kotlin Multiplatform library for remote and local push notification delivery, permission handling, token registration, topic subscriptions, and in-app alert presentation across Android and iOS:
   - Domain models: `PushNotification` (id, title, body, imageUrl, data/payload map, sound, badge, channelId, clickAction, timestamp, priority), `NotificationChannel` (id, name, description, importance, sound, vibration, badgeEnabled), `NotificationCategory`, `PushPermissionStatus` (Granted, Denied, NotDetermined, Ephemeral).
   - Push Notification Manager interface (`PushNotificationManager`): `getToken()`, `tokenFlow`, `requestPermission()`, `hasPermission()`, `subscribeToTopic(topic)`, `unsubscribeFromTopic(topic)`, `showLocalNotification(notification)`, `clearNotification(id)`, `clearAllNotifications()`, `messageFlow`, `notificationClickFlow`.
@@ -119,8 +141,12 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems, push notification frameworks, onboarding engines, and mobile SDKs (Firebase, OneSignal, Apple UNUserNotificationCenter, Google Apps, Duolingo, Material 3):
+Competitive review of modern design systems, fraud & device integrity engines (SHIELD, Incode, ThreatMetrix, Sift, Approov), push notification frameworks, onboarding engines, and mobile SDKs:
 
+- **Threat Radar & Real-Time Risk Gauge.** A high-visibility Circular Gauge / Speedometer (0-100) reflecting overall device health with clear semantic color banding (Green = Secure, Amber = Elevated, Orange = High, Red = Critical) and explicit mitigation badges ("ALLOW", "WARN", "CHALLENGE", "BLOCK").
+- **Modular Signal Breakdown Cards.** Clean categorized accordion cards separating Root/Jailbreak, Virtual OS/Emulator, Mock Location, Tampering, and Network signals with severity badges, detection timestamps, and remediation suggestions.
+- **Non-blocking Background Telemetry.** Security sweeps evaluate asynchronously off the main thread, caching results and notifying observers via reactive Kotlin Flows without UI stutters.
+- **Simulation & Sandbox Playground.** In demo apps, developers can toggle simulated mock GPS, root traces, or proxy settings to verify reactive UI adaptations without altering real device state.
 - **Unified Push & Local Messaging Model.** Single normalized `PushNotification` structure handling both remote FCM/APNs messages and local notifications with payload dictionaries, action deep links, and category actions.
 - **Explicit Permission Lifecycle.** Structured `PushPermissionStatus` handling Android 13+ runtime POST_NOTIFICATIONS permission dialogs and iOS notification authorization requests with clear status transitions.
 - **Fine-Grained Notification Channels.** Comprehensive channel configuration supporting importance/priority levels, sound URIs, vibration patterns, and badge flags matching modern Android O+ requirements.
@@ -140,6 +166,7 @@ Competitive review of modern design systems, push notification frameworks, onboa
 
 ## Phases
 
+- **Fraud & Threat Detection SDK** — FraudSignal & FraudRiskScore models, root/jailbreak detection, emulator/virtual OS checks, mock location detector, hooking/Frida/Xposed defense, network VPN/proxy anomalies, composite scoring engine, showcase UI.
 - **Push Notification SDK** — PushNotification domain models, Android FCM & NotificationChannel integration, iOS APNs & UNUserNotificationCenter wrapper, in-app notification banner UI, topic management, demo showcase screen.
 - **Tutorial & Onboarding SDK** — onboarding carousel pager, interactive spotlight & coach mark overlay, finger/hand pointing animations, multi-step sequence orchestrator, showcase demo screen.
 - **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.
@@ -150,4 +177,3 @@ Competitive review of modern design systems, push notification frameworks, onboa
 - **Payment Methods Expansion** — PayPal/Braintree alternative methods, regional payment methods (Klarna, iDEAL).
 - **Hardening & Quality Assurance** — unit tests, platform integration tests, security audits, static analysis.
 - **Release & Distribution** — CI/CD automation, Dokka documentation, sample app polish, Maven Central publication.
-

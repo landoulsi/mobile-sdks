@@ -152,27 +152,34 @@ internal class SurveySchemaBuilder {
         is RatingQuestion -> {
             val selected = answers[question.id]
             val max = question.max.coerceIn(1, 10)
-            UIRow(
-                children = (1..max).map { n ->
-                    val v = n.toString()
-                    UIButton(
-                        label = v,
-                        action = SurveyActions.option(question.id, v),
-                        style = if (selected == v) UIButtonStyle.Filled else UIButtonStyle.Outlined,
-                        modifiers = UIModifiers(paddingEnd = 6f),
+            // :schemaui has no wrapping row, so chunk into rows of 5 — keeps a 1..10 scale
+            // on screen without horizontal overflow.
+            UIColumn(
+                children = (1..max).chunked(5).map { chunk ->
+                    UIRow(
+                        children = chunk.map { n ->
+                            val v = n.toString()
+                            UIButton(
+                                label = v,
+                                action = SurveyActions.option(question.id, v),
+                                style = if (selected == v) UIButtonStyle.Filled else UIButtonStyle.Outlined,
+                                modifiers = UIModifiers(paddingEnd = 6f, paddingBottom = 6f),
+                            )
+                        },
                     )
                 },
+                modifiers = FILL_WIDTH,
             )
         }
 
         is BooleanQuestion -> {
             val selected = answers[question.id]
-            UIRow(
+            UIColumn(
                 children = listOf(
                     optionButton(question.trueLabel, SurveyActions.option(question.id, "true"), selected == "true"),
-                    UISpacer(width = 8f, height = null),
                     optionButton(question.falseLabel, SurveyActions.option(question.id, "false"), selected == "false"),
                 ),
+                modifiers = FILL_WIDTH,
             )
         }
 

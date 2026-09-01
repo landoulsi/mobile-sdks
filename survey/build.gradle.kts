@@ -1,7 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-// Android compiles to JVM 11 to match :schemaui (which the survey renders through) and the
-// demo/preview apps that consume it.
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -35,7 +33,7 @@ kotlin {
         }
 
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 

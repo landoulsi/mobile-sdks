@@ -5,20 +5,18 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(17)
 
     // Target declarations - add or remove as needed below. These define
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     android {
         namespace = "com.landoulsi.viewmodel"
-        compileSdk {
-            version = release(36) {
-                minorApiLevel = 1
-            }
-        }
-        minSdk = 24
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
-        withHostTestBuilder {
+        withHostTest {
+            isReturnDefaultValues = true
         }
 
         withDeviceTestBuilder {
@@ -64,13 +62,15 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                api(libs.kotlinx.coroutines.core)
+                api(libs.androidx.lifecycle.viewmodel)
             }
         }
 
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

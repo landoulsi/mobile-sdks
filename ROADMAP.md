@@ -1,15 +1,16 @@
 # Mobile SDKs Roadmap
 
-A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Tutorial & Onboarding SDK
-(:tutorial), Payment SDK (Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate
-updates, version checking, and What's New / release notes popups), unified Design system library (:design),
-Document Processing SDK (:document), and cross-platform infrastructure libraries (Analytics, Location,
-Logger, RemoteConfig, Storage).
+A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Push Notification SDK
+(:pushnotification), Tutorial & Onboarding SDK (:tutorial), Payment SDK (Google Pay, Apple Pay,
+card checkout, 3DS), In-App Update SDK (flexible/immediate updates, version checking, and What's New
+/ release notes popups), unified Design system library (:design), Document Processing SDK (:document),
+and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
 
-**Current reality check:** The repository contains modular KMP SDKs (`:tutorial`, `:payment`, `:update`,
-`:logger`, `:location`, `:security`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, `:document`,
-and `:demo`). Current priority is building the `:tutorial` module into a reusable onboarding and feature
-walkthrough SDK featuring swipeable onboarding carousels and interactive button/target spotlight coach marks.
+**Current reality check:** The repository contains modular KMP SDKs (`:pushnotification`, `:tutorial`,
+`:payment`, `:update`, `:logger`, `:location`, `:security`, `:storage`, `:design`, `:analytics`,
+`:remoteconfig`, `:document`, and `:demo`). Current priority is building the `:pushnotification` module
+into a cross-platform push notification and messaging SDK supporting Firebase Cloud Messaging on Android,
+Apple Push Notification service (APNs) on iOS, notification channels, permission handling, and topic subscriptions.
 
 ## Goals
 
@@ -40,6 +41,12 @@ walkthrough SDK featuring swipeable onboarding carousels and interactive button/
 - [x] [complexity: moderate] Add reusable common UI components and token helpers (cards, chips, buttons, surface wrappers) in :design
 - [x] [complexity: moderate] Define tutorial domain models, step configurations, and persistent completion tracker in :tutorial commonMain
 - [x] [complexity: moderate] Implement customizable onboarding pager and feature carousel with swipe gestures and page indicator in :tutorial
+- [ ] [complexity: moderate] Define PushNotification, NotificationChannel models and PushNotificationManager interface in :pushnotification commonMain
+- [ ] [complexity: moderate] Implement Android push notification manager with FCM, NotificationChannel setup and POST_NOTIFICATIONS in :pushnotification
+- [ ] [complexity: moderate] Implement iOS push notification manager wrapping APNs and UNUserNotificationCenter in :pushnotification
+- [ ] [complexity: moderate] Add in-app notification banner UI and topic subscription manager in :pushnotification
+- [ ] [complexity: simple] Add unit tests for push message parsing, topic validation, and payload serialization in :pushnotification
+- [ ] [complexity: moderate] Add push notification showcase screen in :demo:app demonstrating token, local push, and topic subscriptions
 - [ ] [complexity: complex] Implement interactive spotlight overlay engine with target cutouts, pointer/finger animations, and tooltip bubble in :tutorial
 - [ ] [complexity: moderate] Add multi-step tour orchestrator and automated first-install/new-feature trigger manager in :tutorial
 - [ ] [complexity: moderate] Add interactive tutorial and spotlight showcase demo screen in :demo:app demonstrating onboarding and button tour
@@ -67,6 +74,12 @@ walkthrough SDK featuring swipeable onboarding carousels and interactive button/
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Push Notification SDK (`:pushnotification`).** Provide a Kotlin Multiplatform library for remote and local push notification delivery, permission handling, token registration, topic subscriptions, and in-app alert presentation across Android and iOS:
+  - Domain models: `PushNotification` (id, title, body, imageUrl, data/payload map, sound, badge, channelId, clickAction, timestamp, priority), `NotificationChannel` (id, name, description, importance, sound, vibration, badgeEnabled), `NotificationCategory`, `PushPermissionStatus` (Granted, Denied, NotDetermined, Ephemeral).
+  - Push Notification Manager interface (`PushNotificationManager`): `getToken()`, `tokenFlow`, `requestPermission()`, `hasPermission()`, `subscribeToTopic(topic)`, `unsubscribeFromTopic(topic)`, `showLocalNotification(notification)`, `clearNotification(id)`, `clearAllNotifications()`, `messageFlow`, `notificationClickFlow`.
+  - Android FCM & NotificationManager implementation: `FirebasePushNotificationManager` wrapping Firebase Cloud Messaging, `FirebaseMessagingService` background receiver, Android 13+ `POST_NOTIFICATIONS` runtime permission request integration, custom `NotificationChannel` creation with importance levels, deep-link pending intent handling, and foreground presentation.
+  - iOS APNs & UNUserNotificationCenter implementation: `IosPushNotificationManager` utilizing `UNUserNotificationCenter` for remote registration, APNs device token retrieval, alert/badge/sound permission requests, foreground notification presentation options, and background payload handlers.
+  - In-App UI & Topic Management: Jetpack Compose / KMP `InAppNotificationBanner` for heads-up alert display with slide animations and touch gestures, coupled with subscription management for topical push messaging.
 - **Tutorial & Onboarding SDK (`:tutorial`).** Provide a Kotlin Multiplatform library for app onboarding and feature discovery:
   - Domain models: `TutorialStep`, `TutorialPage`, `SpotlightTarget`, `SpotlightShape` (Circle, RoundedRectangle, Oval), `PointerStyle` (Hand/Finger, Arrow, PulseRing), `TooltipPosition` (Top, Bottom, Start, End, Auto), `TutorialConfig`, `TutorialTracker`.
   - Onboarding Pager: Jetpack Compose / KMP `TutorialPager` and `OnboardingScreen` supporting swipeable card carousels, animated progress dots/bars, custom illustration/Lottie slots, title, description, and skip/next/get-started actions.
@@ -106,8 +119,11 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems, onboarding engines, and mobile SDKs (Google Apps, Duolingo, Slack, TapTargetView, ShowcaseView, Balloon, Adobe PDF SDK, Material 3):
+Competitive review of modern design systems, push notification frameworks, onboarding engines, and mobile SDKs (Firebase, OneSignal, Apple UNUserNotificationCenter, Google Apps, Duolingo, Material 3):
 
+- **Unified Push & Local Messaging Model.** Single normalized `PushNotification` structure handling both remote FCM/APNs messages and local notifications with payload dictionaries, action deep links, and category actions.
+- **Explicit Permission Lifecycle.** Structured `PushPermissionStatus` handling Android 13+ runtime POST_NOTIFICATIONS permission dialogs and iOS notification authorization requests with clear status transitions.
+- **Fine-Grained Notification Channels.** Comprehensive channel configuration supporting importance/priority levels, sound URIs, vibration patterns, and badge flags matching modern Android O+ requirements.
 - **Zero-Friction Onboarding Carousels.** Full-bleed swipeable onboarding cards with fluid animations, intuitive page indicators, accessible skip options, and clear calls-to-action ("Get Started", "Continue").
 - **Interactive Feature Spotlight & Coach Marks.** Non-intrusive backdrop dimming with clean cutouts around target UI elements, animated finger tap / pulse indicators directing attention, and context-aware tooltips with auto-positioning.
 - **Declarative Compose Modifiers.** Seamless integration via `Modifier.spotlightTarget(tag = "button_id")` allowing developers to annotate existing UI components with zero invasive layout changes.
@@ -124,6 +140,7 @@ Competitive review of modern design systems, onboarding engines, and mobile SDKs
 
 ## Phases
 
+- **Push Notification SDK** — PushNotification domain models, Android FCM & NotificationChannel integration, iOS APNs & UNUserNotificationCenter wrapper, in-app notification banner UI, topic management, demo showcase screen.
 - **Tutorial & Onboarding SDK** — onboarding carousel pager, interactive spotlight & coach mark overlay, finger/hand pointing animations, multi-step sequence orchestrator, showcase demo screen.
 - **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.
 - **Cross-Platform Analytics SDK** — Event model, EventTracker interface, Firebase Analytics provider, composite tracker.
@@ -133,3 +150,4 @@ Competitive review of modern design systems, onboarding engines, and mobile SDKs
 - **Payment Methods Expansion** — PayPal/Braintree alternative methods, regional payment methods (Klarna, iDEAL).
 - **Hardening & Quality Assurance** — unit tests, platform integration tests, security audits, static analysis.
 - **Release & Distribution** — CI/CD automation, Dokka documentation, sample app polish, Maven Central publication.
+

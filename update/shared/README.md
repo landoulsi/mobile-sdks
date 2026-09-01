@@ -1,72 +1,83 @@
 # Landoulsi Update SDK (`:update:shared`)
 
-A Kotlin Multiplatform SDK module providing in-app update version checking and update flow orchestration for Android and iOS applications.
+A Kotlin Multiplatform SDK module for in-app updates. Android ships a ready-to-use wrapper over Google Play In-App Updates; `commonMain` carries a store-agnostic version-comparison core for the non-Play path (iOS, sideloaded builds, a min-version gate fed from your own remote config).
 
 ---
 
 ## 1. Overview & Architecture
 
-The `:update:shared` module centralizes update version comparison and update-state evaluation behind a clean common-main API. Platform-specific update integrations (Android Play In-App Updates, iOS custom update flows) live in their respective source sets and are orchestrated by the common `UpdateManager`.
-
-### Architecture Diagram
-
 ```
 +-------------------------------------------------------------+
-|                    :update:app (Jetpack Compose UI)       |
-|               UpdateScreen composable, update prompts       |
+|              host app  (Activity lifecycle + DI)            |
 +-------------------------------------------------------------+
-                               |
-                               v
-+-------------------------------------------------------------+
-|                      :update:shared                         |
-|               commonMain: UpdateManager, UpdateConfig,      |
-|               UpdateState (NoUpdate / UpdateRecommended /   |
-|               UpdateRequired / Error), NativeUpdateManager    |
-+-------------------------------------------------------------+
-                               |
-               +---------------+---------------+
-               |                           |
-               v                           v
-+-------------------------------------------------+   +-------------------+
-|          :update:androidMain                     |   | :update:iosMain   |
-|   NativeUpdateManager (Play In-App Updates)      |   | iOS actuals       |
-+-------------------------------------------------+   +-------------------+
+                 |                              |
+                 v                              v
++---------------------------------+   +-------------------------------+
+| androidMain                     |   | commonMain (store-agnostic)   |
+|   PlayInAppUpdateManager        |   |   UpdateManager.checkUpdate()  |
+|   UpdatePolicy (staleness /     |   |   UpdateConfig                |
+|     priority -> update type)    |   |   UpdateState (NoUpdate /      |
+|   UpdateEvent                   |   |     Recommended / Required /   |
+|   -> com.google.android.play:   |   |     Error)                    |
+|      app-update-ktx             |   |                               |
++---------------------------------+   +-------------------------------+
 ```
+
+The two paths are independent. Play supplies availability, staleness, and priority
+server-side, so the Android path needs no version strings. `UpdateManager` is a pure
+comparator for callers that do have a version/config from elsewhere.
 
 ---
 
-## 2. Quick Start
-
-### Adding the update check to your app
+## 2. Quick Start (Android / Play In-App Updates)
 
 ```kotlin
-// In your Activity or Compose screen
-val updateManager = UpdateManager()
-val config = UpdateConfig("2.0.0", "1.0.0", false)
-val state = updateManager.checkUpdate("1.5.0", config)
+// Construct once (e.g. from DI); pass the app's own thresholds.
+val updates = PlayInAppUpdateManager(
+    context,
+    UpdatePolicy(flexibleAfterStalenessDays = 10, immediateAtPriority = 4),
+)
 
-// Consume UpdateState in UI when using UpdateScreen
-```
-
-### UpdateConfig fields
-
-| Field | Description |
-|-------|-------------|
-| `latestVersion` | The most recent available version string (e.g., "2.0.0") |
-| `minRequiredVersion` | The minimum version required to continue using the app |
-| `isUpdateRequired` | When true, forces an update before proceeding |
-| `updateUrl` | Optional deep link or URL to direct the user for updating |
-
-### UpdateState when sealed when consuming
-
-```kotlin
-when (updateState) {
-    is UpdateState.NoUpdate -> { /* UI: show nothing, app is up to date */ }
-    is UpdateState.UpdateRecommended -> { /* UI: show "Update Available" prompt */ }
-    is UpdateState.UpdateRequired -> { /* UI: show "Update Required" prompt */ }
-    is UpdateState.Error -> { /* UI: show error message from config.message */ }
+// From the host Activity:
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    updates.checkAndStart(this, REQUEST_CODE) { event -> /* snackbar on UpdateEvent.Downloaded */ }
+}
+override fun onResume() {
+    super.onResume()
+    updates.onResume(this, REQUEST_CODE) { event -> /* ... */ }
+}
+override fun onDestroy() {
+    updates.release()
+    super.onDestroy()
 }
 ```
+
+`UpdatePolicy` maps `AppUpdateInfo` to `AppUpdateType.IMMEDIATE` (blocking) at or above
+`immediateAtPriority`, to `AppUpdateType.FLEXIBLE` (dismissible) once the build is at least
+`flexibleAfterStalenessDays` stale, and to "no prompt" otherwise.
+
+## 3. Store-agnostic core (`commonMain`)
+
+```kotlin
+val state = UpdateManager().checkUpdate(
+    currentVersion = "1.5.0",
+    config = UpdateConfig(latestVersion = "2.0.0", minRequiredVersion = "1.0.0"),
+)
+when (state) {
+    UpdateState.NoUpdate -> Unit
+    is UpdateState.UpdateRecommended -> Unit
+    is UpdateState.UpdateRequired -> Unit
+    is UpdateState.Error -> Unit
+}
+```
+
+| `UpdateConfig` field | Description |
+|-------|-------------|
+| `latestVersion` | Most recent available version string (e.g. `"2.0.0"`) |
+| `minRequiredVersion` | Minimum version allowed to keep using the app |
+| `isUpdateRequired` | Force an update regardless of version comparison |
+| `updateUrl` | Optional URL to send the user to update |
 
 ---
 

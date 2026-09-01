@@ -32,10 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
-- (reserved for upcoming What's New / release-notes flow)
+- Added `PlayInAppUpdateManager`, a lifecycle-driven wrapper over Google Play In-App Updates that handles update-type selection, the flexible-download listener lifecycle, and resuming an interrupted immediate update.
+- Added `UpdatePolicy` to turn Play's reported staleness and priority into a flexible/immediate/no-op decision, with app-tunable thresholds.
+- Added `UpdateEvent` for flexible-update download and install progress.
 
 ### Changed
-- (reserved)
+- Replaced the stubbed `NativeUpdateManager` with the real `PlayInAppUpdateManager` implementation backed by `com.google.android.play:app-update-ktx`.
+- Dropped the unused Ktor and kotlinx.serialization dependencies; the module no longer fetches remote configuration itself.
+
+### Removed
+- Removed the unused `Platform` expect/actual boilerplate.
 
 ### Fixed
 - (reserved)
@@ -51,5 +57,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-**[Unreleased]: https://github.com/landoulsi/mobile-sdks/compare/1.0.0...HEAD'
-[1.0.0]: https://github.com/landoulsi/mobile-sdks/compare...1.0.0
+[Unreleased]: https://github.com/landoulsi/mobile-sdks/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/landoulsi/mobile-sdks/releases/tag/1.0.0

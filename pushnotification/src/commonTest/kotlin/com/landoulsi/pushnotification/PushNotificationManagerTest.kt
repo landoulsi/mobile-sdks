@@ -1,5 +1,7 @@
 package com.landoulsi.pushnotification
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -84,8 +86,8 @@ class PushNotificationManagerTest {
  */
 private class InMemoryPushNotificationManager : PushNotificationManager {
 
-    private val _tokenFlow = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
-    override val tokenFlow: kotlinx.coroutines.flow.StateFlow<String?> = _tokenFlow
+    private val _tokenFlow = MutableStateFlow<String?>(null)
+    override val tokenFlow: StateFlow<String?> = _tokenFlow
 
     private var token: String? = null
     private val channels = mutableListOf<NotificationChannel>()
@@ -127,6 +129,8 @@ private class InMemoryPushNotificationManager : PushNotificationManager {
     override fun cancelAllNotifications() {
         cancelAllCalled = true
     }
+
+    override val areChannelsSupported = true
 
     override fun createChannel(channel: NotificationChannel) {
         channels.add(channel)

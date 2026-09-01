@@ -21,6 +21,7 @@ import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNNotificationSound
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.UserNotifications.UNAuthorizationOptionAlert
+import platform.UserNotifications.UNAuthorizationOptionBadge
 import platform.UserNotifications.UNAuthorizationOptionSound
 import platform.UIKit.UIApplication
 import platform.UIKit.registerForRemoteNotifications
@@ -38,7 +39,7 @@ class IosPushNotificationManager : PushNotificationManager {
         return withContext(Dispatchers.Main) {
             suspendCancellableCoroutine { continuation ->
                 notificationCenter.requestAuthorizationWithOptions(
-                    options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
+                    options = UNAuthorizationOptionAlert or UNAuthorizationOptionBadge or UNAuthorizationOptionSound,
                     completionHandler = { granted, _ ->
                         continuation.resume(
                             if (granted) {
@@ -59,8 +60,8 @@ class IosPushNotificationManager : PushNotificationManager {
                 val status = when (settings?.authorizationStatus) {
                     UNAuthorizationStatusAuthorized -> NotificationPermissionController.PermissionStatus.GRANTED
                     UNAuthorizationStatusDenied -> NotificationPermissionController.PermissionStatus.DENIED
-                    UNAuthorizationStatusProvisional -> NotificationPermissionController.PermissionStatus.NOT_DETERMINED
-                    UNAuthorizationStatusEphemeral -> NotificationPermissionController.PermissionStatus.NOT_DETERMINED
+                    UNAuthorizationStatusProvisional -> NotificationPermissionController.PermissionStatus.GRANTED
+                    UNAuthorizationStatusEphemeral -> NotificationPermissionController.PermissionStatus.GRANTED
                     UNAuthorizationStatusNotDetermined -> NotificationPermissionController.PermissionStatus.NOT_DETERMINED
                     else -> NotificationPermissionController.PermissionStatus.NOT_DETERMINED
                 }
@@ -71,15 +72,9 @@ class IosPushNotificationManager : PushNotificationManager {
 
     override suspend fun registerForRemoteNotifications() {
         withContext(Dispatchers.Main) {
-            val granted = suspendCancellableCoroutine { continuation ->
-                notificationCenter.requestAuthorizationWithOptions(
-                    options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
-                    completionHandler = { granted, _ -> continuation.resume(granted) }
-                )
-            }
-            if (granted) {
-                UIApplication.sharedApplication.registerForRemoteNotifications()
-            }
+            // Registering for remote notifications on iOS doesn't prompt the user again.
+            // It relies on APNs and calls the app delegate with the token.
+            UIApplication.sharedApplication.registerForRemoteNotifications()
         }
     }
 
@@ -137,6 +132,8 @@ class IosPushNotificationManager : PushNotificationManager {
         notificationCenter.removeAllDeliveredNotifications()
     }
 
+    override val areChannelsSupported: Boolean = false
+
     override fun createChannel(channel: NotificationChannel) {
         // iOS does not have Android-style notification channels.
     }
@@ -151,7 +148,7 @@ class IosPushNotificationManager : PushNotificationManager {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-fun NSData.toHexRepresentation(): String {
+internal fun NSData.toHexRepresentation(): String {
     val size = length.toInt()
     if (size == 0) return ""
     val dataBytes = this.bytes?.reinterpret<ByteVar>() ?: return ""

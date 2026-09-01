@@ -1,5 +1,7 @@
 package com.landoulsi.pushnotification
 
+import kotlinx.coroutines.flow.StateFlow
+
 /**
  * Manages the remote-notification device token lifecycle.
  *
@@ -15,7 +17,7 @@ interface RemoteTokenController {
 
     fun getToken(): String?
 
-    val tokenFlow: kotlinx.coroutines.flow.StateFlow<String?>
+    val tokenFlow: StateFlow<String?>
 
     fun onNewToken(token: String)
 }

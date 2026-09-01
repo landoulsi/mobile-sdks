@@ -12,6 +12,7 @@ import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -25,8 +26,9 @@ import kotlin.coroutines.resume
 class FirebasePushNotificationManager(
     context: Context,
     private val allowedDeepLinkSchemes: Set<String> = emptySet(),
-    private val permissionRequester: suspend () -> Boolean,
 ) : PushNotificationManager {
+
+    var permissionRequester: (suspend () -> Boolean)? = null
 
     private val appContext: Context = context.applicationContext
     
@@ -41,7 +43,7 @@ class FirebasePushNotificationManager(
         .build()
 
     override suspend fun requestPermission(): NotificationPermissionController.PermissionStatus {
-        val granted = permissionRequester()
+        val granted = permissionRequester?.invoke() ?: false
         return if (granted) {
             NotificationPermissionController.PermissionStatus.GRANTED
         } else {
@@ -50,6 +52,11 @@ class FirebasePushNotificationManager(
     }
 
     override suspend fun getPermissionStatus(): NotificationPermissionController.PermissionStatus {
+        val areEnabled = NotificationManagerCompat.from(appContext).areNotificationsEnabled()
+        if (!areEnabled) {
+            return NotificationPermissionController.PermissionStatus.DENIED
+        }
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             when {
                 ContextCompat.checkSelfPermission(
@@ -73,6 +80,7 @@ class FirebasePushNotificationManager(
                 if (task.isSuccessful) {
                     continuation.resume(task.result)
                 } else {
+                    task.exception?.printStackTrace()
                     continuation.resume(null)
                 }
             }
@@ -83,7 +91,10 @@ class FirebasePushNotificationManager(
     override suspend fun unregisterForRemoteNotifications() {
         suspendCancellableCoroutine { continuation ->
             FirebaseMessaging.getInstance().deleteToken()
-                .addOnCompleteListener {
+                .addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        task.exception?.printStackTrace()
+                    }
                     _tokenFlow.value = null
                     continuation.resume(Unit)
                 }
@@ -96,6 +107,7 @@ class FirebasePushNotificationManager(
         _tokenFlow.value = token
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     override fun showLocalNotification(notification: PushNotification, channelId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
@@ -107,7 +119,8 @@ class FirebasePushNotificationManager(
         }
 
         val builder = NotificationCompat.Builder(appContext, channelId)
-            .setSmallIcon(appContext.applicationInfo.icon)
+            // Use a safe system icon rather than applicationInfo.icon which may be adaptive and crash
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(notification.title)
             .setContentText(notification.body)
             .setPriority(toAndroidPriority(notification.priority))
@@ -125,7 +138,7 @@ class FirebasePushNotificationManager(
         }
         builder.addExtras(bundle)
 
-        val whenTime = notification.sentAt ?: notification.createdAt?.toLong()
+        val whenTime = notification.sentAt ?: notification.createdAt
         if (whenTime != null) {
             builder.setWhen(whenTime)
         }
@@ -141,6 +154,8 @@ class FirebasePushNotificationManager(
     override fun cancelAllNotifications() {
         NotificationManagerCompat.from(appContext).cancelAll()
     }
+
+    override val areChannelsSupported: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     override fun createChannel(channel: NotificationChannel) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -203,10 +218,13 @@ class FirebasePushNotificationManager(
         notificationId: String,
     ): PendingIntent? {
         val uri = Uri.parse(deepLink)
-        val scheme = uri.scheme ?: return null
+        val scheme = uri.scheme?.lowercase() ?: return null
 
-        if (allowedDeepLinkSchemes.isNotEmpty() && scheme !in allowedDeepLinkSchemes) {
-            return null
+        if (allowedDeepLinkSchemes.isNotEmpty()) {
+            val allowedLower = allowedDeepLinkSchemes.map { it.lowercase() }
+            if (scheme !in allowedLower) {
+                return null
+            }
         }
 
         val intent = Intent(Intent.ACTION_VIEW, uri).apply {

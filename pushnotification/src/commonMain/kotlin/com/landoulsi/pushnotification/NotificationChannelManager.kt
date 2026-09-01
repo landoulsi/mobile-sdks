@@ -9,6 +9,8 @@ package com.landoulsi.pushnotification
  */
 interface NotificationChannelManager {
 
+    val areChannelsSupported: Boolean
+
     fun createChannel(channel: NotificationChannel)
 
     fun deleteChannel(id: String)

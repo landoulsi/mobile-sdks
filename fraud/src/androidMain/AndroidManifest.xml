@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <queries>
+        <package android:name="com.topjohnwu.magisk" />
+        <package android:name="com.topjohnwu.magisk_" />
+        <package android:name="me.weishu.kernelsu" />
+        <package android:name="me.weishu.kernelsu.manager" />
+    </queries>
 </manifest>

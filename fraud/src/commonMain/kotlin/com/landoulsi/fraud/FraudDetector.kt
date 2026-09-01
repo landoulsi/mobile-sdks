@@ -31,6 +31,16 @@ interface SignalEvaluator {
     val category: FraudCategory
 
     /**
+     * Stable identifiers of every [FraudSignal] this evaluator is capable of emitting.
+     *
+     * Used to assemble an exhaustive signal catalog so aggregated results
+     * (see [FraudResult]) can report not-yet-fired checks as an explicit `false`
+     * rather than omitting them. Defaults to empty for evaluators that do not
+     * publish a catalog.
+     */
+    val knownSignalIds: Set<String> get() = emptySet()
+
+    /**
      * Executes threat detection checks for this vector and returns any observed signals.
      */
     suspend fun evaluate(): List<FraudSignal>

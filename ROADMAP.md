@@ -1,18 +1,17 @@
 # Mobile SDKs Roadmap
 
-A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Fraud & Threat Detection
-SDK (:fraud), Push Notification SDK (:pushnotification), Tutorial & Onboarding SDK (:tutorial),
-Payment SDK (Google Pay, Apple Pay, card checkout, 3DS), In-App Update SDK (flexible/immediate
-updates, version checking, and What's New / release notes popups), unified Design system library
-(:design), Document Processing SDK (:document), and cross-platform infrastructure libraries
-(Analytics, Location, Logger, RemoteConfig, Storage).
+A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Lifecycle-Aware
+ViewModel SDK (:viewmodel), Fraud & Threat Detection SDK (:fraud), Push Notification SDK
+(:pushnotification), Tutorial & Onboarding SDK (:tutorial), Payment SDK (Google Pay, Apple Pay,
+card checkout, 3DS), In-App Update SDK (flexible/immediate updates, version checking, and What's New /
+release notes popups), unified Design system library (:design), Document Processing SDK (:document),
+and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
 
 **Current reality check:** The repository contains modular KMP SDKs (`:fraud`, `:pushnotification`,
 `:tutorial`, `:payment`, `:update`, `:logger`, `:location`, `:biometric`, `:storage`, `:design`,
 `:analytics`, `:remoteconfig`, `:document`, `:schemaui`, and `:demo`). Current priority is
-developing the `:fraud` module into a comprehensive, cross-platform device fraud and threat detection
-SDK capable of identifying rooted/jailbroken devices, virtual OS / emulators, mock location apps,
-hooking frameworks (Frida/Xposed), debugger attach, app cloners, and network anomalies.
+creating a new module for KMP lifecycle-aware ViewModels (`:viewmodel`) that work seamlessly across
+both iOS and Android with coroutine scoping, lifecycle state observation, and automatic cleanup.
 
 ## Goals
 
@@ -45,7 +44,14 @@ hooking frameworks (Frida/Xposed), debugger attach, app cloners, and network ano
 - [x] [complexity: moderate] Implement customizable onboarding pager and feature carousel with swipe gestures and page indicator in :tutorial
 - [x] [complexity: moderate] Define PushNotification, NotificationChannel models and PushNotificationManager interface in :pushnotification commonMain
 - [x] [complexity: moderate] Define FraudSignal, FraudCategory, FraudRiskScore models and FraudDetector interface in :fraud commonMain
-- [ ] [complexity: complex] Implement cross-platform root and jailbreak detection checks covering su binaries, Magisk, Cydia, and sandbox integrity in :fraud
+- [x] [complexity: complex] Implement cross-platform root and jailbreak detection checks covering su binaries, Magisk, Cydia, and sandbox integrity in :fraud
+- [ ] [complexity: moderate] Create and configure the :viewmodel KMP module in settings.gradle.kts with Android and iOS targets, defining core ViewModel abstraction with viewModelScope and onCleared lifecycle
+- [ ] [complexity: moderate] Implement cross-platform LifecycleState enum, LifecycleOwner, and LifecycleObserver in :viewmodel commonMain to track active and inactive component lifecycles
+- [ ] [complexity: moderate] Implement Android bindings in :viewmodel androidMain integrating with androidx.lifecycle.ViewModel and LifecycleOwner for automatic coroutine scope cancellation on cleared
+- [ ] [complexity: complex] Implement iOS lifecycle bindings in :viewmodel iosMain wrapping UIViewController and SwiftUI lifecycle notifications with Swift-friendly dealloc and scope cancellation hooks
+- [ ] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management
+- [ ] [complexity: simple] Add unit and host tests in :viewmodel commonTest and androidHostTest verifying ViewModel coroutine cancellation, lifecycle state transitions, and clear callbacks
+- [ ] [complexity: moderate] Add lifecycle-aware ViewModel showcase screen in :demo:app demonstrating StateFlow observation, coroutine auto-cancellation, and lifecycle event logging
 - [ ] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :fraud
 - [ ] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :fraud
 - [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, Substrate dynamic library injection, and debugger attach in :fraud
@@ -85,6 +91,13 @@ hooking frameworks (Frida/Xposed), debugger attach, app cloners, and network ano
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Lifecycle-Aware ViewModel SDK (`:viewmodel`).** Provide a lightweight, cross-platform Kotlin Multiplatform library for lifecycle-aware state holders and coroutine orchestration across Android and iOS:
+  - Base abstraction: `ViewModel` class providing a bound `viewModelScope` (SupervisorJob + Main/Default dispatcher) and `onCleared()` lifecycle callback.
+  - Lifecycle state: `LifecycleState` (INITIALIZED, CREATED, STARTED, RESUMED, DESTROYED), `LifecycleOwner`, and `LifecycleObserver` event listeners for foreground/background and visibility transitions.
+  - Android bindings: Seamless interop with AndroidX `androidx.lifecycle.ViewModel`, `ViewModelProvider`, and Jetpack Compose lifecycle without boilerplate.
+  - iOS bindings: Native Swift / SwiftUI lifecycle bridge hooking view `onAppear`/`onDisappear`, `UIViewController` lifecycle methods, and Swift deinit cancellation hooks.
+  - Reactive Flow extensions: `Flow.flowWithLifecycle(...)`, `collectAsStateWithLifecycle` equivalents, and state preservation utilities.
+  - Demo App Showcase: Compose screen displaying live lifecycle transitions, counter/state streams, background job auto-cancellation, and logging.
 - **Fraud & Threat Detection SDK (`:fraud`).** Provide a Kotlin Multiplatform library for comprehensive device fraud, tampering, and threat signal detection across Android and iOS:
   - Domain models: `FraudSignal` (id, name, category, severity, details, detectedAt, confidence), `FraudCategory` (ROOT_OR_JAILBREAK, VIRTUAL_OS_OR_EMULATOR, MOCK_LOCATION, HOOKING_OR_TAMPERING, DEBUGGER_ATTACHED, APP_CLONING, NETWORK_ANOMALY, UNTRUSTED_INSTALLER), `SignalSeverity` (INFO, LOW, MEDIUM, HIGH, CRITICAL), `FraudRiskScore` (score 0-100, riskLevel: LOW/MEDIUM/HIGH/CRITICAL, action: ALLOW/WARN/CHALLENGE/BLOCK, signals: List<FraudSignal>), `FraudConfig` (thresholds, enabled categories, custom weights).
   - FraudDetector interface: `detectSignals(): List<FraudSignal>`, `evaluateRisk(): FraudRiskScore`, `observeSignals(): Flow<List<FraudSignal>>`, `evaluateCategory(category: FraudCategory): List<FraudSignal>`.
@@ -143,6 +156,8 @@ Guidance for implementing the current and upcoming milestones:
 
 Competitive review of modern design systems, fraud & device integrity engines (SHIELD, Incode, ThreatMetrix, Sift, Approov), push notification frameworks, onboarding engines, and mobile SDKs:
 
+- **Structured ViewModel Lifecycle & Auto-Cancellation.** Deterministic coroutine cancellation on view disappearance or component destruction preventing memory leaks and orphaned network/compute tasks across both Android and iOS.
+- **Unified Reactive State Observation.** Clean StateFlow and SharedFlow observation pipelines adapted for Compose (Android) and SwiftUI/Combine (iOS) with zero platform boilerplate.
 - **Threat Radar & Real-Time Risk Gauge.** A high-visibility Circular Gauge / Speedometer (0-100) reflecting overall device health with clear semantic color banding (Green = Secure, Amber = Elevated, Orange = High, Red = Critical) and explicit mitigation badges ("ALLOW", "WARN", "CHALLENGE", "BLOCK").
 - **Modular Signal Breakdown Cards.** Clean categorized accordion cards separating Root/Jailbreak, Virtual OS/Emulator, Mock Location, Tampering, and Network signals with severity badges, detection timestamps, and remediation suggestions.
 - **Non-blocking Background Telemetry.** Security sweeps evaluate asynchronously off the main thread, caching results and notifying observers via reactive Kotlin Flows without UI stutters.
@@ -166,6 +181,7 @@ Competitive review of modern design systems, fraud & device integrity engines (S
 
 ## Phases
 
+- **Lifecycle-Aware ViewModel SDK** — ViewModel base abstraction, viewModelScope coroutine management, LifecycleState machine, AndroidX ViewModel interop, iOS lifecycle bridge, Flow extensions, demo screen.
 - **Fraud & Threat Detection SDK** — FraudSignal & FraudRiskScore models, root/jailbreak detection, emulator/virtual OS checks, mock location detector, hooking/Frida/Xposed defense, network VPN/proxy anomalies, composite scoring engine, showcase UI.
 - **Push Notification SDK** — PushNotification domain models, Android FCM & NotificationChannel integration, iOS APNs & UNUserNotificationCenter wrapper, in-app notification banner UI, topic management, demo showcase screen.
 - **Tutorial & Onboarding SDK** — onboarding carousel pager, interactive spotlight & coach mark overlay, finger/hand pointing animations, multi-step sequence orchestrator, showcase demo screen.

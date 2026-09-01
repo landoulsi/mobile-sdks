@@ -47,7 +47,7 @@ both iOS and Android with coroutine scoping, lifecycle state observation, and au
 - [x] [complexity: complex] Implement cross-platform root and jailbreak detection checks covering su binaries, Magisk, Cydia, and sandbox integrity in :fraud
 - [x] [complexity: moderate] Create and configure the :viewmodel KMP module in settings.gradle.kts with Android and iOS targets, defining core ViewModel abstraction with viewModelScope and onCleared lifecycle
 - [x] [complexity: moderate] Implement cross-platform LifecycleState enum, LifecycleOwner, and LifecycleObserver in :viewmodel commonMain to track active and inactive component lifecycles
-- [ ] [complexity: moderate] Implement Android bindings in :viewmodel androidMain integrating with androidx.lifecycle.ViewModel and LifecycleOwner for automatic coroutine scope cancellation on cleared
+- [x] [complexity: moderate] Implement Android bindings in :viewmodel androidMain integrating with androidx.lifecycle.ViewModel and LifecycleOwner for automatic coroutine scope cancellation on cleared
 - [ ] [complexity: complex] Implement iOS lifecycle bindings in :viewmodel iosMain wrapping UIViewController and SwiftUI lifecycle notifications with Swift-friendly dealloc and scope cancellation hooks
 - [ ] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management
 - [ ] [complexity: simple] Add unit and host tests in :viewmodel commonTest and androidHostTest verifying ViewModel coroutine cancellation, lifecycle state transitions, and clear callbacks

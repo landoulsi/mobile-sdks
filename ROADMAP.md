@@ -7,11 +7,11 @@ card checkout, 3DS), In-App Update SDK (flexible/immediate updates, version chec
 release notes popups), unified Design system library (:design), Document Processing SDK (:document),
 and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
 
-**Current reality check:** The repository contains modular KMP SDKs (`:fraud`, `:pushnotification`,
-`:tutorial`, `:payment`, `:update`, `:logger`, `:location`, `:biometric`, `:storage`, `:design`,
-`:analytics`, `:remoteconfig`, `:document`, `:schemaui`, and `:demo`). Current priority is
-creating a new module for KMP lifecycle-aware ViewModels (`:viewmodel`) that work seamlessly across
-both iOS and Android with coroutine scoping, lifecycle state observation, and automatic cleanup.
+**Current reality check:** The repository contains modular KMP SDKs (`:diagnostic`, `:viewmodel`,
+`:fraud`, `:pushnotification`, `:tutorial`, `:payment`, `:update`, `:logger`, `:location`,
+`:biometric`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, `:document`, `:schemaui`, and
+`:demo`). Current priority is building the configurable Diagnostic SDK (`:diagnostic`) with domain
+models, diagnostic helpers (network, location), and Compose UI for app-specific health checks.
 
 ## Goals
 
@@ -48,6 +48,11 @@ both iOS and Android with coroutine scoping, lifecycle state observation, and au
 - [x] [complexity: moderate] Create and configure the :viewmodel KMP module in settings.gradle.kts with Android and iOS targets, defining core ViewModel abstraction with viewModelScope and onCleared lifecycle
 - [x] [complexity: moderate] Implement cross-platform LifecycleState enum, LifecycleOwner, and LifecycleObserver in :viewmodel commonMain to track active and inactive component lifecycles
 - [x] [complexity: moderate] Implement Android bindings in :viewmodel androidMain integrating with androidx.lifecycle.ViewModel and LifecycleOwner for automatic coroutine scope cancellation on cleared
+- [ ] [complexity: moderate] Define DiagnosticResult, DiagnosticState (PASS/WARNING/ERROR), DiagnosticCheck, and DiagnosticEngine orchestrator in :diagnostic commonMain
+- [ ] [complexity: moderate] Implement network and location diagnostic helpers detecting VPN, low signal, GPS disabled, and low accuracy in :diagnostic
+- [ ] [complexity: moderate] Build Compose DiagnosticView with run diagnostics button, status indicator, and result items rendering Pass, Warning, Error and cause text in :diagnostic
+- [ ] [complexity: simple] Add comprehensive unit and host tests for DiagnosticEngine, result evaluators, and state transitions in :diagnostic
+- [ ] [complexity: moderate] Add diagnostic showcase screen in :demo:app demonstrating configurable diagnostic checks, Run Diagnostics button, and item result cards
 - [ ] [complexity: complex] Implement iOS lifecycle bindings in :viewmodel iosMain wrapping UIViewController and SwiftUI lifecycle notifications with Swift-friendly dealloc and scope cancellation hooks
 - [ ] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management
 - [ ] [complexity: simple] Add unit and host tests in :viewmodel commonTest and androidHostTest verifying ViewModel coroutine cancellation, lifecycle state transitions, and clear callbacks
@@ -91,6 +96,17 @@ both iOS and Android with coroutine scoping, lifecycle state observation, and au
 
 Guidance for implementing the current and upcoming milestones:
 
+- **Device Diagnostic SDK (`:diagnostic`).** Provide a lightweight, cross-platform Kotlin Multiplatform library for app-configurable device health checks and reactive diagnostic UI:
+  - Core domain models: `DiagnosticState` (PASS, WARNING, ERROR), `DiagnosticResult` (id, title, state, cause: String?, timestamp: Long, metadata: Map<String, String>), `DiagnosticCheck` interface (`id: String`, `name: String`, `suspend fun run(): DiagnosticResult`), `DiagnosticSuite` (declarative collection of checks tailored per application).
+  - DiagnosticEngine orchestrator: executes diagnostic checks concurrently or sequentially, tracks execution state (IDLE, RUNNING, COMPLETED), and exposes reactive results via Kotlin Coroutines `StateFlow<DiagnosticUiState>`.
+  - Built-in diagnostic helpers:
+    - Network diagnostic helper: evaluates active connectivity, detects low signal strength / packet degradation (WARNING), active VPN or system proxy configurations (WARNING), and complete offline state (ERROR).
+    - Location diagnostic helper: inspects GPS / location service availability, identifies disabled location services (ERROR), missing runtime permissions (ERROR), or low accuracy / coarse provider active (WARNING).
+  - Diagnostic UI (`DiagnosticView` / `DiagnosticScreen`):
+    - Top header with prominent "Run Diagnostics" button and animated loading indicator.
+    - System health summary pill reflecting overall status (e.g., "All systems operational", "2 warnings detected", "1 error").
+    - Results list where each item displays its title, 3-state badge / status icon (Pass in green, Warning in amber, Error in red), and human-readable cause below explaining why a warning or error occurred.
+    - Modular check composition: allows individual apps (rider, driver, courier, retail) to pass custom sets of diagnostic checks.
 - **Lifecycle-Aware ViewModel SDK (`:viewmodel`).** Provide a lightweight, cross-platform Kotlin Multiplatform library for lifecycle-aware state holders and coroutine orchestration across Android and iOS:
   - Base abstraction: `ViewModel` class providing a bound `viewModelScope` (SupervisorJob + Main/Default dispatcher) and `onCleared()` lifecycle callback.
   - Lifecycle state: `LifecycleState` (INITIALIZED, CREATED, STARTED, RESUMED, DESTROYED), `LifecycleOwner`, and `LifecycleObserver` event listeners for foreground/background and visibility transitions.
@@ -154,8 +170,10 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems, fraud & device integrity engines (SHIELD, Incode, ThreatMetrix, Sift, Approov), push notification frameworks, onboarding engines, and mobile SDKs:
+Competitive review of modern design systems, fraud & device integrity engines (SHIELD, Incode, ThreatMetrix, Sift, Approov), device diagnostics tools (Uber Driver, Lyft, Apple Diagnostics), push notification frameworks, onboarding engines, and mobile SDKs:
 
+- **Modular Diagnostic Health Checks.** Distinct 3-state evaluation taxonomy (`PASS`, `WARNING`, `ERROR`) pairing emerald green checkmarks, amber warning shields, and crimson error octagons with clear, human-readable cause descriptions.
+- **Top-Anchored Actionable Diagnostics.** A high-visibility "Run Diagnostics" action button at the top of the screen with active test progress feedback, accompanied by individual card re-run triggers and deep links to system settings where applicable.
 - **Structured ViewModel Lifecycle & Auto-Cancellation.** Deterministic coroutine cancellation on view disappearance or component destruction preventing memory leaks and orphaned network/compute tasks across both Android and iOS.
 - **Unified Reactive State Observation.** Clean StateFlow and SharedFlow observation pipelines adapted for Compose (Android) and SwiftUI/Combine (iOS) with zero platform boilerplate.
 - **Threat Radar & Real-Time Risk Gauge.** A high-visibility Circular Gauge / Speedometer (0-100) reflecting overall device health with clear semantic color banding (Green = Secure, Amber = Elevated, Orange = High, Red = Critical) and explicit mitigation badges ("ALLOW", "WARN", "CHALLENGE", "BLOCK").
@@ -181,6 +199,7 @@ Competitive review of modern design systems, fraud & device integrity engines (S
 
 ## Phases
 
+- **Device Diagnostic SDK** — DiagnosticState & DiagnosticResult models, DiagnosticCheck & DiagnosticEngine, network & location diagnostic helpers, Compose DiagnosticView, demo showcase screen.
 - **Lifecycle-Aware ViewModel SDK** — ViewModel base abstraction, viewModelScope coroutine management, LifecycleState machine, AndroidX ViewModel interop, iOS lifecycle bridge, Flow extensions, demo screen.
 - **Fraud & Threat Detection SDK** — FraudSignal & FraudRiskScore models, root/jailbreak detection, emulator/virtual OS checks, mock location detector, hooking/Frida/Xposed defense, network VPN/proxy anomalies, composite scoring engine, showcase UI.
 - **Push Notification SDK** — PushNotification domain models, Android FCM & NotificationChannel integration, iOS APNs & UNUserNotificationCenter wrapper, in-app notification banner UI, topic management, demo showcase screen.

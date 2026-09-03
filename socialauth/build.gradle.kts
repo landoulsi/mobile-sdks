@@ -49,6 +49,7 @@ kotlin {
 
         androidMain {
             dependencies {
+                implementation(projects.logger)
                 implementation(libs.androidx.browser)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.ktor.client.okhttp)

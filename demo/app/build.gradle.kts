@@ -55,4 +55,5 @@ dependencies {
     implementation(project(":payment:shared"))
     implementation(project(":update:shared"))
     implementation(project(":survey"))
+    implementation(project(":diagnostic"))
 }

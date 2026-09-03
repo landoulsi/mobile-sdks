@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.landoulsi.demo.ui.DesignComponentsDemoScreen
+import com.landoulsi.demo.ui.DiagnosticDemoScreen
 import com.landoulsi.demo.ui.PaymentDemoScreen
 import com.landoulsi.demo.ui.SurveyDemoScreen
 import com.landoulsi.demo.ui.UpdateDemoScreen
@@ -55,6 +56,9 @@ fun DemoAppNavHost() {
         }
         composable("survey") {
             SurveyDemoScreen(onBack = { navController.popBackStack() })
+        }
+        composable("diagnostic") {
+            DiagnosticDemoScreen(onBack = { navController.popBackStack() })
         }
     }
 }
@@ -99,6 +103,13 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text("Survey SDK Demo")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("diagnostic") },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Diagnostic SDK Demo")
         }
     }
 }

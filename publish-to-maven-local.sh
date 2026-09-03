@@ -23,29 +23,7 @@ cd "$SCRIPT_DIR"
 
 echo "Publishing mobile-sdks to Maven local with version: $VERSION"
 
-./gradlew \
-  :update:publishToMavenLocal \
-  :design:publishToMavenLocal \
-  :logger:publishToMavenLocal \
-  :location:publishToMavenLocal \
-  :biometric:publishToMavenLocal \
-  :storage:publishToMavenLocal \
-  :tutorial:publishToMavenLocal \
-  :socialauth:publishToMavenLocal \
-  :survey:publishToMavenLocal \
-  :pushnotification:publishToMavenLocal \
-  :document:publishToMavenLocal \
-  :analytics:publishToMavenLocal \
-  :remoteconfig:publishToMavenLocal \
-  :screenshot:publishToMavenLocal \
-  :timeprovider:publishToMavenLocal \
-  :schemaui:publishToMavenLocal \
-  :fraud:publishToMavenLocal \
-  :viewmodel:publishToMavenLocal \
-  :diagnostic:publishToMavenLocal \
-  :permission:publishToMavenLocal \
-  :payment:shared:publishToMavenLocal \
-  -PsdkVersion="$VERSION"
+./gradlew publishToMavenLocal -PsdkVersion="$VERSION"
 
 echo ""
 echo "Done. Published com.landoulsi:*:$VERSION to ~/.m2/repository"

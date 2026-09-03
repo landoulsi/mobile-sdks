@@ -84,6 +84,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.payment"
-version = "1.0.0"

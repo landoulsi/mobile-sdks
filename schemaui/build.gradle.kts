@@ -103,6 +103,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.schemaui"
-version = "1.0.0"

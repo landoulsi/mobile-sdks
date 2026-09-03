@@ -10,4 +10,47 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.android.lint) apply false
     alias(libs.plugins.android.built.in1.kotlin) apply false
+    id("maven-publish") apply false
+}
+
+// Version used for all published SDK artifacts. Override with -PsdkVersion=X.Y.Z
+// (the publish-to-maven-local.sh script passes this automatically).
+val sdkVersion: String = (findProperty("sdkVersion") as? String) ?: "1.0.0"
+
+// All SDK modules share a single group; the artifact name is the module name.
+allprojects {
+    group = "com.landoulsi"
+    version = sdkVersion
+}
+
+// Configure publishing for every KMP library module (maven-publish is applied
+// automatically by the Kotlin Multiplatform plugin). App/demo modules use the
+// Android application plugin and are intentionally excluded.
+subprojects {
+    plugins.withId("org.jetbrains.kotlin.multiplatform") {
+        extensions.configure<PublishingExtension> {
+            publications.withType<MavenPublication>().configureEach {
+                pom {
+                    name.set(project.name)
+                    description.set("Landoulsi mobile SDK module: ${project.name}")
+                    url.set("https://github.com/landoulsi/mobile-sdks")
+                    licenses {
+                        license {
+                            name.set("Apache-2.0")
+                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("landoulsi")
+                            name.set("Landoulsi")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/landoulsi/mobile-sdks")
+                    }
+                }
+            }
+        }
+    }
 }

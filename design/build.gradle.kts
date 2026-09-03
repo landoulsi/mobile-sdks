@@ -53,6 +53,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.design"
-version = "1.0.0"

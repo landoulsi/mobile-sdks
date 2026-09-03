@@ -48,6 +48,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.pushnotification"
-version = "1.0.0"

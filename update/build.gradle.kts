@@ -61,6 +61,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.update"
-version = "1.0.0"

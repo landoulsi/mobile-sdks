@@ -83,6 +83,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.screenshot"
-version = "1.0.0"

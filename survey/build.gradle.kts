@@ -111,6 +111,3 @@ kotlin {
         }
     }
 }
-
-group = "com.landoulsi.survey"
-version = "1.0.0"

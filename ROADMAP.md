@@ -48,8 +48,8 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: moderate] Create and configure the :viewmodel KMP module in settings.gradle.kts with Android and iOS targets, defining core ViewModel abstraction with viewModelScope and onCleared lifecycle
 - [x] [complexity: moderate] Implement cross-platform LifecycleState enum, LifecycleOwner, and LifecycleObserver in :viewmodel commonMain to track active and inactive component lifecycles
 - [x] [complexity: moderate] Implement Android bindings in :viewmodel androidMain integrating with androidx.lifecycle.ViewModel and LifecycleOwner for automatic coroutine scope cancellation on cleared
-- [ ] [complexity: moderate] Define DiagnosticResult, DiagnosticState (PASS/WARNING/ERROR), DiagnosticCheck, and DiagnosticEngine orchestrator in :diagnostic commonMain
-- [ ] [complexity: moderate] Implement network and location diagnostic helpers detecting VPN, low signal, GPS disabled, and low accuracy in :diagnostic
+- [x] [complexity: moderate] Define DiagnosticResult, DiagnosticState (PASS/WARNING/ERROR), DiagnosticCheck, and DiagnosticEngine orchestrator in :diagnostic commonMain
+- [x] [complexity: moderate] Implement network and location diagnostic helpers detecting VPN, low signal, GPS disabled, and low accuracy in :diagnostic
 - [ ] [complexity: moderate] Build Compose DiagnosticView with run diagnostics button, status indicator, and result items rendering Pass, Warning, Error and cause text in :diagnostic
 - [ ] [complexity: simple] Add comprehensive unit and host tests for DiagnosticEngine, result evaluators, and state transitions in :diagnostic
 - [ ] [complexity: moderate] Add diagnostic showcase screen in :demo:app demonstrating configurable diagnostic checks, Run Diagnostics button, and item result cards

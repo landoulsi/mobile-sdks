@@ -36,3 +36,35 @@ interface DiagnosticCheck {
     val name: String
     suspend fun run(): DiagnosticResult
 }
+
+/**
+ * Configuration for a single diagnostic check, allowing checks to be enabled/disabled
+ * and their parameters to be customised without coupling the engine to concrete check types.
+ *
+ * @property checkId Unique identifier matching a [DiagnosticCheck.id].
+ * @property enabled Whether this check should be included in the suite.
+ * @property parameters Check-specific key-value parameters (e.g. threshold values).
+ */
+data class DiagnosticCheckConfig(
+    val checkId: String,
+    val enabled: Boolean = true,
+    val parameters: Map<String, String> = emptyMap(),
+)
+
+/**
+ * Applies a [DiagnosticCheckConfig] to a [DiagnosticCheck], returning a configured instance.
+ *
+ * Implementations are responsible for mapping config parameters onto concrete check
+ * constructors. The default implementation returns the check unchanged.
+ */
+fun interface DiagnosticCheckFactory {
+    fun create(check: DiagnosticCheck, config: DiagnosticCheckConfig): DiagnosticCheck
+}
+
+/**
+ * Default [DiagnosticCheckFactory] that returns checks unchanged. Concrete check types
+ * that support parameters can provide their own factory or be handled by a custom one.
+ */
+object DefaultDiagnosticCheckFactory : DiagnosticCheckFactory {
+    override fun create(check: DiagnosticCheck, config: DiagnosticCheckConfig): DiagnosticCheck = check
+}

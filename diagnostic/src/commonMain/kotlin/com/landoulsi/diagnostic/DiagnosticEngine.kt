@@ -44,6 +44,29 @@ class DiagnosticEngine(
 ) {
     constructor(checks: List<DiagnosticCheck>) : this(DiagnosticSuite(checks))
 
+    companion object {
+        /**
+         * Builds a [DiagnosticEngine] from a registry of available checks and a list of
+         * [DiagnosticCheckConfig]s. Only enabled checks are included in the suite, and each
+         * check's parameters are applied via [DiagnosticCheckFactory]. This keeps the engine
+         * decoupled from concrete check types.
+         */
+        fun fromConfigs(
+            availableChecks: List<DiagnosticCheck>,
+            configs: List<DiagnosticCheckConfig>,
+            factory: DiagnosticCheckFactory = DefaultDiagnosticCheckFactory,
+        ): DiagnosticEngine {
+            val configById = configs.associateBy { it.checkId }
+            val checks = availableChecks
+                .filter { check -> configById[check.id]?.enabled != false }
+                .map { check ->
+                    val config = configById[check.id]
+                    if (config != null) factory.create(check, config) else check
+                }
+            return DiagnosticEngine(checks)
+        }
+    }
+
     private val _uiState = MutableStateFlow(DiagnosticUiState())
     val uiState: StateFlow<DiagnosticUiState> = _uiState.asStateFlow()
 

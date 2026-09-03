@@ -88,4 +88,62 @@ class ViewModelTest {
         viewModel.clear()
         assertEquals(1, viewModel.onClearedCallCount, "Subsequent clear() calls should be idempotent")
     }
+
+    private class TestLifecycleOwner(
+        initialState: LifecycleState = LifecycleState.INITIALIZED,
+    ) : LifecycleOwner {
+        val registry = LifecycleRegistry(this, initialState)
+        override val lifecycle: Lifecycle get() = registry
+    }
+
+    @Test
+    fun testBindToLifecycleOwnerCancelsScopeOnDestroyed() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val viewModel = TestViewModel(CoroutineScope(SupervisorJob() + testDispatcher))
+        val owner = TestLifecycleOwner(LifecycleState.RESUMED)
+
+        viewModel.bindToLifecycle(owner)
+        assertEquals(0, viewModel.onClearedCallCount)
+
+        owner.registry.currentState = LifecycleState.DESTROYED
+        assertEquals(1, viewModel.onClearedCallCount)
+        assertFalse(viewModel.viewModelScope.isActive)
+    }
+
+    @Test
+    fun testBindToLifecycleCancelsScopeOnDestroyed() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val viewModel = TestViewModel(CoroutineScope(SupervisorJob() + testDispatcher))
+        val owner = TestLifecycleOwner(LifecycleState.RESUMED)
+
+        viewModel.bindToLifecycle(owner.lifecycle)
+        assertEquals(0, viewModel.onClearedCallCount)
+
+        owner.registry.currentState = LifecycleState.DESTROYED
+        assertEquals(1, viewModel.onClearedCallCount)
+        assertFalse(viewModel.viewModelScope.isActive)
+    }
+
+    @Test
+    fun testBindToLifecycleWhenAlreadyDestroyedClearsImmediately() = runTest {
+        val viewModel = TestViewModel()
+        val owner = TestLifecycleOwner(LifecycleState.DESTROYED)
+
+        viewModel.bindToLifecycle(owner)
+        assertEquals(1, viewModel.onClearedCallCount)
+        assertFalse(viewModel.viewModelScope.isActive)
+    }
+
+    @Test
+    fun testBindToLifecycleMultipleTimesIsIdempotent() = runTest {
+        val viewModel = TestViewModel()
+        val owner = TestLifecycleOwner(LifecycleState.CREATED)
+
+        viewModel.bindToLifecycle(owner)
+        viewModel.bindToLifecycle(owner)
+
+        owner.registry.currentState = LifecycleState.DESTROYED
+        assertEquals(1, viewModel.onClearedCallCount)
+    }
 }
+

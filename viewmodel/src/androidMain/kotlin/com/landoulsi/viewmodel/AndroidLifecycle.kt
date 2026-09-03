@@ -47,11 +47,6 @@ fun AndroidxLifecycle.Event.toTargetLifecycleState(): LifecycleState = when (thi
 }
 
 /**
- * Alias for [toTargetLifecycleState] for backwards compatibility.
- */
-fun AndroidxLifecycle.Event.toKmpState(): LifecycleState = toTargetLifecycleState()
-
-/**
  * Bridges an AndroidX [AndroidxLifecycle] to the KMP [Lifecycle] abstraction.
  *
  * Automatically converts AndroidX lifecycle state and event transitions into KMP
@@ -94,9 +89,6 @@ class AndroidLifecycleBridge(
 
     private val eventObserver: LifecycleEventObserver = object : LifecycleEventObserver {
         override fun onStateChanged(source: AndroidxLifecycleOwner, event: AndroidxLifecycle.Event) {
-            if (event == AndroidxLifecycle.Event.ON_ANY) {
-                throw IllegalArgumentException("ON_ANY cannot be dispatched as a target lifecycle event")
-            }
             val targetState = event.toTargetLifecycleState()
             registry.handleLifecycleEvent(targetState)
             if (event == AndroidxLifecycle.Event.ON_DESTROY) {
@@ -192,39 +184,3 @@ fun ViewModel.bindToLifecycle(lifecycle: AndroidxLifecycle) {
     }
     lifecycle.addObserver(observer)
 }
-
-/**
- * Binds this [ViewModel] to a KMP [LifecycleOwner].
- *
- * Automatically calls [ViewModel.clear] when the host lifecycle enters
- * [LifecycleState.DESTROYED] or if already destroyed.
- *
- * @param owner The KMP [LifecycleOwner] to bind to.
- */
-fun ViewModel.bindToLifecycle(owner: LifecycleOwner) {
-    bindToLifecycle(owner.lifecycle)
-}
-
-/**
- * Binds this [ViewModel] to a KMP [Lifecycle].
- *
- * Automatically calls [ViewModel.clear] when the lifecycle enters
- * [LifecycleState.DESTROYED] or if already destroyed.
- *
- * @param lifecycle The KMP [Lifecycle] to bind to.
- */
-fun ViewModel.bindToLifecycle(lifecycle: Lifecycle) {
-    if (lifecycle.currentState == LifecycleState.DESTROYED) {
-        clear()
-        return
-    }
-
-    val observer = object : DefaultLifecycleObserver {
-        override fun onDestroy(owner: LifecycleOwner) {
-            clear()
-            owner.lifecycle.removeObserver(this)
-        }
-    }
-    lifecycle.addObserver(observer)
-}
-

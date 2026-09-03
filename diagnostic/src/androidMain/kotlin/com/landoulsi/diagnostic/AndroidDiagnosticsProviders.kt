@@ -21,8 +21,9 @@ import com.landoulsi.diagnostic.network.NetworkTransportType
  * Android implementation of [NetworkDiagnosticsProvider] using system services.
  */
 class AndroidNetworkDiagnosticsProvider(
-    private val context: Context
+    context: Context,
 ) : NetworkDiagnosticsProvider {
+    private val context: Context = context.applicationContext
 
     @SuppressLint("MissingPermission")
     override suspend fun getNetworkSnapshot(): NetworkStatusSnapshot {
@@ -129,8 +130,9 @@ class AndroidNetworkDiagnosticsProvider(
  * Android implementation of [LocationDiagnosticsProvider] using system [LocationManager].
  */
 class AndroidLocationDiagnosticsProvider(
-    private val context: Context
+    context: Context,
 ) : LocationDiagnosticsProvider {
+    private val context: Context = context.applicationContext
 
     @SuppressLint("MissingPermission")
     override suspend fun getLocationSnapshot(): LocationStatusSnapshot {

@@ -2,8 +2,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.compose.multiplatform)
 }
 
 kotlin {
@@ -12,9 +10,13 @@ kotlin {
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     android {
-        namespace = "com.landoulsi.diagnostic"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        namespace = "com.landoulsi.permission"
+        compileSdk {
+            version = release(36) {
+                minorApiLevel = 1
+            }
+        }
+        minSdk = 24
 
         withHostTestBuilder {
         }
@@ -33,15 +35,23 @@ kotlin {
     // A step-by-step guide on how to include this library in an XCode
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "diagnosticKit"
+    val xcfName = "permissionKit"
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
+    iosX64 {
+        binaries.framework {
             baseName = xcfName
-            isStatic = true
+        }
+    }
+
+    iosArm64 {
+        binaries.framework {
+            baseName = xcfName
+        }
+    }
+
+    iosSimulatorArm64 {
+        binaries.framework {
+            baseName = xcfName
         }
     }
 
@@ -53,28 +63,20 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.design)
                 implementation(libs.kotlin.stdlib)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.ui)
+                // Add KMP dependencies here
             }
         }
 
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
-                implementation(libs.kotlinx.coroutines.test)
             }
         }
 
         androidMain {
             dependencies {
-                // Add Android-specific dependencies here. Note that this source set depends on
-                // commonMain by default and will correctly pull the Android artifacts of any KMP
-                // dependencies declared in commonMain.
+                implementation(libs.androidx.core.ktx)
             }
         }
 

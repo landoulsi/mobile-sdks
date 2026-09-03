@@ -53,7 +53,7 @@ dependencies {
     implementation(project(":design"))
 
     implementation(project(":payment:shared"))
-    implementation(project(":update:shared"))
+    implementation(project(":update"))
     implementation(project(":survey"))
     implementation(project(":diagnostic"))
 }

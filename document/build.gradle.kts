@@ -11,11 +11,7 @@ kotlin {
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     android {
         namespace = "com.landoulsi.document"
-        compileSdk {
-            version = release(36) {
-                minorApiLevel = 1
-            }
-        }
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = 24
 
         withHostTestBuilder {

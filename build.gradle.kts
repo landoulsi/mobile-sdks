@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.android.lint) apply false
     alias(libs.plugins.android.built.in1.kotlin) apply false
-    id("maven-publish") apply false
 }
 
 // Version used for all published SDK artifacts. Override with -PsdkVersion=X.Y.Z
@@ -23,11 +22,13 @@ allprojects {
     version = sdkVersion
 }
 
-// Configure publishing for every KMP library module (maven-publish is applied
-// automatically by the Kotlin Multiplatform plugin). App/demo modules use the
-// Android application plugin and are intentionally excluded.
+// Configure publishing for every KMP library module. With the new Android KMP
+// plugin (com.android.kotlin.multiplatform.library) the Kotlin Multiplatform
+// plugin no longer applies maven-publish automatically, so we apply it here.
+// App/demo modules use the Android application plugin and are excluded.
 subprojects {
     plugins.withId("org.jetbrains.kotlin.multiplatform") {
+        apply(plugin = "maven-publish")
         extensions.configure<PublishingExtension> {
             publications.withType<MavenPublication>().configureEach {
                 pom {

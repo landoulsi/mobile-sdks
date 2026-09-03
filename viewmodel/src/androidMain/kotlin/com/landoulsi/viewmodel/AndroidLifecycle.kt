@@ -47,6 +47,12 @@ fun AndroidxLifecycle.Event.toTargetLifecycleState(): LifecycleState = when (thi
 }
 
 /**
+ * Converts an [AndroidxLifecycle.Event] enum to the corresponding target KMP [LifecycleState].
+ * Alias for [toTargetLifecycleState].
+ */
+fun AndroidxLifecycle.Event.toKmpState(): LifecycleState = toTargetLifecycleState()
+
+/**
  * Bridges an AndroidX [AndroidxLifecycle] to the KMP [Lifecycle] abstraction.
  *
  * Automatically converts AndroidX lifecycle state and event transitions into KMP

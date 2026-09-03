@@ -26,15 +26,36 @@ open class ViewModel : AndroidXViewModel {
     private val isCleared = AtomicBoolean(false)
 
     /**
+     * Optional [SavedStateHandle] associated with this [ViewModel] for preserving UI state.
+     */
+    val savedStateHandle: SavedStateHandle?
+
+    /**
      * A [CoroutineScope] tied to this [ViewModel]'s lifecycle.
      * Coroutines launched in this scope are cancelled when the [ViewModel] is cleared.
      */
     val viewModelScope: CoroutineScope
         get() = androidxViewModelScope
 
-    constructor() : super()
+    constructor() : super() {
+        this.savedStateHandle = null
+    }
 
-    constructor(viewModelScope: CoroutineScope) : super(viewModelScope)
+    constructor(viewModelScope: CoroutineScope) : super(viewModelScope) {
+        this.savedStateHandle = null
+    }
+
+    constructor(savedStateHandle: SavedStateHandle) : super() {
+        this.savedStateHandle = savedStateHandle
+    }
+
+    constructor(savedStateHandle: SavedStateHandle?, viewModelScope: CoroutineScope) : super(viewModelScope) {
+        this.savedStateHandle = savedStateHandle
+    }
+
+    constructor(viewModelScope: CoroutineScope, savedStateHandle: SavedStateHandle?) : super(viewModelScope) {
+        this.savedStateHandle = savedStateHandle
+    }
 
     /**
      * Called when this [ViewModel] is destroyed/cleared.
@@ -96,5 +117,14 @@ fun ViewModel.bindToLifecycle(lifecycle: Lifecycle) {
         }
     }
     lifecycle.addObserver(observer)
+}
+
+/**
+ * Returns the [SavedStateHandle] associated with this [ViewModel], or throws [IllegalStateException] if none was attached.
+ */
+fun ViewModel.requireSavedStateHandle(): SavedStateHandle {
+    return checkNotNull(savedStateHandle) {
+        "ViewModel $this does not have a SavedStateHandle attached."
+    }
 }
 

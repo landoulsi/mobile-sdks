@@ -51,7 +51,7 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: moderate] Define DiagnosticResult, DiagnosticState (PASS/WARNING/ERROR), DiagnosticCheck, and DiagnosticEngine orchestrator in :diagnostic commonMain
 - [x] [complexity: moderate] Implement network and location diagnostic helpers detecting VPN, low signal, GPS disabled, and low accuracy in :diagnostic
 - [x] [complexity: moderate] Build Compose DiagnosticView with run diagnostics button, status indicator, and result items rendering Pass, Warning, Error and cause text in :diagnostic
-- [ ] [complexity: simple] Add comprehensive unit and host tests for DiagnosticEngine, result evaluators, and state transitions in :diagnostic
+- [x] [complexity: simple] Add comprehensive unit and host tests for DiagnosticEngine, result evaluators, and state transitions in :diagnostic
 - [ ] [complexity: moderate] Add diagnostic showcase screen in :demo:app demonstrating configurable diagnostic checks, Run Diagnostics button, and item result cards
 - [ ] [complexity: complex] Implement iOS lifecycle bindings in :viewmodel iosMain wrapping UIViewController and SwiftUI lifecycle notifications with Swift-friendly dealloc and scope cancellation hooks
 - [ ] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management

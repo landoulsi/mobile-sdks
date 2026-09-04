@@ -1,14 +1,14 @@
 # Mobile SDKs Roadmap
 
 A suite of Kotlin Multiplatform (Android + iOS) mobile SDKs, including Lifecycle-Aware
-ViewModel SDK (:viewmodel), Fraud & Threat Detection SDK (:fraud), Push Notification SDK
+ViewModel SDK (:viewmodel), Integrity & Threat Detection SDK (:integrity), Push Notification SDK
 (:pushnotification), Tutorial & Onboarding SDK (:tutorial), Payment SDK (Google Pay, Apple Pay,
 card checkout, 3DS), In-App Update SDK (flexible/immediate updates, version checking, and What's New /
 release notes popups), unified Design system library (:design), Document Processing SDK (:document),
 and cross-platform infrastructure libraries (Analytics, Location, Logger, RemoteConfig, Storage).
 
 **Current reality check:** The repository contains modular KMP SDKs (`:diagnostic`, `:viewmodel`,
-`:fraud`, `:pushnotification`, `:tutorial`, `:payment`, `:update`, `:logger`, `:location`,
+`:integrity`, `:pushnotification`, `:tutorial`, `:payment`, `:update`, `:logger`, `:location`,
 `:biometric`, `:storage`, `:design`, `:analytics`, `:remoteconfig`, `:document`, `:schemaui`, and
 `:demo`). Current priority is building the configurable Diagnostic SDK (`:diagnostic`) with domain
 models, diagnostic helpers (network, location), and Compose UI for app-specific health checks.
@@ -43,8 +43,8 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: moderate] Define tutorial domain models, step configurations, and persistent completion tracker in :tutorial commonMain
 - [x] [complexity: moderate] Implement customizable onboarding pager and feature carousel with swipe gestures and page indicator in :tutorial
 - [x] [complexity: moderate] Define PushNotification, NotificationChannel models and PushNotificationManager interface in :pushnotification commonMain
-- [x] [complexity: moderate] Define FraudSignal, FraudCategory, FraudRiskScore models and FraudDetector interface in :fraud commonMain
-- [x] [complexity: complex] Implement cross-platform root and jailbreak detection checks covering su binaries, Magisk, Cydia, and sandbox integrity in :fraud
+- [x] [complexity: moderate] Define IntegritySignal, IntegrityCategory, IntegrityRiskScore models and IntegrityDetector interface in :integrity commonMain
+- [x] [complexity: complex] Implement cross-platform root and jailbreak detection checks covering su binaries, Magisk, Cydia, and sandbox integrity in :integrity
 - [x] [complexity: moderate] Create and configure the :viewmodel KMP module in settings.gradle.kts with Android and iOS targets, defining core ViewModel abstraction with viewModelScope and onCleared lifecycle
 - [x] [complexity: moderate] Implement cross-platform LifecycleState enum, LifecycleOwner, and LifecycleObserver in :viewmodel commonMain to track active and inactive component lifecycles
 - [x] [complexity: moderate] Implement Android bindings in :viewmodel androidMain integrating with androidx.lifecycle.ViewModel and LifecycleOwner for automatic coroutine scope cancellation on cleared
@@ -57,13 +57,13 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management
 - [x] [complexity: simple] Add unit and host tests in :viewmodel commonTest and androidHostTest verifying ViewModel coroutine cancellation, lifecycle state transitions, and clear callbacks
 - [ ] [complexity: moderate] Add lifecycle-aware ViewModel showcase screen in :demo:app demonstrating StateFlow observation, coroutine auto-cancellation, and lifecycle event logging
-- [ ] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :fraud
-- [ ] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :fraud
-- [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, Substrate dynamic library injection, and debugger attach in :fraud
-- [ ] [complexity: moderate] Implement network fraud signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :fraud
-- [ ] [complexity: moderate] Implement composite risk scoring engine computing normalized FraudRiskScore with configurable thresholds and signal flows in :fraud
-- [ ] [complexity: simple] Add comprehensive unit and host tests for fraud signal evaluators, risk score calculations, and detection configurations in :fraud
-- [ ] [complexity: moderate] Add fraud detection showcase screen in :demo:app with real-time risk gauge, signal breakdown list, and threat inspection UI
+- [ ] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :integrity
+- [ ] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :integrity
+- [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, Substrate dynamic library injection, and debugger attach in :integrity
+- [ ] [complexity: moderate] Implement network integrity signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :integrity
+- [ ] [complexity: moderate] Implement composite risk scoring engine computing normalized IntegrityRiskScore with configurable thresholds and signal flows in :integrity
+- [ ] [complexity: simple] Add comprehensive unit and host tests for integrity signal evaluators, risk score calculations, and detection configurations in :integrity
+- [ ] [complexity: moderate] Add integrity detection showcase screen in :demo:app with real-time risk gauge, signal breakdown list, and threat inspection UI
 - [ ] [complexity: moderate] Implement Android push notification manager with FCM, NotificationChannel setup and POST_NOTIFICATIONS in :pushnotification
 - [ ] [complexity: moderate] Implement iOS push notification manager wrapping APNs and UNUserNotificationCenter in :pushnotification
 - [ ] [complexity: moderate] Add in-app notification banner UI and topic subscription manager in :pushnotification
@@ -114,9 +114,9 @@ Guidance for implementing the current and upcoming milestones:
   - iOS bindings: Native Swift / SwiftUI lifecycle bridge hooking view `onAppear`/`onDisappear`, `UIViewController` lifecycle methods, and Swift deinit cancellation hooks.
   - Reactive Flow extensions: `Flow.flowWithLifecycle(...)`, `collectAsStateWithLifecycle` equivalents, and state preservation utilities.
   - Demo App Showcase: Compose screen displaying live lifecycle transitions, counter/state streams, background job auto-cancellation, and logging.
-- **Fraud & Threat Detection SDK (`:fraud`).** Provide a Kotlin Multiplatform library for comprehensive device fraud, tampering, and threat signal detection across Android and iOS:
-  - Domain models: `FraudSignal` (id, name, category, severity, details, detectedAt, confidence), `FraudCategory` (ROOT_OR_JAILBREAK, VIRTUAL_OS_OR_EMULATOR, MOCK_LOCATION, HOOKING_OR_TAMPERING, DEBUGGER_ATTACHED, APP_CLONING, NETWORK_ANOMALY, UNTRUSTED_INSTALLER), `SignalSeverity` (INFO, LOW, MEDIUM, HIGH, CRITICAL), `FraudRiskScore` (score 0-100, riskLevel: LOW/MEDIUM/HIGH/CRITICAL, action: ALLOW/WARN/CHALLENGE/BLOCK, signals: List<FraudSignal>), `FraudConfig` (thresholds, enabled categories, custom weights).
-  - FraudDetector interface: `detectSignals(): List<FraudSignal>`, `evaluateRisk(): FraudRiskScore`, `observeSignals(): Flow<List<FraudSignal>>`, `evaluateCategory(category: FraudCategory): List<FraudSignal>`.
+- **Integrity & Threat Detection SDK (`:integrity`).** Provide a Kotlin Multiplatform library for comprehensive device integrity, tampering, and threat signal detection across Android and iOS:
+  - Domain models: `IntegritySignal` (id, name, category, severity, details, detectedAt, confidence), `IntegrityCategory` (ROOT_OR_JAILBREAK, VIRTUAL_OS_OR_EMULATOR, MOCK_LOCATION, HOOKING_OR_TAMPERING, DEBUGGER_ATTACHED, APP_CLONING, NETWORK_ANOMALY, UNTRUSTED_INSTALLER), `SignalSeverity` (INFO, LOW, MEDIUM, HIGH, CRITICAL), `IntegrityRiskScore` (score 0-100, riskLevel: LOW/MEDIUM/HIGH/CRITICAL, action: ALLOW/WARN/CHALLENGE/BLOCK, signals: List<IntegritySignal>), `IntegrityConfig` (thresholds, enabled categories, custom weights).
+  - IntegrityDetector interface: `detectSignals(): List<IntegritySignal>`, `evaluateRisk(): IntegrityRiskScore`, `observeSignals(): Flow<List<IntegritySignal>>`, `evaluateCategory(category: IntegrityCategory): List<IntegritySignal>`.
   - Platform detection checks:
     - Root / Jailbreak: Android `su` binary inspection (`/system/bin/su`, `/system/xbin/su`, `/sbin/su`), Magisk / KernelSU mounts and packages, `test-keys` build tags, writable system mounts; iOS Cydia / Sileo / Zebra app paths (`/Applications/Cydia.app`), `/bin/sh`, `/usr/sbin/sshd`, fork() capability, and sandbox escape checks.
     - Virtual OS & Emulator: Android build properties (goldfish, ranchu, generic, sdk_gphone, vbox86, qemu), absence of standard hardware sensors, telephony device ID anomalies, parallel space sandboxes (VirtualApp, DualSpace, Parallel Space UID/path anomalies); iOS `TARGET_OS_SIMULATOR` and sysctl model inspection.
@@ -201,7 +201,7 @@ Competitive review of modern design systems, fraud & device integrity engines (S
 
 - **Device Diagnostic SDK** — DiagnosticState & DiagnosticResult models, DiagnosticCheck & DiagnosticEngine, network & location diagnostic helpers, Compose DiagnosticView, demo showcase screen.
 - **Lifecycle-Aware ViewModel SDK** — ViewModel base abstraction, viewModelScope coroutine management, LifecycleState machine, AndroidX ViewModel interop, iOS lifecycle bridge, Flow extensions, demo screen.
-- **Fraud & Threat Detection SDK** — FraudSignal & FraudRiskScore models, root/jailbreak detection, emulator/virtual OS checks, mock location detector, hooking/Frida/Xposed defense, network VPN/proxy anomalies, composite scoring engine, showcase UI.
+- **Integrity & Threat Detection SDK** — IntegritySignal & IntegrityRiskScore models, root/jailbreak detection, emulator/virtual OS checks, mock location detector, hooking/Frida/Xposed defense, network VPN/proxy anomalies, composite scoring engine, showcase UI.
 - **Push Notification SDK** — PushNotification domain models, Android FCM & NotificationChannel integration, iOS APNs & UNUserNotificationCenter wrapper, in-app notification banner UI, topic management, demo showcase screen.
 - **Tutorial & Onboarding SDK** — onboarding carousel pager, interactive spotlight & coach mark overlay, finger/hand pointing animations, multi-step sequence orchestrator, showcase demo screen.
 - **Foundation & Core Payment SDK** — core domain models, Google Pay provider, Apple Pay provider, 3DS, card checkout.

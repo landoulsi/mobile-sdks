@@ -23,43 +23,43 @@ class SchemaToIRTest {
     // ─── normalizeHexColor ───────────────────────────────────────────────────
 
     @Test
-    fun `normalizeHexColor with 6 digits adds full alpha`() {
+    fun normalizeHexColor_with_6_digits_adds_full_alpha() {
         assertEquals("FFFF0000", "#FF0000".normalizeHexColor())
         assertEquals("FFFF0000", "FF0000".normalizeHexColor())
     }
 
     @Test
-    fun `normalizeHexColor with 8 digits preserves alpha`() {
+    fun normalizeHexColor_with_8_digits_preserves_alpha() {
         assertEquals("80FF0000", "#80FF0000".normalizeHexColor())
         assertEquals("80FF0000", "80FF0000".normalizeHexColor())
     }
 
     @Test
-    fun `normalizeHexColor lowercase converted to uppercase`() {
+    fun normalizeHexColor_lowercase_converted_to_uppercase() {
         assertEquals("FFAABBCC", "#aabbcc".normalizeHexColor())
     }
 
     @Test
-    fun `normalizeHexColor with 3 digits expands to full alpha and RGB`() {
+    fun normalizeHexColor_with_3_digits_expands_to_full_alpha_and_RGB() {
         assertEquals("FFFFFFFF", "#FFF".normalizeHexColor())
         assertEquals("FF112233", "#123".normalizeHexColor())
     }
 
     @Test
-    fun `normalizeHexColor invalid lengths fallback to black`() {
+    fun normalizeHexColor_invalid_lengths_fallback_to_black() {
         assertEquals("FF000000", "#FF".normalizeHexColor())
         assertEquals("FF000000", "12345".normalizeHexColor())
         assertEquals("FF000000", "".normalizeHexColor())
     }
 
     @Test
-    fun `toUIModifiers with null returns None`() {
+    fun toUIModifiers_with_null_returns_None() {
         val modifiers = (null as SchemaModifiers?).toUIModifiers()
         assertEquals(UIModifiers.None, modifiers)
     }
 
     @Test
-    fun `toUIModifiers padding all expands to four sides`() {
+    fun toUIModifiers_padding_all_expands_to_four_sides() {
         val schema = SchemaModifiers(
             padding = PaddingModifier(all = 12f),
         )
@@ -71,7 +71,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `toUIModifiers padding specific overrides all`() {
+    fun toUIModifiers_padding_specific_overrides_all() {
         val schema = SchemaModifiers(
             padding = PaddingModifier(all = 8f, top = 20f),
         )
@@ -83,7 +83,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `toUIModifiers horizontal axis overrides all`() {
+    fun toUIModifiers_horizontal_axis_overrides_all() {
         val schema = SchemaModifiers(
             padding = PaddingModifier(all = 4f, horizontal = 16f),
         )
@@ -95,7 +95,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `toUIModifiers alpha clamped to 0-1`() {
+    fun toUIModifiers_alpha_clamped_to_0_1() {
         val over = SchemaModifiers(alpha = 2.5f)
         val under = SchemaModifiers(alpha = -0.5f)
         assertEquals(1f, over.toUIModifiers().alpha)
@@ -103,7 +103,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `toUIModifiers null size fields remain null`() {
+    fun toUIModifiers_null_size_fields_remain_null() {
         val schema = SchemaModifiers()
         val modifiers = schema.toUIModifiers()
         assertNull(modifiers.width)
@@ -111,7 +111,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `toUIModifiers fillMaxWidth set to true`() {
+    fun toUIModifiers_fillMaxWidth_set_to_true() {
         val schema = SchemaModifiers(
             size = SizeModifier(fillMaxWidth = true),
         )
@@ -120,7 +120,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `toUIModifiers backgroundColor normalized`() {
+    fun toUIModifiers_backgroundColor_normalized() {
         val schema = SchemaModifiers(
             background = BackgroundModifier(color = "#123456"),
         )
@@ -129,7 +129,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `box alignment 2D mappings`() {
+    fun box_alignment_2D_mappings() {
         val boxNode = BoxSchemaNode(
             children = emptyList(),
             modifiers = SchemaModifiers(
@@ -157,7 +157,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `column arrangements and alignments`() {
+    fun column_arrangements_and_alignments() {
         val columnNode = ColumnSchemaNode(
             children = emptyList(),
             verticalArrangement = "spaceBetween",
@@ -171,7 +171,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `row arrangements and alignments`() {
+    fun row_arrangements_and_alignments() {
         val row = RowSchemaNode(
             children = emptyList(),
             horizontalArrangement = "spaceEvenly",
@@ -185,7 +185,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `button styles mapping`() {
+    fun button_styles_mapping() {
         val outlined = ButtonSchemaNode(label = "B", action = "a", style = "outlined").toIR() as UIButton
         assertEquals(UIButtonStyle.Outlined, outlined.style)
 
@@ -197,7 +197,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `textField input types mapping`() {
+    fun textField_input_types_mapping() {
         val emailField = TextFieldSchemaNode(
             label = "L",
             placeholder = "P",
@@ -216,7 +216,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `image contentScale mapping`() {
+    fun image_contentScale_mapping() {
         val cropImage = ImageSchemaNode(url = "u", contentScale = "crop").toIR() as UIImage
         assertEquals(UIContentScale.Crop, cropImage.contentScale)
 
@@ -225,7 +225,7 @@ class SchemaToIRTest {
     }
 
     @Test
-    fun `text styles font weight and alignment mapping`() {
+    fun text_styles_font_weight_and_alignment_mapping() {
         val textNode = TextSchemaNode(
             text = "T",
             style = TextStyle(

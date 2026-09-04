@@ -15,20 +15,20 @@ import kotlin.test.assertTrue
 class StateStoreTest {
 
     @Test
-    fun `set and get a value`() {
+    fun set_and_get_a_value() {
         val store = StateStore()
         store.set("name", "Alice")
         assertEquals("Alice", store.get("name"))
     }
 
     @Test
-    fun `get returns null for missing key`() {
+    fun get_returns_null_for_missing_key() {
         val store = StateStore()
         assertNull(store.get("missing"))
     }
 
     @Test
-    fun `set overwrites previous value`() {
+    fun set_overwrites_previous_value() {
         val store = StateStore()
         store.set("count", "1")
         store.set("count", "2")
@@ -36,7 +36,7 @@ class StateStoreTest {
     }
 
     @Test
-    fun `multiple keys are isolated`() {
+    fun multiple_keys_are_isolated() {
         val store = StateStore()
         store.set("a", "alpha")
         store.set("b", "beta")
@@ -45,7 +45,7 @@ class StateStoreTest {
     }
 
     @Test
-    fun `remove deletes a key`() {
+    fun remove_deletes_a_key() {
         val store = StateStore()
         store.set("x", "value")
         store.remove("x")
@@ -53,7 +53,7 @@ class StateStoreTest {
     }
 
     @Test
-    fun `clear removes all keys`() {
+    fun clear_removes_all_keys() {
         val store = StateStore()
         store.set("k1", "v1")
         store.set("k2", "v2")
@@ -63,7 +63,7 @@ class StateStoreTest {
     }
 
     @Test
-    fun `snapshot returns full state map`() {
+    fun snapshot_returns_full_state_map() {
         val store = StateStore()
         store.set("email", "test@example.com")
         store.set("name", "Alice")
@@ -74,7 +74,7 @@ class StateStoreTest {
     }
 
     @Test
-    fun `observe emits current value on collection`() = runTest {
+    fun observe_emits_current_value_on_collection() = runTest {
         val store = StateStore()
         store.set("key", "initial")
         val observed = store.observe("key").first()
@@ -82,14 +82,14 @@ class StateStoreTest {
     }
 
     @Test
-    fun `observe emits null for missing key`() = runTest {
+    fun observe_emits_null_for_missing_key() = runTest {
         val store = StateStore()
         val observed = store.observe("nonexistent").first()
         assertNull(observed)
     }
 
     @Test
-    fun `observe emits only distinct values for observed key`() = runTest {
+    fun observe_emits_only_distinct_values_for_observed_key() = runTest {
         val store = StateStore()
         val collectedValues = mutableListOf<String?>()
 
@@ -105,7 +105,7 @@ class StateStoreTest {
     }
 
     @Test
-    fun `state flow emits on set`() = runTest {
+    fun state_flow_emits_on_set() = runTest {
         val store = StateStore()
         store.set("x", "hello")
         val current = store.state.first()
@@ -113,13 +113,13 @@ class StateStoreTest {
     }
 
     @Test
-    fun `state flow starts empty`() = runTest {
+    fun state_flow_starts_empty() = runTest {
         val store = StateStore()
         assertTrue(store.state.first().isEmpty())
     }
 
     @Test
-    fun `observe emits null when key is removed`() = runTest {
+    fun observe_emits_null_when_key_is_removed() = runTest {
         val store = StateStore()
         val emissions = mutableListOf<String?>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {

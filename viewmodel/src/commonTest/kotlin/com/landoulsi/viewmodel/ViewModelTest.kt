@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -144,6 +145,60 @@ class ViewModelTest {
 
         owner.registry.currentState = LifecycleState.DESTROYED
         assertEquals(1, viewModel.onClearedCallCount)
+    }
+
+    @Test
+    fun testClearCancelsGrandchildJobsInStructuredScope() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val viewModel = TestViewModel(CoroutineScope(SupervisorJob() + testDispatcher))
+
+        var parentStarted = false
+        var grandchildStarted = false
+        var grandchildCancelled = false
+
+        viewModel.viewModelScope.launch {
+            parentStarted = true
+            launch {
+                grandchildStarted = true
+                try {
+                    awaitCancellation()
+                } catch (e: CancellationException) {
+                    grandchildCancelled = true
+                    throw e
+                }
+            }
+        }
+
+        advanceUntilIdle()
+        assertTrue(parentStarted, "Parent coroutine should have started")
+        assertTrue(grandchildStarted, "Grandchild coroutine should have started")
+        assertTrue(viewModel.viewModelScope.isActive, "Scope should be active")
+
+        viewModel.clear()
+
+        advanceUntilIdle()
+        assertFalse(viewModel.viewModelScope.isActive, "Scope should be cancelled after clear()")
+        assertTrue(grandchildCancelled, "Grandchild job should have received CancellationException")
+    }
+
+    @Test
+    fun testBindToLifecycleThenManualClearDoesNotDoubleFireOnCleared() {
+        val viewModel = TestViewModel()
+        val owner = TestLifecycleOwner(LifecycleState.RESUMED)
+
+        viewModel.bindToLifecycle(owner)
+        assertEquals(0, viewModel.onClearedCallCount)
+
+        viewModel.clear()
+        assertEquals(1, viewModel.onClearedCallCount, "Manual clear() should invoke onCleared once")
+        assertFalse(viewModel.viewModelScope.isActive)
+
+        owner.registry.currentState = LifecycleState.DESTROYED
+        assertEquals(
+            1,
+            viewModel.onClearedCallCount,
+            "Lifecycle DESTROYED after manual clear() should not double-fire onCleared"
+        )
     }
 }
 

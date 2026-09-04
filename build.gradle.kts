@@ -54,4 +54,21 @@ subprojects {
             }
         }
     }
+
+    // Workaround for https://github.com/JetBrains/compose-multiplatform/issues/4540
+    // When using android.kotlin.multiplatform.library, the compose resources plugin
+    // fails to configure outputDirectory for the androidDeviceTest task.
+    tasks.configureEach {
+        if (name == "copyAndroidDeviceTestComposeResourcesToAndroidAssets") {
+            try {
+                val taskClass = this::class.java
+                val outputDirectoryMethod = taskClass.methods.firstOrNull { it.name == "getOutputDirectory" }
+                @Suppress("UNCHECKED_CAST")
+                val outputDirectory = outputDirectoryMethod?.invoke(this) as? Property<Directory>
+                outputDirectory?.set(layout.buildDirectory.dir("intermediates/compose/resources/androidDeviceTest/assets"))
+            } catch (e: Exception) {
+                // Ignore if it fails
+            }
+        }
+    }
 }

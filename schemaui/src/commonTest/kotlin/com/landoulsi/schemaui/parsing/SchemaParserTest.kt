@@ -29,7 +29,7 @@ class SchemaParserTest {
     // ─── Positive Cases ───────────────────────────────────────────────────────
 
     @Test
-    fun `parse minimal column node`() {
+    fun parse_minimal_column_node() {
         val json = """{"type":"column","children":[]}"""
         val result = engine.parseFromString(json)
         assertTrue(result.isSuccess)
@@ -37,7 +37,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse text node with style`() {
+    fun parse_text_node_with_style() {
         val json = """
             {
               "type": "text",
@@ -58,7 +58,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse button node with action`() {
+    fun parse_button_node_with_action() {
         val json = """{"type":"button","label":"Submit","action":"submit","style":"outlined"}"""
         val node = engine.parseFromString(json).getOrThrow() as UIButton
         assertEquals("Submit", node.label)
@@ -67,7 +67,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse textField node with stateKey`() {
+    fun parse_textField_node_with_stateKey() {
         val json = """{"type":"textField","label":"Email","placeholder":"you@example.com","stateKey":"email"}"""
         val node = engine.parseFromString(json).getOrThrow() as UITextField
         assertEquals("email", node.stateKey)
@@ -76,7 +76,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse image node with url`() {
+    fun parse_image_node_with_url() {
         val json = """{"type":"image","url":"https://example.com/img.png","contentDescription":"Hero image"}"""
         val node = engine.parseFromString(json).getOrThrow() as UIImage
         assertEquals("https://example.com/img.png", node.url)
@@ -85,7 +85,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse spacer node with height`() {
+    fun parse_spacer_node_with_height() {
         val json = """{"type":"spacer","height":16.0}"""
         val node = engine.parseFromString(json).getOrThrow() as UISpacer
         assertEquals(16f, node.height)
@@ -93,7 +93,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse row node`() {
+    fun parse_row_node() {
         val json = """{"type":"row","children":[{"type":"text","text":"A"},{"type":"text","text":"B"}]}"""
         val node = engine.parseFromString(json).getOrThrow() as UIRow
         assertEquals(2, node.children.size)
@@ -101,13 +101,13 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse box node`() {
+    fun parse_box_node() {
         val json = """{"type":"box","children":[]}"""
         assertIs<UIBox>(engine.parseFromString(json).getOrThrow())
     }
 
     @Test
-    fun `parse list node with items`() {
+    fun parse_list_node_with_items() {
         val json = """
             {
               "type": "list",
@@ -124,7 +124,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse nested column with children`() {
+    fun parse_nested_column_with_children() {
         val json = """
             {
               "type": "column",
@@ -143,7 +143,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse node with padding modifier`() {
+    fun parse_node_with_padding_modifier() {
         val json = """
             {
               "type": "text",
@@ -161,7 +161,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `specific padding overrides shorthand`() {
+    fun specific_padding_overrides_shorthand() {
         val json = """
             {
               "type": "text",
@@ -178,7 +178,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse fillMaxWidth modifier`() {
+    fun parse_fillMaxWidth_modifier() {
         val json = """
             {
               "type": "column",
@@ -191,7 +191,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse background modifier with hex color`() {
+    fun parse_background_modifier_with_hex_color() {
         val json = """
             {
               "type": "text",
@@ -207,7 +207,7 @@ class SchemaParserTest {
     // ─── Unknown Type ─────────────────────────────────────────────────────────
 
     @Test
-    fun `parse explicit unknown type produces UIUnknown gracefully`() {
+    fun parse_explicit_unknown_type_produces_UIUnknown_gracefully() {
         val json = """{"type":"unknown","originalType":"custom_widget"}"""
         val node = engine.parseFromString(json).getOrThrow()
         assertIs<UIUnknown>(node)
@@ -215,7 +215,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse arbitrary unrecognized type produces UIUnknown with originalType`() {
+    fun parse_arbitrary_unrecognized_type_produces_UIUnknown_with_originalType() {
         val json = """{"type":"video_player","url":"https://example.com/video.mp4"}"""
         val result = engine.parseFromString(json)
         assertTrue(result.isSuccess)
@@ -225,7 +225,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `parse column with unrecognized child type produces UIUnknown child`() {
+    fun parse_column_with_unrecognized_child_type_produces_UIUnknown_child() {
         val json = """
             {
               "type": "column",
@@ -243,7 +243,7 @@ class SchemaParserTest {
     }
 
     @Test
-    fun `FallbackUnknownNodeSerializer handles null modifiers gracefully`() {
+    fun FallbackUnknownNodeSerializer_handles_null_modifiers_gracefully() {
         val json = """{"type":"custom_widget","modifiers":null}"""
         val result = engine.parseFromString(json)
         assertTrue(result.isSuccess)
@@ -256,27 +256,27 @@ class SchemaParserTest {
     // ─── Negative Cases ───────────────────────────────────────────────────────
 
     @Test
-    fun `parse empty string returns failure`() {
+    fun parse_empty_string_returns_failure() {
         val result = engine.parseFromString("")
         assertTrue(result.isFailure)
         assertIs<SchemaParseException>(result.exceptionOrNull())
     }
 
     @Test
-    fun `parse invalid json returns failure`() {
+    fun parse_invalid_json_returns_failure() {
         val result = engine.parseFromString("this is not json")
         assertTrue(result.isFailure)
         assertIs<SchemaParseException>(result.exceptionOrNull())
     }
 
     @Test
-    fun `parse json without type field returns failure`() {
+    fun parse_json_without_type_field_returns_failure() {
         val result = engine.parseFromString("""{"label":"No type here"}""")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun `extra unknown fields are ignored`() {
+    fun extra_unknown_fields_are_ignored() {
         val json = """{"type":"text","text":"Hi","unknownField":"ignored","anotherOne":42}"""
         val result = engine.parseFromString(json)
         assertTrue(result.isSuccess)

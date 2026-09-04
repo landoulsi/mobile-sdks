@@ -3,6 +3,9 @@ package com.landoulsi.viewmodel
 import androidx.lifecycle.Lifecycle as AndroidxLifecycle
 import androidx.lifecycle.LifecycleOwner as AndroidxLifecycleOwner
 import androidx.lifecycle.LifecycleRegistry as AndroidxLifecycleRegistry
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.CreationExtras
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -445,6 +448,42 @@ class AndroidLifecycleTest {
 
         androidOwner.registry.handleLifecycleEvent(AndroidxLifecycle.Event.ON_DESTROY)
         assertEquals(1, clearCount)
+    }
+
+    @Test
+    fun viewModel_storeClear_triggersOnClearedAndCancelsScope() {
+        val store = ViewModelStore()
+        var cleared = false
+        val factory = object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+                @Suppress("UNCHECKED_CAST")
+                return object : ViewModel() {
+                    override fun onCleared() {
+                        cleared = true
+                        super.onCleared()
+                    }
+                } as T
+            }
+        }
+        val provider = ViewModelProvider(store, factory)
+        val viewModel = provider.get(ViewModel::class.java)
+
+        assertTrue(viewModel.viewModelScope.isActive, "viewModelScope should be active before store.clear()")
+
+        var coroutineRunning = false
+        val job = viewModel.viewModelScope.launch {
+            coroutineRunning = true
+            delay(10_000)
+        }
+
+        testDispatcher.scheduler.advanceTimeBy(100)
+        assertTrue(coroutineRunning, "Launched coroutine should be running")
+        assertTrue(job.isActive, "Job should be active before store.clear()")
+
+        store.clear()
+        assertTrue(cleared, "store.clear() should trigger onCleared() on the KMP ViewModel")
+        assertFalse(viewModel.viewModelScope.isActive, "viewModelScope should be inactive after store.clear()")
+        assertTrue(job.isCancelled, "Active job should be cancelled after store.clear()")
     }
 }
 

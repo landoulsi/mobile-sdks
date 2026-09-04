@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 class SchemaUIEngineTest {
 
     @Test
-    fun `registerAction and triggerAction execute callback`() {
+    fun registerAction_and_triggerAction_execute_callback() {
         val engine = SchemaUIEngine()
         var triggered = false
         engine.registerAction("click") {
@@ -22,7 +22,7 @@ class SchemaUIEngineTest {
     }
 
     @Test
-    fun `registerActionWithState receives latest state snapshot`() {
+    fun registerActionWithState_receives_latest_state_snapshot() {
         val engine = SchemaUIEngine()
         engine.stateStore.set("username", "testUser")
         var capturedUsername: String? = null
@@ -37,7 +37,7 @@ class SchemaUIEngineTest {
     }
 
     @Test
-    fun `unregisterAction removes both simple and stateful actions`() {
+    fun unregisterAction_removes_both_simple_and_stateful_actions() {
         val engine = SchemaUIEngine()
         var simpleTriggered = false
         var stateTriggered = false
@@ -56,7 +56,7 @@ class SchemaUIEngineTest {
     }
 
     @Test
-    fun `triggerAction on unregistered name degrades gracefully`() {
+    fun triggerAction_on_unregistered_name_degrades_gracefully() {
         val engine = SchemaUIEngine()
         assertFalse(engine.hasAction("nonExistent"))
         // Should not throw
@@ -64,7 +64,7 @@ class SchemaUIEngineTest {
     }
 
     @Test
-    fun `parseFromString valid and invalid schemas`() {
+    fun parseFromString_valid_and_invalid_schemas() {
         val engine = SchemaUIEngine()
         val successResult = engine.parseFromString("""{"type":"text","text":"hello"}""")
         assertTrue(successResult.isSuccess)

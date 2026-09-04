@@ -57,13 +57,19 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management
 - [x] [complexity: simple] Add unit and host tests in :viewmodel commonTest and androidHostTest verifying ViewModel coroutine cancellation, lifecycle state transitions, and clear callbacks
 - [ ] [complexity: moderate] Add lifecycle-aware ViewModel showcase screen in :demo:app demonstrating StateFlow observation, coroutine auto-cancellation, and lifecycle event logging
-- [ ] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :integrity
+- [x] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :integrity
 - [ ] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :integrity
-- [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, Substrate dynamic library injection, and debugger attach in :integrity
+- [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, and Substrate dynamic library injection in :integrity
 - [ ] [complexity: moderate] Implement network integrity signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :integrity
-- [ ] [complexity: moderate] Implement composite risk scoring engine computing normalized IntegrityRiskScore with configurable thresholds and signal flows in :integrity
+- [x] [complexity: moderate] Implement composite risk scoring engine computing normalized IntegrityRiskScore with configurable thresholds and signal flows in :integrity
 - [ ] [complexity: simple] Add comprehensive unit and host tests for integrity signal evaluators, risk score calculations, and detection configurations in :integrity
 - [ ] [complexity: moderate] Add integrity detection showcase screen in :demo:app with real-time risk gauge, signal breakdown list, and threat inspection UI
+- [ ] [complexity: simple] Implement untrusted installer source detection using PackageManager installer package name and install source info in :integrity
+- [ ] [complexity: simple] Implement debugger-attached detection covering Debug.isDebuggerConnected(), /proc/self/status TracerPid, and iOS sysctl P_TRACED flag checks in :integrity
+- [ ] [complexity: moderate] Implement app cloning detection covering Android multi-user/work-profile UserManager checks for duplicate native app instances in :integrity
+- [ ] [complexity: moderate] Add a default-evaluators factory auto-registering platform-appropriate evaluators without manual wiring in :integrity
+- [ ] [complexity: moderate] Wire IntegrityConfig thresholds and enabled categories to :remoteconfig for server-side tuning without a release
+- [ ] [complexity: complex] Integrate Play Integrity API (Android) and DeviceCheck/App Attest (iOS) for hardware-backed firmware/OS attestation in :integrity
 - [ ] [complexity: moderate] Implement Android push notification manager with FCM, NotificationChannel setup and POST_NOTIFICATIONS in :pushnotification
 - [ ] [complexity: moderate] Implement iOS push notification manager wrapping APNs and UNUserNotificationCenter in :pushnotification
 - [ ] [complexity: moderate] Add in-app notification banner UI and topic subscription manager in :pushnotification

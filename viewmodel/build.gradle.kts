@@ -31,7 +31,9 @@ kotlin {
         }
     }
 
-    iosX64()
+    // iosX64 (Intel simulator) is intentionally omitted: androidx.lifecycle:lifecycle-viewmodel
+    // stopped publishing an iosX64 artifact as of 2.11.0, and Apple-silicon simulators use
+    // iosSimulatorArm64. Keeping iosX64 here breaks KMP dependency resolution / Gradle sync.
     iosArm64()
     iosSimulatorArm64()
 

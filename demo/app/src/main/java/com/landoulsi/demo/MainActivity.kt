@@ -19,6 +19,7 @@ import com.landoulsi.demo.ui.DiagnosticDemoScreen
 import com.landoulsi.demo.ui.PaymentDemoScreen
 import com.landoulsi.demo.ui.SurveyDemoScreen
 import com.landoulsi.demo.ui.UpdateDemoScreen
+import com.landoulsi.demo.ui.ViewModelDemoScreen
 import com.landoulsi.design.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +60,9 @@ fun DemoAppNavHost() {
         }
         composable("diagnostic") {
             DiagnosticDemoScreen(onBack = { navController.popBackStack() })
+        }
+        composable("viewmodel") {
+            ViewModelDemoScreen(onBack = { navController.popBackStack() })
         }
     }
 }
@@ -110,6 +114,13 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text("Diagnostic SDK Demo")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("viewmodel") },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("ViewModel SDK Demo")
         }
     }
 }

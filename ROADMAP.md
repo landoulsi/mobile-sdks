@@ -56,7 +56,7 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: complex] Implement iOS lifecycle bindings in :viewmodel iosMain wrapping UIViewController and SwiftUI lifecycle notifications with Swift-friendly dealloc and scope cancellation hooks
 - [x] [complexity: moderate] Add lifecycle-aware Flow extensions like flowWithLifecycle and state preservation utilities in :viewmodel commonMain for UI subscription management
 - [x] [complexity: simple] Add unit and host tests in :viewmodel commonTest and androidHostTest verifying ViewModel coroutine cancellation, lifecycle state transitions, and clear callbacks
-- [ ] [complexity: moderate] Add lifecycle-aware ViewModel showcase screen in :demo:app demonstrating StateFlow observation, coroutine auto-cancellation, and lifecycle event logging
+- [x] [complexity: moderate] Add lifecycle-aware ViewModel showcase screen in :demo:app demonstrating StateFlow observation, coroutine auto-cancellation, and lifecycle event logging
 - [x] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :integrity
 - [ ] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :integrity
 - [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, and Substrate dynamic library injection in :integrity

@@ -1,4 +1,4 @@
-package com.landoulsi.fraud
+package com.landoulsi.fraud.jailbreak
 
 import com.landoulsi.fraud.model.FraudCategory
 import com.landoulsi.fraud.model.FraudSignal

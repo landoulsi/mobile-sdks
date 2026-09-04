@@ -1,4 +1,4 @@
-package com.landoulsi.fraud
+package com.landoulsi.fraud.jailbreak
 
 /**
  * Abstraction for platform-specific operations used by jailbreak detection checks.

@@ -5,5 +5,13 @@
         <package android:name="com.topjohnwu.magisk_" />
         <package android:name="me.weishu.kernelsu" />
         <package android:name="me.weishu.kernelsu.manager" />
+        <package android:name="com.google.android.launcher.layouts.genymotion" />
+        <package android:name="com.bluestacks" />
+        <package android:name="com.bignox.app" />
+        <package android:name="com.microvirt.market" />
+        <package android:name="com.pspace.vandroid" />
+        <package android:name="com.lbe.parallel" />
+        <package android:name="com.excelliance.dualaid" />
+        <package android:name="com.qihoo.magic" />
     </queries>
 </manifest>

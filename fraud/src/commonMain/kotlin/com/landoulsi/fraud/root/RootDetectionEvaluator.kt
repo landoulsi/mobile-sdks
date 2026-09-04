@@ -1,5 +1,6 @@
-package com.landoulsi.fraud
+package com.landoulsi.fraud.root
 
+import com.landoulsi.fraud.SignalEvaluator
 import com.landoulsi.fraud.model.FraudCategory
 import com.landoulsi.fraud.model.FraudSignal
 import com.landoulsi.logger.Logger

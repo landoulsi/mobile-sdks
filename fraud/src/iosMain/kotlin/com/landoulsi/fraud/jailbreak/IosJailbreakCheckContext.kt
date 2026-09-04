@@ -1,4 +1,4 @@
-package com.landoulsi.fraud
+package com.landoulsi.fraud.jailbreak
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSFileManager

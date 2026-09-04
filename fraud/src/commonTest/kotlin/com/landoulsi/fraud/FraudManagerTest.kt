@@ -1,5 +1,8 @@
 package com.landoulsi.fraud
 
+import com.landoulsi.fraud.jailbreak.JailbreakCheckContext
+import com.landoulsi.fraud.jailbreak.JailbreakDetectionEvaluator
+import com.landoulsi.fraud.jailbreak.JailbreakSignal
 import com.landoulsi.fraud.model.FraudCategory
 import com.landoulsi.fraud.model.FraudConfig
 import com.landoulsi.fraud.model.FraudMitigationAction
@@ -7,6 +10,9 @@ import com.landoulsi.fraud.model.FraudRiskScore
 import com.landoulsi.fraud.model.FraudSignal
 import com.landoulsi.fraud.model.RiskLevel
 import com.landoulsi.fraud.model.SignalSeverity
+import com.landoulsi.fraud.root.RootCheckContext
+import com.landoulsi.fraud.root.RootDetectionEvaluator
+import com.landoulsi.fraud.root.RootSignal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest

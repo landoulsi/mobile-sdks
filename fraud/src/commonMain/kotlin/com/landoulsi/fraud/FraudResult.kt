@@ -1,9 +1,14 @@
 package com.landoulsi.fraud
 
+import com.landoulsi.fraud.emulator.EmulatorSignal
+import com.landoulsi.fraud.jailbreak.JailbreakSignal
 import com.landoulsi.fraud.model.FraudCategory
 import com.landoulsi.fraud.model.FraudMitigationAction
 import com.landoulsi.fraud.model.FraudSignal
 import com.landoulsi.fraud.model.RiskLevel
+import com.landoulsi.fraud.root.RootSignal
+import com.landoulsi.fraud.simulator.SimulatorSignal
+import com.landoulsi.fraud.virtualos.VirtualOsSignal
 import kotlinx.serialization.Serializable
 
 /**
@@ -72,6 +77,20 @@ data class FraudResult(
     val canForkProcess: Boolean get() = signals[JailbreakSignal.FORK_CAPABILITY] == true
     val canEscapeSandbox: Boolean get() = signals[JailbreakSignal.SANDBOX_ESCAPE] == true
     val hasDylibInjection: Boolean get() = signals[JailbreakSignal.DYLIB_INJECTION] == true
+
+    val hasGenericEmulatorBuild: Boolean get() = signals[EmulatorSignal.BUILD_GENERIC] == true
+    val hasEmulatorHardware: Boolean get() = signals[EmulatorSignal.BUILD_HARDWARE] == true
+    val hasQemuArtifact: Boolean get() = signals[EmulatorSignal.QEMU_FILE] == true
+    val hasEmulatorManagementApp: Boolean get() = signals[EmulatorSignal.MANAGEMENT_APP] == true
+    val hasSensorDeficit: Boolean get() = signals[EmulatorSignal.SENSOR_DEFICIT] == true
+
+    val isSimulatorEnvironment: Boolean get() = signals[SimulatorSignal.ENVIRONMENT] == true
+    val isSimulatorBundlePath: Boolean get() = signals[SimulatorSignal.BUNDLE_PATH] == true
+
+    val hasUnresolvableOwnPackage: Boolean get() = signals[VirtualOsSignal.PACKAGE_UNRESOLVABLE] == true
+    val hasUidMismatch: Boolean get() = signals[VirtualOsSignal.UID_MISMATCH] == true
+    val hasDataDirAnomaly: Boolean get() = signals[VirtualOsSignal.DATA_DIR_ANOMALY] == true
+    val hasVirtualOsContainerApp: Boolean get() = signals[VirtualOsSignal.KNOWN_CONTAINER_APP] == true
 
     companion object {
         /**

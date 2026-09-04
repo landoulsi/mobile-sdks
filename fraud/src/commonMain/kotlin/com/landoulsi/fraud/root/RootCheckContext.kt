@@ -1,4 +1,4 @@
-package com.landoulsi.fraud
+package com.landoulsi.fraud.root
 
 /**
  * Abstraction for platform-specific operations used by root detection checks.

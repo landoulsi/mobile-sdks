@@ -59,7 +59,7 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: moderate] Add lifecycle-aware ViewModel showcase screen in :demo:app demonstrating StateFlow observation, coroutine auto-cancellation, and lifecycle event logging
 - [x] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :integrity
 - [x] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :integrity
-- [ ] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, and Substrate dynamic library injection in :integrity
+- [x] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, and Substrate dynamic library injection in :integrity
 - [ ] [complexity: moderate] Implement network integrity signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :integrity
 - [x] [complexity: moderate] Implement composite risk scoring engine computing normalized IntegrityRiskScore with configurable thresholds and signal flows in :integrity
 - [ ] [complexity: simple] Add comprehensive unit and host tests for integrity signal evaluators, risk score calculations, and detection configurations in :integrity

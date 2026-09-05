@@ -11,17 +11,31 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.landoulsi.integrity.IntegrityManager
 import com.landoulsi.integrity.IntegrityResult
+import com.landoulsi.integrity.SignalEvaluator
+import com.landoulsi.integrity.emulator.AndroidEmulatorCheckContext
+import com.landoulsi.integrity.emulator.EmulatorDetectionEvaluator
+import com.landoulsi.integrity.hooking.frida.AndroidFridaCheckContext
+import com.landoulsi.integrity.hooking.frida.FridaCheckContext
+import com.landoulsi.integrity.hooking.frida.FridaDetectionEvaluator
+import com.landoulsi.integrity.hooking.substrate.AndroidSubstrateCheckContext
+import com.landoulsi.integrity.hooking.substrate.SubstrateCheckContext
+import com.landoulsi.integrity.hooking.substrate.SubstrateDetectionEvaluator
+import com.landoulsi.integrity.hooking.xposed.AndroidXposedCheckContext
+import com.landoulsi.integrity.hooking.xposed.XposedCheckContext
+import com.landoulsi.integrity.hooking.xposed.XposedDetectionEvaluator
 import com.landoulsi.integrity.mocklocation.AndroidMockLocationCheckContext
 import com.landoulsi.integrity.mocklocation.LocationSample
 import com.landoulsi.integrity.mocklocation.MockLocationDetectionEvaluator
-import com.landoulsi.integrity.mocklocation.MockLocationSignal
 import com.landoulsi.integrity.model.IntegritySignal
 import com.landoulsi.integrity.model.RiskLevel
+import com.landoulsi.integrity.root.AndroidRootCheckContext
+import com.landoulsi.integrity.root.RootDetectionEvaluator
+import com.landoulsi.integrity.virtualos.AndroidVirtualOsCheckContext
+import com.landoulsi.integrity.virtualos.VirtualOsDetectionEvaluator
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,18 +46,27 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
 
     var scanResult by remember { mutableStateOf<IntegrityResult?>(null) }
     var isScanning by remember { mutableStateOf(false) }
-    var simulatedScenario by remember { mutableStateOf("Live Device State") }
+    var simulatedScenario by remember { mutableStateOf("Live Device Scan") }
 
-    fun runScan(samples: List<LocationSample> = emptyList(), scenarioName: String = "Live Device State") {
+    fun runScan(
+        customEvaluators: List<SignalEvaluator>? = null,
+        scenarioName: String = "Live Device Scan",
+    ) {
         coroutineScope.launch {
             isScanning = true
             simulatedScenario = scenarioName
-            val mockContext = AndroidMockLocationCheckContext(
-                context = context,
-                recentLocationSupplier = { samples },
+
+            val evaluators = customEvaluators ?: listOf(
+                FridaDetectionEvaluator(AndroidFridaCheckContext(context)),
+                XposedDetectionEvaluator(AndroidXposedCheckContext(context)),
+                SubstrateDetectionEvaluator(AndroidSubstrateCheckContext(context)),
+                MockLocationDetectionEvaluator(AndroidMockLocationCheckContext(context)),
+                RootDetectionEvaluator(AndroidRootCheckContext(context)),
+                EmulatorDetectionEvaluator(AndroidEmulatorCheckContext(context)),
+                VirtualOsDetectionEvaluator(AndroidVirtualOsCheckContext(context)),
             )
-            val evaluator = MockLocationDetectionEvaluator(mockContext)
-            val manager = IntegrityManager.from(listOf(evaluator))
+
+            val manager = IntegrityManager.from(evaluators)
             scanResult = manager.scan()
             isScanning = false
         }
@@ -56,7 +79,7 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mock Location & GPS Integrity") },
+                title = { Text("Device Integrity & Tampering") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -75,7 +98,7 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 .padding(16.dp),
         ) {
             Text(
-                text = "Scenarios & Anomaly Simulations",
+                text = "Detection Sweeps & Hooking Scenarios",
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -85,22 +108,26 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
-                    onClick = { runScan(emptyList(), "Live Device Scan") },
+                    onClick = { runScan(null, "Live Device Scan") },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Device Scan")
+                    Text("Live Scan")
                 }
                 Button(
                     onClick = {
-                        val jumpSamples = listOf(
-                            LocationSample(latitude = 37.7749, longitude = -122.4194, timestampMs = 1000L),
-                            LocationSample(latitude = 51.5074, longitude = -0.1278, timestampMs = 3000L),
-                        )
-                        runScan(jumpSamples, "Simulated 5500km Jump Anomaly")
+                        val fakeFridaContext = object : FridaCheckContext {
+                            override fun fileExists(path: String): Boolean = path == "/data/local/tmp/frida-server"
+                            override fun readFileLines(path: String): List<String> =
+                                if (path == "/proc/self/maps") listOf("7f8a0000-7f8b0000 r-xp 00000000 08:01 12345 /data/local/tmp/libfrida-gadget.so") else emptyList()
+                            override fun isPortOpen(port: Int): Boolean = port == 27042
+                            override fun isProcessRunning(processName: String): Boolean = processName == "frida-server"
+                            override fun isPackageInstalled(packageName: String): Boolean = false
+                        }
+                        runScan(listOf(FridaDetectionEvaluator(fakeFridaContext)), "Simulated Frida Hooking")
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Simulate Jump")
+                    Text("Frida Hook")
                 }
             }
 
@@ -112,31 +139,30 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
             ) {
                 Button(
                     onClick = {
-                        val velocitySamples = listOf(
-                            LocationSample(latitude = 37.7749, longitude = -122.4194, timestampMs = 10000L),
-                            LocationSample(latitude = 37.3382, longitude = -121.8863, timestampMs = 30000L),
-                        )
-                        runScan(velocitySamples, "Simulated Supersonic Speed")
+                        val fakeXposedContext = object : XposedCheckContext {
+                            override fun fileExists(path: String): Boolean = path == "/system/framework/XposedBridge.jar"
+                            override fun readFileLines(path: String): List<String> = emptyList()
+                            override fun isPackageInstalled(packageName: String): Boolean = packageName == "org.lsposed.manager"
+                            override fun isClassLoadable(className: String): Boolean = className == "de.robv.android.xposed.XposedBridge"
+                        }
+                        runScan(listOf(XposedDetectionEvaluator(fakeXposedContext)), "Simulated Xposed Framework")
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Velocity Spoof")
+                    Text("Xposed Hook")
                 }
                 Button(
                     onClick = {
-                        val mockFlagSamples = listOf(
-                            LocationSample(
-                                latitude = 48.8566,
-                                longitude = 2.3522,
-                                timestampMs = System.currentTimeMillis(),
-                                isMock = true,
-                            ),
-                        )
-                        runScan(mockFlagSamples, "Simulated Mock Flag Active")
+                        val fakeSubstrateContext = object : SubstrateCheckContext {
+                            override fun fileExists(path: String): Boolean = path == "/Library/MobileSubstrate/MobileSubstrate.dylib"
+                            override fun directoryContents(path: String): List<String> =
+                                if (path == "/Library/MobileSubstrate/DynamicLibraries") listOf("Tweak1.dylib", "Tweak2.dylib") else emptyList()
+                        }
+                        runScan(listOf(SubstrateDetectionEvaluator(fakeSubstrateContext)), "Simulated Substrate Dylib")
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Mock Flag")
+                    Text("Substrate Hook")
                 }
             }
 
@@ -183,7 +209,7 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Text(
-                                text = "Mock Location Vector Flagged: ${result.hasMockLocation}",
+                                text = "Hooking / Tampering: ${result.isHooked} (Frida: ${result.hasFrida}, Xposed: ${result.hasXposed}, Substrate: ${result.hasSubstrate})",
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }
@@ -203,7 +229,7 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                         if (result.fired.isEmpty()) {
                             item {
                                 Text(
-                                    text = "No spoofing or mock location signals detected. Environment clean.",
+                                    text = "No hooking, tampering, or spoofing signals detected. Environment clean.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

@@ -27,27 +27,57 @@ object FridaSignal {
     }
 }
 
-internal val FRIDA_LIBRARY_NAMES = listOf("libfrida-gadget.so", "libfrida-agent.so", "frida-gadget.so")
-internal val FRIDA_PROCESS_NAMES = listOf("frida-server", "frida-helper")
+internal val FRIDA_LIBRARY_NAMES = listOf(
+    "libfrida-gadget.so",
+    "libfrida-agent.so",
+    "frida-gadget.so",
+    "frida-agent.dylib",
+    "frida-gadget.dylib",
+    "gum-js-loop",
+)
+
+internal val FRIDA_PROCESS_NAMES = listOf(
+    "frida-server",
+    "frida-helper",
+    "frida-agent",
+    "gum-js-loop",
+)
+
+internal val FRIDA_GADGET_PATHS = listOf(
+    "/system/lib/libfrida-gadget.so",
+    "/system/lib64/libfrida-gadget.so",
+    "/data/local/frida-gadget.so",
+    "/data/local/tmp/frida-server",
+    "/data/local/tmp/re.frida.server",
+    "/usr/lib/frida/frida-gadget.dylib",
+    "/usr/lib/frida/frida-agent.dylib",
+)
 
 internal fun checkFridaServerProcess(context: FridaCheckContext): List<IntegritySignal> {
     val currentTimestampMs = Clock.System.now().toEpochMilliseconds()
     val signals = mutableListOf<IntegritySignal>()
 
     for (procName in FRIDA_PROCESS_NAMES) {
-        if (context.isProcessRunning(procName)) {
-            signals.add(
-                IntegritySignal(
-                    id = FridaSignal.FRIDA_SERVER_PROCESS,
-                    name = "Frida Server Process Detected",
-                    category = IntegrityCategory.HOOKING_OR_TAMPERING,
-                    severity = SignalSeverity.HIGH,
-                    confidence = 0.9,
-                    details = "Frida server process is running on this device",
-                    detectedAt = currentTimestampMs,
-                    metadata = mapOf("process" to procName, "check" to FridaSignal.Check.FRIDA_SERVER_PROCESS),
-                ),
-            )
+        try {
+            if (context.isProcessRunning(procName)) {
+                signals.add(
+                    IntegritySignal(
+                        id = FridaSignal.FRIDA_SERVER_PROCESS,
+                        name = "Frida Server Process Detected",
+                        category = IntegrityCategory.HOOKING_OR_TAMPERING,
+                        severity = SignalSeverity.HIGH,
+                        confidence = 0.9,
+                        details = "Frida server process is running on this device: $procName",
+                        detectedAt = currentTimestampMs,
+                        metadata = mapOf(
+                            "process" to procName,
+                            "check" to FridaSignal.Check.FRIDA_SERVER_PROCESS,
+                        ),
+                    ),
+                )
+            }
+        } catch (_: Exception) {
+            // Process inspection not accessible — best-effort only
         }
     }
 
@@ -55,20 +85,27 @@ internal fun checkFridaServerProcess(context: FridaCheckContext): List<Integrity
 }
 
 internal fun checkFridaPortOpen(context: FridaCheckContext): List<IntegritySignal> {
-    if (context.isPortOpen(27042)) {
-        val currentTimestampMs = Clock.System.now().toEpochMilliseconds()
-        return listOf(
-            IntegritySignal(
-                id = FridaSignal.FRIDA_PORT_OPEN,
-                name = "Frida Port Open",
-                category = IntegrityCategory.HOOKING_OR_TAMPERING,
-                severity = SignalSeverity.MEDIUM,
-                confidence = 0.7,
-                details = "Frida protocol port (27042) is open on localhost",
-                detectedAt = currentTimestampMs,
-                metadata = mapOf("port" to "27042", "check" to FridaSignal.Check.FRIDA_PORT_OPEN),
-            ),
-        )
+    try {
+        if (context.isPortOpen(27042)) {
+            val currentTimestampMs = Clock.System.now().toEpochMilliseconds()
+            return listOf(
+                IntegritySignal(
+                    id = FridaSignal.FRIDA_PORT_OPEN,
+                    name = "Frida Port Open",
+                    category = IntegrityCategory.HOOKING_OR_TAMPERING,
+                    severity = SignalSeverity.MEDIUM,
+                    confidence = 0.7,
+                    details = "Frida protocol port (27042) is open on localhost",
+                    detectedAt = currentTimestampMs,
+                    metadata = mapOf(
+                        "port" to "27042",
+                        "check" to FridaSignal.Check.FRIDA_PORT_OPEN,
+                    ),
+                ),
+            )
+        }
+    } catch (_: Exception) {
+        // Port probing not accessible — best-effort only
     }
     return emptyList()
 }
@@ -92,7 +129,10 @@ internal fun checkFridaGadgetMaps(context: FridaCheckContext): List<IntegritySig
                     confidence = minOf(0.85, 0.5 + 0.05 * fridaMatches.size),
                     details = "Frida/gadget library mappings found in /proc/self/maps: ${fridaMatches.joinToString(", ")}",
                     detectedAt = currentTimestampMs,
-                    metadata = mapOf("matches" to fridaMatches.joinToString(","), "check" to FridaSignal.Check.FRIDA_GADGET_MAPS),
+                    metadata = mapOf(
+                        "matches" to fridaMatches.joinToString(","),
+                        "check" to FridaSignal.Check.FRIDA_GADGET_MAPS,
+                    ),
                 ),
             )
         }
@@ -107,28 +147,27 @@ internal fun checkFridaGadgetFile(context: FridaCheckContext): List<IntegritySig
     val currentTimestampMs = Clock.System.now().toEpochMilliseconds()
     val signals = mutableListOf<IntegritySignal>()
 
-    val knownPaths = listOf(
-        "/system/lib/libfrida-gadget.so",
-        "/system/lib64/libfrida-gadget.so",
-        "/data/local/frida-gadget.so",
-        "/usr/lib/frida/frida-gadget.dylib",
-        "/usr/lib/frida/frida-agent.dylib",
-    )
-
-    for (path in knownPaths) {
-        if (context.fileExists(path)) {
-            signals.add(
-                IntegritySignal(
-                    id = FridaSignal.FRIDA_GADGET_FILE,
-                    name = "Frida Gadget Library Detected",
-                    category = IntegrityCategory.HOOKING_OR_TAMPERING,
-                    severity = SignalSeverity.HIGH,
-                    confidence = 0.8,
-                    details = "Frida gadget library found at: $path",
-                    detectedAt = currentTimestampMs,
-                    metadata = mapOf("path" to path, "check" to FridaSignal.Check.FRIDA_GADGET_FILE),
-                ),
-            )
+    for (path in FRIDA_GADGET_PATHS) {
+        try {
+            if (context.fileExists(path)) {
+                signals.add(
+                    IntegritySignal(
+                        id = FridaSignal.FRIDA_GADGET_FILE,
+                        name = "Frida Gadget Library Detected",
+                        category = IntegrityCategory.HOOKING_OR_TAMPERING,
+                        severity = SignalSeverity.HIGH,
+                        confidence = 0.8,
+                        details = "Frida gadget library found at: $path",
+                        detectedAt = currentTimestampMs,
+                        metadata = mapOf(
+                            "path" to path,
+                            "check" to FridaSignal.Check.FRIDA_GADGET_FILE,
+                        ),
+                    ),
+                )
+            }
+        } catch (_: Exception) {
+            // File not accessible — best-effort only
         }
     }
 

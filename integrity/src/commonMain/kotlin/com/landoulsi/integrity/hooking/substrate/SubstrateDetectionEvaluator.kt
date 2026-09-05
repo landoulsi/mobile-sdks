@@ -35,6 +35,9 @@ class SubstrateDetectionEvaluator(
         runCatching { signals.addAll(checkSubstrateTweakInject(context)) }
             .onFailure { Logger.e(TAG, "Substrate tweak inject check failed", it) }
 
+        runCatching { signals.addAll(checkSubstrateLoaded(context)) }
+            .onFailure { Logger.e(TAG, "Substrate loaded check failed", it) }
+
         return signals
     }
 

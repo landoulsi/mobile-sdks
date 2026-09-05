@@ -14,6 +14,10 @@ import com.landoulsi.integrity.hooking.substrate.SubstrateDetectionEvaluator
 import com.landoulsi.integrity.hooking.xposed.AndroidXposedCheckContext
 import com.landoulsi.integrity.hooking.xposed.XposedCheckContext
 import com.landoulsi.integrity.hooking.xposed.XposedDetectionEvaluator
+import com.landoulsi.integrity.installer.AndroidInstallerCheckContext
+import com.landoulsi.integrity.installer.InstallSourceInfo
+import com.landoulsi.integrity.installer.InstallerCheckContext
+import com.landoulsi.integrity.installer.InstallerDetectionEvaluator
 import com.landoulsi.integrity.mocklocation.AndroidMockLocationCheckContext
 import com.landoulsi.integrity.mocklocation.LocationSample
 import com.landoulsi.integrity.mocklocation.MockLocationCheckContext
@@ -44,6 +48,7 @@ object IntegrityScenarioFixtures {
         IntegrityCategory.MOCK_LOCATION,
         IntegrityCategory.NETWORK_ANOMALY,
         IntegrityCategory.VIRTUAL_OS_OR_EMULATOR,
+        IntegrityCategory.UNTRUSTED_INSTALLER,
     )
 
     /**
@@ -71,6 +76,7 @@ object IntegrityScenarioFixtures {
                         EmulatorDetectionEvaluator(AndroidEmulatorCheckContext(context)),
                         VirtualOsDetectionEvaluator(AndroidVirtualOsCheckContext(context)),
                         NetworkDetectionEvaluator(AndroidNetworkCheckContext(context)),
+                        InstallerDetectionEvaluator(AndroidInstallerCheckContext(context)),
                     )
                 } else {
                     buildCleanBaselineEvaluators()
@@ -99,6 +105,7 @@ object IntegrityScenarioFixtures {
                     EmulatorDetectionEvaluator(createCleanEmulatorContext()),
                     VirtualOsDetectionEvaluator(createCleanVirtualOsContext()),
                     NetworkDetectionEvaluator(createCleanNetworkContext()),
+                    InstallerDetectionEvaluator(createCleanInstallerContext()),
                 )
             }
 
@@ -131,6 +138,7 @@ object IntegrityScenarioFixtures {
                     EmulatorDetectionEvaluator(createCleanEmulatorContext()),
                     VirtualOsDetectionEvaluator(createCleanVirtualOsContext()),
                     NetworkDetectionEvaluator(createCleanNetworkContext()),
+                    InstallerDetectionEvaluator(createCleanInstallerContext()),
                 )
             }
 
@@ -155,6 +163,7 @@ object IntegrityScenarioFixtures {
                     EmulatorDetectionEvaluator(createCleanEmulatorContext()),
                     VirtualOsDetectionEvaluator(createCleanVirtualOsContext()),
                     NetworkDetectionEvaluator(createCleanNetworkContext()),
+                    InstallerDetectionEvaluator(createCleanInstallerContext()),
                 )
             }
 
@@ -173,6 +182,7 @@ object IntegrityScenarioFixtures {
                     MockLocationDetectionEvaluator(createCleanMockLocationContext()),
                     EmulatorDetectionEvaluator(createCleanEmulatorContext()),
                     VirtualOsDetectionEvaluator(createCleanVirtualOsContext()),
+                    InstallerDetectionEvaluator(createCleanInstallerContext()),
                 )
             }
 
@@ -235,6 +245,7 @@ object IntegrityScenarioFixtures {
                     EmulatorDetectionEvaluator(mockEmulatorContext),
                     XposedDetectionEvaluator(createCleanXposedContext()),
                     SubstrateDetectionEvaluator(createCleanSubstrateContext()),
+                    InstallerDetectionEvaluator(createUntrustedInstallerContext()),
                 )
             }
 
@@ -251,6 +262,7 @@ object IntegrityScenarioFixtures {
         EmulatorDetectionEvaluator(createCleanEmulatorContext()),
         VirtualOsDetectionEvaluator(createCleanVirtualOsContext()),
         NetworkDetectionEvaluator(createCleanNetworkContext()),
+        InstallerDetectionEvaluator(createCleanInstallerContext()),
     )
 
     fun createCleanRootContext(): RootCheckContext = object : RootCheckContext {
@@ -314,5 +326,19 @@ object IntegrityScenarioFixtures {
         override fun isVpnActive(): Boolean = false
         override fun isSystemProxyConfigured(): Boolean = false
         override fun isAdbEnabled(): Boolean = false
+    }
+
+    fun createCleanInstallerContext(): InstallerCheckContext = object : InstallerCheckContext {
+        override fun getInstallSourceInfo(): InstallSourceInfo = InstallSourceInfo(
+            installingPackageName = "com.android.vending",
+            initiatingPackageName = "com.android.vending",
+        )
+    }
+
+    fun createUntrustedInstallerContext(): InstallerCheckContext = object : InstallerCheckContext {
+        override fun getInstallSourceInfo(): InstallSourceInfo = InstallSourceInfo(
+            installingPackageName = "com.malicious.dropper",
+            initiatingPackageName = "com.malicious.dropper",
+        )
     }
 }

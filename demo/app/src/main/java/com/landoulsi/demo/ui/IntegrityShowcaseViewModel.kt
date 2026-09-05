@@ -9,6 +9,8 @@ import com.landoulsi.integrity.model.IntegrityRiskScore
 import com.landoulsi.integrity.model.IntegritySignal
 import com.landoulsi.viewmodel.ViewModel
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,6 +73,7 @@ data class IntegrityShowcaseUiState(
 class IntegrityShowcaseViewModel(
     private val evaluatorProvider: (IntegrityScenario, Context?) -> List<SignalEvaluator> =
         IntegrityScenarioFixtures::buildEvaluators,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(IntegrityShowcaseUiState())
@@ -89,7 +92,7 @@ class IntegrityShowcaseViewModel(
             _uiState.update { it.copy(isScanning = true, selectedScenario = scenario) }
 
             val evaluators = evaluatorProvider(scenario, context)
-            val detector = DefaultIntegrityDetector(evaluators = evaluators)
+            val detector = DefaultIntegrityDetector(evaluators = evaluators, dispatcher = dispatcher)
 
             // Single evaluation execution: avoids duplicate filesystem / package manager checks
             val riskScore = detector.evaluateRisk()

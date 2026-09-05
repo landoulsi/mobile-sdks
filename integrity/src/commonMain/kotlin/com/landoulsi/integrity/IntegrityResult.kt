@@ -4,6 +4,7 @@ import com.landoulsi.integrity.emulator.EmulatorSignal
 import com.landoulsi.integrity.hooking.frida.FridaSignal
 import com.landoulsi.integrity.hooking.xposed.XposedSignal
 import com.landoulsi.integrity.hooking.substrate.SubstrateSignal
+import com.landoulsi.integrity.installer.InstallerSignal
 import com.landoulsi.integrity.jailbreak.JailbreakSignal
 import com.landoulsi.integrity.mocklocation.MockLocationSignal
 import com.landoulsi.integrity.model.IntegrityCategory
@@ -132,6 +133,10 @@ data class IntegrityResult(
     val hasActiveVpn: Boolean get() = signals[NetworkSignal.VPN_ACTIVE] == true
     val hasSystemProxy: Boolean get() = signals[NetworkSignal.SYSTEM_PROXY_ACTIVE] == true
     val hasAdbEnabled: Boolean get() = signals[NetworkSignal.DEVELOPER_ADB_ENABLED] == true
+
+    val hasUnknownInstallerSource: Boolean get() = signals[InstallerSignal.UNKNOWN] == true
+    val hasShellInstaller: Boolean get() = signals[InstallerSignal.SHELL] == true
+    val hasUntrustedInstallerPackage: Boolean get() = signals[InstallerSignal.UNTRUSTED] == true
 
     companion object {
         /**

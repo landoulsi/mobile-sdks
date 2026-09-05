@@ -106,6 +106,7 @@ class IntegrityShowcaseViewModelTest {
 
         val viewModel = IntegrityShowcaseViewModel(
             evaluatorProvider = { _, _ -> listOf(countingEvaluator) },
+            dispatcher = testDispatcher,
         )
 
         viewModel.runSweep(scenario = IntegrityScenario.ROOT_BREACH)
@@ -178,9 +179,9 @@ class IntegrityShowcaseViewModelTest {
         assertTrue(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.MOCK_LOCATION))
         assertTrue(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.NETWORK_ANOMALY))
         assertTrue(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.VIRTUAL_OS_OR_EMULATOR))
+        assertTrue(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.UNTRUSTED_INSTALLER))
 
         assertFalse(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.APP_CLONING))
         assertFalse(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.DEBUGGER_ATTACHED))
-        assertFalse(IntegrityScenarioFixtures.isCategoryImplemented(IntegrityCategory.UNTRUSTED_INSTALLER))
     }
 }

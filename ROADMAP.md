@@ -60,7 +60,7 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: complex] Implement virtual OS, emulator, and parallel space cloning detection for Android and iOS simulator in :integrity
 - [x] [complexity: moderate] Implement mock location and GPS spoofing detection covering mock provider APIs, developer settings, and location anomaly checks in :integrity
 - [x] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, and Substrate dynamic library injection in :integrity
-- [ ] [complexity: moderate] Implement network integrity signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :integrity
+- [x] [complexity: moderate] Implement network integrity signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :integrity
 - [x] [complexity: moderate] Implement composite risk scoring engine computing normalized IntegrityRiskScore with configurable thresholds and signal flows in :integrity
 - [ ] [complexity: simple] Add comprehensive unit and host tests for integrity signal evaluators, risk score calculations, and detection configurations in :integrity
 - [ ] [complexity: moderate] Add integrity detection showcase screen in :demo:app with real-time risk gauge, signal breakdown list, and threat inspection UI

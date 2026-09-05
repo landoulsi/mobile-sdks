@@ -32,6 +32,9 @@ import com.landoulsi.integrity.mocklocation.LocationSample
 import com.landoulsi.integrity.mocklocation.MockLocationDetectionEvaluator
 import com.landoulsi.integrity.model.IntegritySignal
 import com.landoulsi.integrity.model.RiskLevel
+import com.landoulsi.integrity.network.AndroidNetworkCheckContext
+import com.landoulsi.integrity.network.NetworkCheckContext
+import com.landoulsi.integrity.network.NetworkDetectionEvaluator
 import com.landoulsi.integrity.root.AndroidRootCheckContext
 import com.landoulsi.integrity.root.RootDetectionEvaluator
 import com.landoulsi.integrity.virtualos.AndroidVirtualOsCheckContext
@@ -64,6 +67,7 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 RootDetectionEvaluator(AndroidRootCheckContext(context)),
                 EmulatorDetectionEvaluator(AndroidEmulatorCheckContext(context)),
                 VirtualOsDetectionEvaluator(AndroidVirtualOsCheckContext(context)),
+                NetworkDetectionEvaluator(AndroidNetworkCheckContext(context)),
             )
 
             val manager = IntegrityManager.from(evaluators)
@@ -98,7 +102,7 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 .padding(16.dp),
         ) {
             Text(
-                text = "Detection Sweeps & Hooking Scenarios",
+                text = "Detection Sweeps & Threat Scenarios",
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -115,6 +119,27 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 }
                 Button(
                     onClick = {
+                        val fakeNetworkContext = object : NetworkCheckContext {
+                            override fun isVpnActive(): Boolean = true
+                            override fun isSystemProxyConfigured(): Boolean = true
+                            override fun isAdbEnabled(): Boolean = true
+                        }
+                        runScan(listOf(NetworkDetectionEvaluator(fakeNetworkContext)), "Simulated Network Anomaly")
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text("Network Threat")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(
+                    onClick = {
                         val fakeFridaContext = object : FridaCheckContext {
                             override fun fileExists(path: String): Boolean = path == "/data/local/tmp/frida-server"
                             override fun readFileLines(path: String): List<String> =
@@ -129,14 +154,6 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 ) {
                     Text("Frida Hook")
                 }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
                 Button(
                     onClick = {
                         val fakeXposedContext = object : XposedCheckContext {
@@ -151,6 +168,14 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                 ) {
                     Text("Xposed Hook")
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 Button(
                     onClick = {
                         val fakeSubstrateContext = object : SubstrateCheckContext {
@@ -209,7 +234,11 @@ fun IntegrityDemoScreen(onBack: () -> Unit) {
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Text(
-                                text = "Hooking / Tampering: ${result.isHooked} (Frida: ${result.hasFrida}, Xposed: ${result.hasXposed}, Substrate: ${result.hasSubstrate})",
+                                text = "Hooking / Tampering: ${result.isHooked} (Frida: ${result.hasFrida}, Xposed: ${result.hasXposed})",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                text = "Network Anomaly: ${result.hasNetworkAnomaly} (VPN: ${result.hasActiveVpn}, Proxy: ${result.hasSystemProxy}, ADB: ${result.hasAdbEnabled})",
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }

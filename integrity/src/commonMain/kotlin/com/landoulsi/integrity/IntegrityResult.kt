@@ -11,6 +11,7 @@ import com.landoulsi.integrity.model.IntegrityMitigationAction
 import com.landoulsi.integrity.model.IntegritySignal
 import com.landoulsi.integrity.model.RiskLevel
 import com.landoulsi.integrity.root.RootSignal
+import com.landoulsi.integrity.network.NetworkSignal
 import com.landoulsi.integrity.simulator.SimulatorSignal
 import com.landoulsi.integrity.virtualos.VirtualOsSignal
 import kotlinx.serialization.Serializable
@@ -127,6 +128,10 @@ data class IntegrityResult(
     val hasLocationVelocityAnomaly: Boolean get() = signals[MockLocationSignal.LOCATION_ANOMALY_VELOCITY] == true
     val hasLocationJumpAnomaly: Boolean get() = signals[MockLocationSignal.LOCATION_ANOMALY_JUMP] == true
     val hasLocationFrozenAnomaly: Boolean get() = signals[MockLocationSignal.LOCATION_ANOMALY_FROZEN] == true
+
+    val hasActiveVpn: Boolean get() = signals[NetworkSignal.VPN_ACTIVE] == true
+    val hasSystemProxy: Boolean get() = signals[NetworkSignal.SYSTEM_PROXY_ACTIVE] == true
+    val hasAdbEnabled: Boolean get() = signals[NetworkSignal.DEVELOPER_ADB_ENABLED] == true
 
     companion object {
         /**

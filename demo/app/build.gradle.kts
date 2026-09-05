@@ -61,4 +61,7 @@ dependencies {
     implementation(project(":diagnostic"))
     implementation(project(":viewmodel"))
     implementation(project(":integrity"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

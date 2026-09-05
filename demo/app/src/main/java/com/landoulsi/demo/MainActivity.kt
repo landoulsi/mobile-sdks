@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.landoulsi.demo.ui.DesignComponentsDemoScreen
 import com.landoulsi.demo.ui.DiagnosticDemoScreen
+import com.landoulsi.demo.ui.IntegrityDemoScreen
 import com.landoulsi.demo.ui.PaymentDemoScreen
 import com.landoulsi.demo.ui.SurveyDemoScreen
 import com.landoulsi.demo.ui.UpdateDemoScreen
@@ -65,7 +66,7 @@ fun DemoAppNavHost() {
             ViewModelDemoScreen(onBack = { navController.popBackStack() })
         }
         composable("integrity") {
-            com.landoulsi.demo.ui.IntegrityDemoScreen(onBack = { navController.popBackStack() })
+            IntegrityDemoScreen(onBack = { navController.popBackStack() })
         }
     }
 }

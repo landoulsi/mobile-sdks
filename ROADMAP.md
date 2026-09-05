@@ -176,7 +176,7 @@ Guidance for implementing the current and upcoming milestones:
 
 ## Design direction
 
-Competitive review of modern design systems, fraud & device integrity engines (SHIELD, Incode, ThreatMetrix, Sift, Approov), device diagnostics tools (Uber Driver, Lyft, Apple Diagnostics), push notification frameworks, onboarding engines, and mobile SDKs:
+Competitive review of modern design systems, device integrity engines (SHIELD, Incode, ThreatMetrix, Sift, Approov), device diagnostics tools (Uber Driver, Lyft, Apple Diagnostics), push notification frameworks, onboarding engines, and mobile SDKs:
 
 - **Modular Diagnostic Health Checks.** Distinct 3-state evaluation taxonomy (`PASS`, `WARNING`, `ERROR`) pairing emerald green checkmarks, amber warning shields, and crimson error octagons with clear, human-readable cause descriptions.
 - **Top-Anchored Actionable Diagnostics.** A high-visibility "Run Diagnostics" action button at the top of the screen with active test progress feedback, accompanied by individual card re-run triggers and deep links to system settings where applicable.

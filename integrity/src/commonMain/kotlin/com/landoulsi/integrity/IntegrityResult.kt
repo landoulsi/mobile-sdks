@@ -1,6 +1,9 @@
 package com.landoulsi.integrity
 
 import com.landoulsi.integrity.emulator.EmulatorSignal
+import com.landoulsi.integrity.hooking.frida.FridaSignal
+import com.landoulsi.integrity.hooking.xposed.XposedSignal
+import com.landoulsi.integrity.hooking.substrate.SubstrateSignal
 import com.landoulsi.integrity.jailbreak.JailbreakSignal
 import com.landoulsi.integrity.mocklocation.MockLocationSignal
 import com.landoulsi.integrity.model.IntegrityCategory
@@ -58,6 +61,30 @@ data class IntegrityResult(
     val isEmulator: Boolean get() = categories[IntegrityCategory.VIRTUAL_OS_OR_EMULATOR] == true
     val hasMockLocation: Boolean get() = categories[IntegrityCategory.MOCK_LOCATION] == true
     val isHooked: Boolean get() = categories[IntegrityCategory.HOOKING_OR_TAMPERING] == true
+    /** True when any Frida signal fired (server, port, gadget maps, or gadget file). */
+    val hasFrida: Boolean get() =
+        listOf(
+            FridaSignal.FRIDA_SERVER_PROCESS,
+            FridaSignal.FRIDA_PORT_OPEN,
+            FridaSignal.FRIDA_GADGET_MAPS,
+            FridaSignal.FRIDA_GADGET_FILE,
+        ).any { signals[it] == true }
+    /** True when any Xposed signal fired (framework, bridge class, module, or installer). */
+    val hasXposed: Boolean get() =
+        listOf(
+            XposedSignal.XPOSED_FRAMEWORK_INSTALLED,
+            XposedSignal.XPOSED_BRIDGE_CLASS,
+            XposedSignal.XPOSED_MODULE_INSTALLED,
+            XposedSignal.XPOSED_INSTALLER_APP,
+        ).any { signals[it] == true }
+    /** True when any Substrate signal fired (dylib injection, framework, tweak inject, or loaded). */
+    val hasSubstrate: Boolean get() =
+        listOf(
+            SubstrateSignal.SUBSTRATE_DYLIB_INJECTION,
+            SubstrateSignal.SUBSTRATE_FRAMEWORK,
+            SubstrateSignal.SUBSTRATE_TWEAK_INJECT,
+            SubstrateSignal.SUBSTRATE_LOADED,
+        ).any { signals[it] == true }
     val isDebuggerAttached: Boolean get() = categories[IntegrityCategory.DEBUGGER_ATTACHED] == true
     val isCloned: Boolean get() = categories[IntegrityCategory.APP_CLONING] == true
     val hasNetworkAnomaly: Boolean get() = categories[IntegrityCategory.NETWORK_ANOMALY] == true

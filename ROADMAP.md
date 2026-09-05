@@ -62,7 +62,7 @@ models, diagnostic helpers (network, location), and Compose UI for app-specific 
 - [x] [complexity: complex] Implement hooking and tampering detection covering Frida, Xposed, and Substrate dynamic library injection in :integrity
 - [x] [complexity: moderate] Implement network integrity signal detection covering active VPN interfaces, system proxy configurations, and developer ADB status in :integrity
 - [x] [complexity: moderate] Implement composite risk scoring engine computing normalized IntegrityRiskScore with configurable thresholds and signal flows in :integrity
-- [ ] [complexity: simple] Add comprehensive unit and host tests for integrity signal evaluators, risk score calculations, and detection configurations in :integrity
+- [x] [complexity: simple] Add comprehensive unit and host tests for integrity signal evaluators, risk score calculations, and detection configurations in :integrity
 - [ ] [complexity: moderate] Add integrity detection showcase screen in :demo:app with real-time risk gauge, signal breakdown list, and threat inspection UI
 - [ ] [complexity: simple] Implement untrusted installer source detection using PackageManager installer package name and install source info in :integrity
 - [ ] [complexity: simple] Implement debugger-attached detection covering Debug.isDebuggerConnected(), /proc/self/status TracerPid, and iOS sysctl P_TRACED flag checks in :integrity

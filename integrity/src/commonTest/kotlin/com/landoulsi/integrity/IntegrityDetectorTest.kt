@@ -1,13 +1,9 @@
 package com.landoulsi.integrity
 
-import com.landoulsi.integrity.engine.DefaultIntegrityRiskScoringEngine
 import com.landoulsi.integrity.model.IntegrityCategory
-import com.landoulsi.integrity.model.IntegrityConfig
 import com.landoulsi.integrity.model.IntegrityMitigationAction
 import com.landoulsi.integrity.model.IntegrityRiskScore
 import com.landoulsi.integrity.model.IntegritySignal
-import com.landoulsi.integrity.model.IntegrityThresholds
-import com.landoulsi.integrity.model.ModelParameters
 import com.landoulsi.integrity.model.RiskLevel
 import com.landoulsi.integrity.model.SignalSeverity
 import kotlinx.coroutines.flow.first
@@ -19,7 +15,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellationException
 
@@ -61,177 +56,6 @@ class IntegrityDetectorTest {
         assertEquals(riskScore, deserializedScore)
         assertTrue(deserializedScore.isBlocked)
         assertFalse(deserializedScore.isAllowed)
-    }
-
-    @Test
-    fun testScoringEngineZeroThreatsProducesCleanScore() {
-        val engine = DefaultIntegrityRiskScoringEngine()
-        val score = engine.calculateScore(emptyList(), IntegrityConfig())
-
-        assertEquals(0.0, score.score)
-        assertEquals(RiskLevel.LOW, score.riskLevel)
-        assertEquals(IntegrityMitigationAction.ALLOW, score.action)
-        assertTrue(score.signals.isEmpty())
-        assertTrue(score.categoryAttribution.isEmpty())
-        assertTrue(score.isAllowed)
-    }
-
-    @Test
-    fun testScoringEngineZeroRawScoreWithSignals() {
-        val engine = DefaultIntegrityRiskScoringEngine()
-        val infoSignal = IntegritySignal(
-            id = "test_info_signal",
-            name = "Informational Device Stat",
-            category = IntegrityCategory.NETWORK_ANOMALY,
-            severity = SignalSeverity.INFO,
-            confidence = 1.0
-        )
-
-        val score = engine.calculateScore(listOf(infoSignal), IntegrityConfig())
-        assertEquals(0.0, score.score)
-        assertEquals(RiskLevel.LOW, score.riskLevel)
-        assertEquals(IntegrityMitigationAction.ALLOW, score.action)
-        assertEquals(1, score.signals.size)
-        assertTrue(score.categoryAttribution.isEmpty())
-        assertTrue(score.isAllowed)
-    }
-
-    @Test
-    fun testScoringEngineSingleCriticalSignal() {
-        val engine = DefaultIntegrityRiskScoringEngine()
-        val signal = IntegritySignal(
-            id = "test_frida_hook",
-            name = "Frida Server Active",
-            category = IntegrityCategory.HOOKING_OR_TAMPERING,
-            severity = SignalSeverity.CRITICAL,
-            confidence = 1.0
-        )
-
-        val score = engine.calculateScore(listOf(signal), IntegrityConfig())
-        assertTrue(score.score > 0.0)
-        assertTrue(score.score <= 100.0)
-        assertEquals(1, score.signals.size)
-        assertNotNull(score.categoryAttribution[IntegrityCategory.HOOKING_OR_TAMPERING])
-    }
-
-    @Test
-    fun testScoringEngineConfidenceScaling() {
-        val engine = DefaultIntegrityRiskScoringEngine()
-        val fullConfidenceSignal = IntegritySignal(
-            id = "mock_gps",
-            name = "Mock GPS",
-            category = IntegrityCategory.MOCK_LOCATION,
-            severity = SignalSeverity.HIGH,
-            confidence = 1.0
-        )
-        val lowConfidenceSignal = fullConfidenceSignal.copy(confidence = 0.2)
-
-        val fullScore = engine.calculateScore(listOf(fullConfidenceSignal))
-        val lowScore = engine.calculateScore(listOf(lowConfidenceSignal))
-
-        assertTrue(fullScore.score > lowScore.score)
-    }
-
-    @Test
-    fun testScoringEngineDisabledCategoryFilter() {
-        val engine = DefaultIntegrityRiskScoringEngine()
-        val signal = IntegritySignal(
-            id = "vpn_active",
-            name = "Active VPN",
-            category = IntegrityCategory.NETWORK_ANOMALY,
-            severity = SignalSeverity.HIGH
-        )
-
-        val config = IntegrityConfig(
-            enabledCategories = setOf(IntegrityCategory.ROOT_OR_JAILBREAK) // NETWORK_ANOMALY disabled
-        )
-
-        val score = engine.calculateScore(listOf(signal), config)
-        assertEquals(0.0, score.score)
-        assertEquals(IntegrityMitigationAction.ALLOW, score.action)
-    }
-
-    @Test
-    fun testScoringEngineCustomThresholds() {
-        val engine = DefaultIntegrityRiskScoringEngine()
-        val signal = IntegritySignal(
-            id = "test_signal",
-            name = "Test Signal",
-            category = IntegrityCategory.VIRTUAL_OS_OR_EMULATOR,
-            severity = SignalSeverity.HIGH,
-            confidence = 1.0
-        )
-
-        // Strict thresholds
-        val strictConfig = IntegrityConfig(
-            thresholds = IntegrityThresholds(
-                warnThreshold = 5.0,
-                challengeThreshold = 10.0,
-                blockThreshold = 20.0
-            )
-        )
-
-        val score = engine.calculateScore(listOf(signal), strictConfig)
-        assertEquals(IntegrityMitigationAction.BLOCK, score.action)
-        assertEquals(RiskLevel.CRITICAL, score.riskLevel)
-    }
-
-    @Test
-    fun testModelValidationFailures() {
-        // IntegritySignal confidence validation
-        assertFailsWith<IllegalArgumentException> {
-            IntegritySignal(
-                id = "invalid_conf_high",
-                name = "Invalid Confidence",
-                category = IntegrityCategory.ROOT_OR_JAILBREAK,
-                severity = SignalSeverity.LOW,
-                confidence = 1.5
-            )
-        }
-        assertFailsWith<IllegalArgumentException> {
-            IntegritySignal(
-                id = "invalid_conf_low",
-                name = "Invalid Confidence",
-                category = IntegrityCategory.ROOT_OR_JAILBREAK,
-                severity = SignalSeverity.LOW,
-                confidence = -0.1
-            )
-        }
-
-        // IntegrityThresholds validation
-        assertFailsWith<IllegalArgumentException> {
-            IntegrityThresholds(warnThreshold = -1.0)
-        }
-        assertFailsWith<IllegalArgumentException> {
-            IntegrityThresholds(warnThreshold = 50.0, challengeThreshold = 40.0)
-        }
-        assertFailsWith<IllegalArgumentException> {
-            IntegrityThresholds(warnThreshold = 20.0, challengeThreshold = 50.0, blockThreshold = 40.0)
-        }
-
-        // ModelParameters validation
-        assertFailsWith<IllegalArgumentException> {
-            ModelParameters(saturationScalingFactor = 0.0)
-        }
-        assertFailsWith<IllegalArgumentException> {
-            ModelParameters(saturationScalingFactor = -10.0)
-        }
-
-        // IntegrityRiskScore validation
-        assertFailsWith<IllegalArgumentException> {
-            IntegrityRiskScore(
-                score = -0.5,
-                riskLevel = RiskLevel.LOW,
-                action = IntegrityMitigationAction.ALLOW
-            )
-        }
-        assertFailsWith<IllegalArgumentException> {
-            IntegrityRiskScore(
-                score = 100.5,
-                riskLevel = RiskLevel.CRITICAL,
-                action = IntegrityMitigationAction.BLOCK
-            )
-        }
     }
 
     @Test

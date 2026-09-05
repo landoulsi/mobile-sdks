@@ -1,8 +1,24 @@
 package com.landoulsi.integrity
 
+import com.landoulsi.integrity.emulator.EmulatorCheckContext
+import com.landoulsi.integrity.emulator.EmulatorDetectionEvaluator
+import com.landoulsi.integrity.emulator.EmulatorSignal
+import com.landoulsi.integrity.hooking.frida.FridaCheckContext
+import com.landoulsi.integrity.hooking.frida.FridaDetectionEvaluator
+import com.landoulsi.integrity.hooking.frida.FridaSignal
+import com.landoulsi.integrity.hooking.substrate.SubstrateCheckContext
+import com.landoulsi.integrity.hooking.substrate.SubstrateDetectionEvaluator
+import com.landoulsi.integrity.hooking.substrate.SubstrateSignal
+import com.landoulsi.integrity.hooking.xposed.XposedCheckContext
+import com.landoulsi.integrity.hooking.xposed.XposedDetectionEvaluator
+import com.landoulsi.integrity.hooking.xposed.XposedSignal
 import com.landoulsi.integrity.jailbreak.JailbreakCheckContext
 import com.landoulsi.integrity.jailbreak.JailbreakDetectionEvaluator
 import com.landoulsi.integrity.jailbreak.JailbreakSignal
+import com.landoulsi.integrity.mocklocation.LocationSample
+import com.landoulsi.integrity.mocklocation.MockLocationCheckContext
+import com.landoulsi.integrity.mocklocation.MockLocationDetectionEvaluator
+import com.landoulsi.integrity.mocklocation.MockLocationSignal
 import com.landoulsi.integrity.model.IntegrityCategory
 import com.landoulsi.integrity.model.IntegrityConfig
 import com.landoulsi.integrity.model.IntegrityMitigationAction
@@ -10,9 +26,18 @@ import com.landoulsi.integrity.model.IntegrityRiskScore
 import com.landoulsi.integrity.model.IntegritySignal
 import com.landoulsi.integrity.model.RiskLevel
 import com.landoulsi.integrity.model.SignalSeverity
+import com.landoulsi.integrity.network.NetworkCheckContext
+import com.landoulsi.integrity.network.NetworkDetectionEvaluator
+import com.landoulsi.integrity.network.NetworkSignal
 import com.landoulsi.integrity.root.RootCheckContext
 import com.landoulsi.integrity.root.RootDetectionEvaluator
 import com.landoulsi.integrity.root.RootSignal
+import com.landoulsi.integrity.simulator.SimulatorCheckContext
+import com.landoulsi.integrity.simulator.SimulatorDetectionEvaluator
+import com.landoulsi.integrity.simulator.SimulatorSignal
+import com.landoulsi.integrity.virtualos.VirtualOsCheckContext
+import com.landoulsi.integrity.virtualos.VirtualOsDetectionEvaluator
+import com.landoulsi.integrity.virtualos.VirtualOsSignal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -251,11 +276,31 @@ class IntegrityManagerTest {
     }
 
     @Test
-    fun realEvaluatorsExposeCatalogViaKnownSignalIds() {
-        assertEquals(RootSignal.all, RootDetectionEvaluator(NoopRootContext).knownSignalIds)
-        assertEquals(JailbreakSignal.all, JailbreakDetectionEvaluator(NoopJailbreakContext).knownSignalIds)
-        assertEquals(7, RootSignal.all.size)
-        assertEquals(5, JailbreakSignal.all.size)
+    fun realEvaluatorsExposeNonEmptyCatalogMatchingTheirOwnSignalConstants() {
+        val evaluatorsWithExpectedCatalogs = listOf(
+            RootDetectionEvaluator(NoopRootContext) to RootSignal.all,
+            JailbreakDetectionEvaluator(NoopJailbreakContext) to JailbreakSignal.all,
+            EmulatorDetectionEvaluator(NoopEmulatorContext) to EmulatorSignal.all,
+            SimulatorDetectionEvaluator(NoopSimulatorContext) to SimulatorSignal.all,
+            VirtualOsDetectionEvaluator(NoopVirtualOsContext) to VirtualOsSignal.all,
+            MockLocationDetectionEvaluator(NoopMockLocationContext) to MockLocationSignal.all,
+            NetworkDetectionEvaluator(NoopNetworkContext) to NetworkSignal.all,
+            FridaDetectionEvaluator(NoopFridaContext) to FridaSignal.all,
+            SubstrateDetectionEvaluator(NoopSubstrateContext) to SubstrateSignal.all,
+            XposedDetectionEvaluator(NoopXposedContext) to XposedSignal.all,
+        )
+
+        for ((evaluator, expectedCatalog) in evaluatorsWithExpectedCatalogs) {
+            assertTrue(
+                evaluator.knownSignalIds.isNotEmpty(),
+                "${evaluator::class.simpleName} declared an empty knownSignalIds catalog",
+            )
+            assertEquals(
+                expectedCatalog,
+                evaluator.knownSignalIds,
+                "${evaluator::class.simpleName}.knownSignalIds drifted from its own *Signal.all constant",
+            )
+        }
     }
 
     private object NoopRootContext : RootCheckContext {
@@ -270,5 +315,66 @@ class IntegrityManagerTest {
         override fun directoryContents(path: String): List<String> = emptyList()
         override fun canFork(): Boolean = false
         override fun canWriteOutsideSandbox(path: String): Boolean = false
+    }
+
+    private object NoopEmulatorContext : EmulatorCheckContext {
+        override fun fileExists(path: String): Boolean = false
+        override fun isPackageInstalled(packageName: String): Boolean = false
+        override fun getBuildFingerprint(): String = ""
+        override fun getBuildModel(): String = ""
+        override fun getBuildManufacturer(): String = ""
+        override fun getBuildBrand(): String = ""
+        override fun getBuildDevice(): String = ""
+        override fun getBuildProduct(): String = ""
+        override fun getBuildHardware(): String = ""
+        override fun getSensorCount(): Int? = null
+    }
+
+    private object NoopSimulatorContext : SimulatorCheckContext {
+        override fun getEnvironmentVariable(name: String): String? = null
+        override fun isBundlePathWithinCoreSimulator(): Boolean = false
+    }
+
+    private object NoopVirtualOsContext : VirtualOsCheckContext {
+        override fun isPackageInstalled(packageName: String): Boolean = false
+        override fun isOwnPackageKnownToPackageManager(): Boolean = true
+        override fun getSelfReportedUid(): Int = 0
+        override fun getPackageManagerUid(): Int? = null
+        override fun getDataDirPath(): String = ""
+        override fun getOwnPackageName(): String = ""
+    }
+
+    private object NoopMockLocationContext : MockLocationCheckContext {
+        override fun isMockLocationAppSet(): Boolean = false
+        override fun isMockProviderActive(): Boolean = false
+        override fun isDeveloperMockSettingEnabled(): Boolean = false
+        override fun isPackageInstalled(packageName: String): Boolean = false
+        override fun getRecentLocations(): List<LocationSample> = emptyList()
+    }
+
+    private object NoopNetworkContext : NetworkCheckContext {
+        override fun isVpnActive(): Boolean = false
+        override fun isSystemProxyConfigured(): Boolean = false
+        override fun isAdbEnabled(): Boolean = false
+    }
+
+    private object NoopFridaContext : FridaCheckContext {
+        override fun fileExists(path: String): Boolean = false
+        override fun readFileLines(path: String): List<String> = emptyList()
+        override fun isPortOpen(port: Int): Boolean = false
+        override fun isProcessRunning(processName: String): Boolean = false
+        override fun isPackageInstalled(packageName: String): Boolean = false
+    }
+
+    private object NoopSubstrateContext : SubstrateCheckContext {
+        override fun fileExists(path: String): Boolean = false
+        override fun directoryContents(path: String): List<String> = emptyList()
+    }
+
+    private object NoopXposedContext : XposedCheckContext {
+        override fun fileExists(path: String): Boolean = false
+        override fun readFileLines(path: String): List<String> = emptyList()
+        override fun isPackageInstalled(packageName: String): Boolean = false
+        override fun isClassLoadable(className: String): Boolean = false
     }
 }

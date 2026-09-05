@@ -4,9 +4,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Android `*CheckContext` implementations need Robolectric (unused repo-wide) to behave
+ * usefully here; evaluator/engine/config coverage instead lives in `commonTest` against
+ * the platform-agnostic `*CheckContext` interfaces via fakes.
  */
 class ExampleUnitTest {
     @Test

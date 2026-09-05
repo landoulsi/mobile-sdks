@@ -13,5 +13,14 @@
         <package android:name="com.lbe.parallel" />
         <package android:name="com.excelliance.dualaid" />
         <package android:name="com.qihoo.magic" />
+        <package android:name="com.lexa.fakegps" />
+        <package android:name="com.rosteam.gpsemulator" />
+        <package android:name="com.incorporateapps.fakegps.fre" />
+        <package android:name="com.incorporateapps.fakegps" />
+        <package android:name="com.fly.gps" />
+        <package android:name="com.togglo.fakegps" />
+        <package android:name="com.gsmartstudio.fakegps" />
+        <package android:name="com.theappninjas.fakegpsjoystick" />
+        <package android:name="com.fakegps.mock" />
     </queries>
 </manifest>

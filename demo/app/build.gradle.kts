@@ -60,4 +60,5 @@ dependencies {
     implementation(project(":survey"))
     implementation(project(":diagnostic"))
     implementation(project(":viewmodel"))
+    implementation(project(":integrity"))
 }

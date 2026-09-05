@@ -64,6 +64,9 @@ fun DemoAppNavHost() {
         composable("viewmodel") {
             ViewModelDemoScreen(onBack = { navController.popBackStack() })
         }
+        composable("integrity") {
+            com.landoulsi.demo.ui.IntegrityDemoScreen(onBack = { navController.popBackStack() })
+        }
     }
 }
 
@@ -121,6 +124,13 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text("ViewModel SDK Demo")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("integrity") },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Integrity SDK Demo")
         }
     }
 }

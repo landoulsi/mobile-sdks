@@ -2,6 +2,7 @@ package com.landoulsi.integrity
 
 import com.landoulsi.integrity.emulator.EmulatorSignal
 import com.landoulsi.integrity.jailbreak.JailbreakSignal
+import com.landoulsi.integrity.mocklocation.MockLocationSignal
 import com.landoulsi.integrity.model.IntegrityCategory
 import com.landoulsi.integrity.model.IntegrityMitigationAction
 import com.landoulsi.integrity.model.IntegritySignal
@@ -91,6 +92,14 @@ data class IntegrityResult(
     val hasUidMismatch: Boolean get() = signals[VirtualOsSignal.UID_MISMATCH] == true
     val hasDataDirAnomaly: Boolean get() = signals[VirtualOsSignal.DATA_DIR_ANOMALY] == true
     val hasVirtualOsContainerApp: Boolean get() = signals[VirtualOsSignal.KNOWN_CONTAINER_APP] == true
+
+    val hasMockLocationFlag: Boolean get() = signals[MockLocationSignal.MOCK_FLAG_ACTIVE] == true
+    val hasMockProviderActive: Boolean get() = signals[MockLocationSignal.MOCK_PROVIDER_ACTIVE] == true
+    val hasDeveloperMockSetting: Boolean get() = signals[MockLocationSignal.DEVELOPER_MOCK_SETTING] == true
+    val hasMockAppInstalled: Boolean get() = signals[MockLocationSignal.MOCK_APP_INSTALLED] == true
+    val hasLocationVelocityAnomaly: Boolean get() = signals[MockLocationSignal.LOCATION_ANOMALY_VELOCITY] == true
+    val hasLocationJumpAnomaly: Boolean get() = signals[MockLocationSignal.LOCATION_ANOMALY_JUMP] == true
+    val hasLocationFrozenAnomaly: Boolean get() = signals[MockLocationSignal.LOCATION_ANOMALY_FROZEN] == true
 
     companion object {
         /**
